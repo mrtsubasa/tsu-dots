@@ -21,7 +21,7 @@ un moteur de thèmes ; chaque réglage est persistant et modifiable depuis le
 | **Studio** | clic droit ◆, `Super+Shift+,` | thèmes, fond d'écran, barre, dock, bureau, profil & interface, profils |
 | **Calendrier** | clic horloge | mois, semaines ISO, météo |
 | **Moniteur système** | clic métriques | jauges, top processus |
-| **Session** | ⏻ | verrouiller, veille, déconnexion*, redémarrer*, éteindre* (*confirmation) |
+| **Session** | ⏻ | verrouiller (L), veille (S), déconnexion* (D), redémarrer* (R), éteindre* (E) — *confirmation avec le nombre de fenêtres ouvertes ; écrans éteints (O), redémarrer vers l'UEFI (U), relancer le shell, extinction programmée (logind, compte à rebours dans la barre), mises à jour (dépôts + AUR) |
 | **Vue d'ensemble** | `Super+Shift+O`, clic fenêtre active | workspaces par écran, captures réelles des fenêtres, glisser pour déplacer |
 | **Dock** | Studio → Dock | épinglées + ouvertes, menu contextuel, masquage auto |
 | **Widgets** | Studio → Bureau | 9 types, mode édition avec magnétisme |
@@ -81,11 +81,33 @@ lit `Theme` (couleurs, polices), `Tokens` (tailles, rayons) et `Motion`
 | Énergie | power-profiles-daemon via UPower |
 | Éveil | protocole Wayland idle-inhibit (respecté par hypridle) |
 | Luminosité | DDC/CI (`brightness.sh`, `ddcutil`) — touches via IPC |
+| True Tone / mode nuit | `hyprsunset` possédé par le shell (`rice/Night.qml`) |
+| Extinction programmée | systemd-logind (`shutdown +N`, propriété `ScheduledShutdown`) |
 | Métriques | `/proc` + hwmon (k10temp), aucun processus |
 | Enregistrement | `wf-recorder`, processus possédé par le shell |
 | OCR / pipette | `tesseract`, `hyprpicker` — local uniquement |
 
 ---
+
+## True Tone
+
+Un PC fixe n'a pas de capteur de lumière ambiante : Catalyst l'**estime**
+avec la hauteur réelle du soleil (heure + position de la météo) et la
+couverture nuageuse (Open-Meteo), puis règle le blanc de l'écran
+(`hyprsunset`) en conséquence :
+
+| Moment | Ambiance estimée | Écran (intensité 70 %) |
+|---|---|---|
+| Plein jour / ciel couvert | 6500 K | neutre |
+| Heure dorée (0–15°) | 5600 → 6500 K | ≈ 5900 → 6500 K |
+| Crépuscule (−6–0°) | 5000 → 5600 K | ≈ 5450 → 5900 K |
+| Soirée (éclairage intérieur) | 4900 K | ≈ 5380 K |
+
+La dérive suit le soleil par pas de 40 K toutes les 2 s (imperceptible) ; un
+changement de mode se fait en ~2 s. Le mode nuit (température fixe, 2500–5500 K)
+est prioritaire. Réglages : centre de contrôle → tuile True Tone → page Écran,
+ou Studio → Profil & interface. `hyprsunset` ne tourne que si l'un des deux
+est actif.
 
 ## Thèmes
 
@@ -165,6 +187,7 @@ Sauvegardes : commit `95e295e` (shell avant v3), `backups/pre-v3-*.tar.gz`
 | `widgets` | `list`, `add <type>`, `remove <id>`, `edit`, `setedit on|off` |
 | `brightness` | `up`, `down`, `set <pct>` |
 | `record` | `toggle region|screen`, `stop` |
+| `display` | `truetone on|off`, `night on|off`, `status` |
 | `eq` | `status`, `on`, `off`, `gain <i> <dB>`, `curve <id>`, `load <preset>` |
 | `diag` | `net`, `sys`, `wm` — état réel des services (JSON) |
 
