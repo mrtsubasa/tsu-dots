@@ -23,13 +23,13 @@ Scope {
             readonly property bool here: PanelService.onScreen(modelData)
             readonly property string want: here ? PanelService.active : ""
 
-            readonly property bool anyShown: cc.shown || cal.shown || media.shown || power.shown || sysmon.shown
+            readonly property bool anyShown: cc.shown || cal.shown || media.shown || power.shown || sysmon.shown || launcher.shown
             visible: anyShown
             color: "transparent"
             exclusionMode: ExclusionMode.Ignore
             WlrLayershell.namespace: "catalyst-stage"
             WlrLayershell.layer: WlrLayer.Overlay
-            WlrLayershell.keyboardFocus: want.length && (cc.open || cal.open || media.open || power.open || sysmon.open) ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+            WlrLayershell.keyboardFocus: want.length && (cc.open || cal.open || media.open || power.open || sysmon.open || launcher.open) ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
             anchors { top: true; bottom: true; left: true; right: true }
 
             // abscisse d'ancrage (centre de l'élément de barre cliqué)
@@ -130,6 +130,27 @@ Scope {
                         anchors.fill: parent
                         active: sysmon.open || sysmon.shown
                         source: "SysmonPanel.qml"
+                    }
+                }
+
+                // ---- launcher (centré, tiers supérieur) ----
+                Popout {
+                    id: launcher
+                    open: stage.want === "launcher"
+                    from: "top"
+                    distance: 16
+                    width: launcherLoader.item ? launcherLoader.item.implicitWidth : 0
+                    height: launcherLoader.item ? launcherLoader.item.implicitHeight : 0
+                    x: Math.round((stage.width - width) / 2)
+                    y: Math.round(stage.height * 0.16)
+                    Loader {
+                        id: launcherLoader
+                        anchors.fill: parent
+                        active: launcher.open
+                        focus: launcher.open
+                        sourceComponent: LauncherPanel {
+                            maxHeight: stage.height * 0.68
+                        }
                     }
                 }
 

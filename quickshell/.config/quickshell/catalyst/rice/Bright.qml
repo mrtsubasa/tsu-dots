@@ -51,8 +51,10 @@ Singleton {
         onTriggered: root.flush()
     }
 
+    // les touches passent par l'IPC `brightness` (état connu du shell) :
+    // relecture DDC lente, juste pour suivre un réglage fait sur l'écran
     Timer {
-        interval: 8000
+        interval: 60000
         running: true
         repeat: true
         onTriggered: root.refresh()

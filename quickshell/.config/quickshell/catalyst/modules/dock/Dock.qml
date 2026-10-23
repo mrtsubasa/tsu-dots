@@ -3,7 +3,13 @@ import QtQuick
 import Quickshell
 import Quickshell.Wayland
 import qs.rice
+import qs.kit
 
+// Dock v3 : capsule de verre compacte (bas, gauche ou droite), applications
+// épinglées puis applications ouvertes non épinglées. Masquage automatique
+// optionnel : une bande de 6 px au bord fait réapparaître le dock.
+// Seule la capsule capte la souris (masque d'entrée) : le dock n'intercepte
+// jamais les clics destinés aux fenêtres.
 Scope {
     Variants {
         model: Quickshell.screens
@@ -12,145 +18,124 @@ Scope {
             id: win
             required property var modelData
             screen: modelData
+
+            readonly property string edge: DockCfg.east ? "right" : (DockCfg.west ? "left" : "bottom")
+            readonly property bool vertical: edge !== "bottom"
+            readonly property int pad: Math.max(6, Math.round(DockCfg.padding * 0.6))
+            readonly property int thick: DockCfg.iconSize + pad * 2 + 10    // + place des indicateurs
+            readonly property int gap: Math.max(4, DockCfg.gap)
+
             visible: DockCfg.onScreen(modelData)
             color: "transparent"
-            exclusiveZone: DockCfg.autohide ? 0 : (DockCfg.thickness + DockCfg.margin)
-            exclusionMode: ExclusionMode.Normal
+            exclusiveZone: DockCfg.autohide ? 0 : thick + DockCfg.margin
             WlrLayershell.namespace: "catalyst-dock"
             WlrLayershell.layer: WlrLayer.Top
 
-            property real mousePos: -9999
-            property bool hot: false
-            property real hideT: DockCfg.autohide && !hot ? 1 : 0
-            Behavior on hideT { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
-
             anchors {
-                left: DockCfg.west || DockCfg.south || DockCfg.north
-                right: DockCfg.east || DockCfg.south || DockCfg.north
-                top: DockCfg.north || DockCfg.vertical
-                bottom: DockCfg.south || DockCfg.vertical
+                bottom: win.edge === "bottom" || win.vertical
+                top: win.vertical
+                left: win.edge === "left" || win.edge === "bottom"
+                right: win.edge === "right" || win.edge === "bottom"
             }
-            margins {
-                left: DockCfg.west ? DockCfg.margin : 0
-                right: DockCfg.east ? DockCfg.margin : 0
-                top: DockCfg.north ? DockCfg.margin : 0
-                bottom: DockCfg.south ? DockCfg.margin : 0
-            }
+            implicitWidth: vertical ? thick + DockCfg.margin + 40 : 0
+            implicitHeight: vertical ? 0 : thick + DockCfg.margin + 40
 
-            implicitWidth: DockCfg.vertical ? (DockCfg.thickness + DockCfg.hoverExtra) : 0
-            implicitHeight: DockCfg.vertical ? 0 : (DockCfg.thickness + DockCfg.hoverExtra)
-
-            readonly property int pillW: DockCfg.vertical ? DockCfg.thickness : Math.max(DockCfg.padding * 2, iconsRow.implicitWidth + DockCfg.padding * 2)
-            readonly property int pillH: DockCfg.vertical ? Math.max(DockCfg.padding * 2, iconsCol.implicitHeight + DockCfg.padding * 2) : DockCfg.thickness
-
-            // Clickthrough mask: only the pill band (which sits exactly inside the
-            // reserved exclusive zone) is clickable. The rest of the surface — label
-            // space and autohide slack — passes clicks through to windows behind.
-            readonly property rect maskRect: DockCfg.vertical ? Qt.rect(DockCfg.east ? Math.max(0, width - DockCfg.thickness) : 0, 0, DockCfg.thickness, Math.max(0, height)) : Qt.rect(0, DockCfg.north ? 0 : Math.max(0, height - DockCfg.thickness), Math.max(0, width), DockCfg.thickness)
-
-            mask: Region {
-                x: win.maskRect.x
-                y: win.maskRect.y
-                width: win.maskRect.width
-                height: win.maskRect.height
-                radius: DockCfg.pillRadius()
-            }
+            property bool hot: false
+            readonly property bool menuOpen: false
+            readonly property real hidden: DockCfg.autohide && !hot ? 1 : 0
+            property real hideT: hidden
+            Behavior on hideT { NumberAnimation { duration: Motion.dur(Motion.base); easing.type: Easing.BezierSpline; easing.bezierCurve: Motion.curveStd } }
 
             Timer {
-                id: hideTimer
-                interval: 420
+                id: leave
+                interval: 500
                 onTriggered: win.hot = false
             }
 
+            // zone d'entrée : la capsule, ou la bande de bord quand masqué
+            mask: Region {
+                item: win.hideT > 0.5 ? edgeStrip : pill
+            }
+
             Item {
-                id: track
-                anchors.fill: parent
-                opacity: 1 - win.hideT * 0.08
-                x: DockCfg.east ? win.hideT * (DockCfg.thickness - 4) : (DockCfg.west ? -win.hideT * (DockCfg.thickness - 4) : 0)
-                y: DockCfg.south ? win.hideT * (DockCfg.thickness - 4) : (DockCfg.north ? -win.hideT * (DockCfg.thickness - 4) : 0)
-
-                function feed(px, py) {
-                    hideTimer.stop();
-                    win.hot = true;
-                    win.mousePos = DockCfg.vertical ? py : px;
+                id: edgeStrip
+                width: win.vertical ? 6 : parent.width
+                height: win.vertical ? parent.height : 6
+                x: win.edge === "right" ? parent.width - 6 : 0
+                y: win.edge === "bottom" ? parent.height - 6 : 0
+                HoverHandler {
+                    onHoveredChanged: if (hovered) {
+                        leave.stop();
+                        win.hot = true;
+                    }
                 }
-                function enter() {
-                    hideTimer.stop();
-                    win.hot = true;
-                }
+            }
 
-                MouseArea {
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    acceptedButtons: Qt.NoButton
-                    onEntered: track.enter()
-                    onExited: hideTimer.restart()
-                    onPositionChanged: event => track.feed(event.x, event.y)
-                }
+            Pane {
+                id: pill
+                level: 2
+                radius: Math.min(Tokens.rXl, win.thick / 2)
+                shadow: true
+                glow: Theme.glow > 0.5
+                fillAlpha: Math.max(0.55, DockCfg.opacity)
+                width: win.vertical ? win.thick : row.implicitWidth + win.pad * 2
+                height: win.vertical ? row.implicitHeight + win.pad * 2 : win.thick
 
-                Rectangle {
-                    visible: DockCfg.showPill && DockCfg.theme !== "minimal"
-                    anchors.verticalCenter: DockCfg.vertical ? parent.verticalCenter : undefined
-                    anchors.horizontalCenter: DockCfg.vertical ? undefined : parent.horizontalCenter
-                    anchors.right: DockCfg.east ? parent.right : undefined
-                    anchors.left: DockCfg.west ? parent.left : undefined
-                    anchors.bottom: DockCfg.south ? parent.bottom : undefined
-                    anchors.top: DockCfg.north ? parent.top : undefined
-                    width: win.pillW
-                    height: win.pillH
-                    radius: DockCfg.pillRadius()
-                    color: Qt.alpha(Theme.surfaceContainer, Math.max(0.28, DockCfg.opacity))
-                    border.width: DockCfg.theme === "lain" ? 1 : 1
-                    border.color: DockCfg.theme === "silverwolf"
-                                  ? Theme.tertiary
-                                  : (DockCfg.theme === "lain" ? Theme.success : Qt.alpha(Theme.primary, 0.35))
-                }
+                readonly property real slide: win.hideT * (win.thick + DockCfg.margin + 4)
+                x: win.vertical ? (win.edge === "left" ? DockCfg.margin - slide : parent.width - width - DockCfg.margin + slide) : (parent.width - width) / 2
+                y: win.vertical ? (parent.height - height) / 2 : parent.height - height - DockCfg.margin + slide
+                opacity: 1 - win.hideT * 0.6
 
-                Column {
-                    id: iconsCol
-                    visible: DockCfg.vertical
-                    spacing: DockCfg.gap
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.right: DockCfg.east ? parent.right : undefined
-                    anchors.left: DockCfg.west ? parent.left : undefined
-                    anchors.rightMargin: DockCfg.east ? DockCfg.padding : 0
-                    anchors.leftMargin: DockCfg.west ? DockCfg.padding : 0
-
-                    Repeater {
-                        model: DockCfg.apps
-                        delegate: DockItem {
-                            required property var modelData
-                            required property int index
-                            app: modelData
-                            slot: index
-                            mousePos: win.mousePos
-                            dockHot: win.hot
-                            track: track
-                            outputName: win.modelData.name || ""
+                HoverHandler {
+                    onHoveredChanged: {
+                        if (hovered) {
+                            leave.stop();
+                            win.hot = true;
+                        } else {
+                            leave.restart();
                         }
                     }
                 }
 
-                Row {
-                    id: iconsRow
-                    visible: !DockCfg.vertical
-                    spacing: DockCfg.gap
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.bottom: DockCfg.south ? parent.bottom : undefined
-                    anchors.top: DockCfg.north ? parent.top : undefined
-                    anchors.bottomMargin: DockCfg.south ? DockCfg.padding : 0
-                    anchors.topMargin: DockCfg.north ? DockCfg.padding : 0
+                Grid {
+                    id: row
+                    anchors.centerIn: parent
+                    anchors.verticalCenterOffset: win.vertical ? 0 : -3
+                    anchors.horizontalCenterOffset: win.edge === "left" ? -3 : (win.edge === "right" ? 3 : 0)
+                    columns: win.vertical ? 1 : 1000
+                    spacing: win.gap
 
                     Repeater {
                         model: DockCfg.apps
-                        delegate: DockItem {
+                        DockItem {
                             required property var modelData
                             required property int index
                             app: modelData
                             slot: index
-                            mousePos: win.mousePos
-                            dockHot: win.hot
-                            track: track
+                            edge: win.edge
+                            outputName: win.modelData.name || ""
+                        }
+                    }
+
+                    // applications ouvertes non épinglées
+                    Item {
+                        visible: DockCfg.unpinned.length > 0
+                        width: win.vertical ? DockCfg.iconSize : 10
+                        height: win.vertical ? 10 : DockCfg.iconSize
+                        Rectangle {
+                            anchors.centerIn: parent
+                            width: win.vertical ? DockCfg.iconSize * 0.5 : 1
+                            height: win.vertical ? 1 : DockCfg.iconSize * 0.5
+                            color: Theme.borderStrong
+                        }
+                    }
+                    Repeater {
+                        model: DockCfg.unpinned
+                        DockItem {
+                            required property var modelData
+                            app: modelData
+                            slot: -1
+                            edge: win.edge
                             outputName: win.modelData.name || ""
                         }
                     }

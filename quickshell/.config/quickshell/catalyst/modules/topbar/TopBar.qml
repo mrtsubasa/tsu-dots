@@ -122,6 +122,8 @@ Scope {
                     anchors.verticalCenter: parent.verticalCenter
                     spacing: 2
 
+                    BarRecord { visible: want }
+
                     Repeater {
                         model: BarCfg.rightOrder
 

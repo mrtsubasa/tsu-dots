@@ -37,3 +37,5 @@ singleton SessionLock SessionLock.qml
 singleton PkgsData PkgsData.qml
 singleton Caffeine Caffeine.qml
 singleton Power Power.qml
+singleton Recorder Recorder.qml
+singleton Search Search.qml

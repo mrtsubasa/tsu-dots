@@ -41,7 +41,6 @@ ShellRoot {
     BarPopover {}
     Atelier {}
     Osd {}
-    Launcher {}
     AiPanel {}
     VmPanel {}
     ScriptsPanel {}
@@ -114,6 +113,40 @@ ShellRoot {
             PanelService.popoverGeom = { output: out, x: 0, w: 48 };
             PanelService.popover = id;
             return PanelService.popover;
+        }
+    }
+
+    // touches média : l'état reste connu du shell (OSD, sliders)
+    IpcHandler {
+        target: "brightness"
+
+        function up(): string {
+            Bright.nudge(0.1);
+            return String(Bright.percentage);
+        }
+
+        function down(): string {
+            Bright.nudge(-0.1);
+            return String(Bright.percentage);
+        }
+
+        function set(pct: string): string {
+            Bright.set(Number(pct) / 100);
+            return String(Bright.percentage);
+        }
+    }
+
+    IpcHandler {
+        target: "record"
+
+        function toggle(mode: string): string {
+            Recorder.toggle(mode || "region");
+            return Recorder.recording ? "on" : "off";
+        }
+
+        function stop(): string {
+            Recorder.stop();
+            return "off";
         }
     }
 

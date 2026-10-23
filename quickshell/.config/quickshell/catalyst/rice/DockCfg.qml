@@ -174,14 +174,100 @@ Singleton {
         }
         const wins = runningWins(app);
         if (wins.length) {
-            Niri.focusWindow(wins[0].id);
+            // plusieurs fenêtres : on fait défiler la suivante à chaque clic
+            let k = 0;
+            for (let i = 0; i < wins.length; i++)
+                if (wins[i].is_focused)
+                    k = (i + 1) % wins.length;
+            Niri.focusWindow(wins[k].id);
             return;
         }
-        if (!cmd)
+        if (!cmd) {
+            newInstance(app);
             return;
+        }
         // execDetached détache vraiment le processus : aucune dépendance au
         // lanceur (Hyprland ou niri) et survit à un redémarrage du shell.
         Quickshell.execDetached(["bash", "-lc", cmd]);
+    }
+
+    // applications ouvertes qui ne sont pas épinglées : [{ appId, wins }]
+    readonly property var unpinned: {
+        const all = Niri.windows;
+        const seen = {};
+        const out = [];
+        for (let i = 0; i < all.length; i++) {
+            const aid = String(all[i].app_id || "");
+            if (!aid.length || seen[aid.toLowerCase()])
+                continue;
+            seen[aid.toLowerCase()] = true;
+            if (isPinned(aid))
+                continue;
+            out.push({ id: aid, wmclass: aid, name: "", icon: "", exec: "", transient: true });
+        }
+        return out;
+    }
+
+    function isPinned(appId) {
+        const cls = String(appId || "").toLowerCase();
+        const src = apps;
+        for (let i = 0; i < src.length; i++) {
+            const k = String(src[i].wmclass || src[i].id || "").toLowerCase();
+            if (k.length && (k === cls || cls.indexOf(k) >= 0 || k.indexOf(cls) >= 0))
+                return true;
+        }
+        return false;
+    }
+
+    // épingle une application à partir de sa classe de fenêtre
+    function pin(appId) {
+        if (!appId || isPinned(appId))
+            return;
+        const d = DesktopEntries.heuristicLookup(appId);
+        const entry = {
+            id: d ? d.id : appId,
+            desktop: d ? d.id : "",
+            name: d ? d.name : appId,
+            icon: d ? d.icon : appId,
+            exec: d ? "" : appId,
+            wmclass: appId
+        };
+        // avant le premier séparateur (zone des applications)
+        const next = apps.slice();
+        let at = next.length;
+        for (let i = 0; i < next.length; i++)
+            if (next[i].type === "separator") {
+                at = i;
+                break;
+            }
+        next.splice(at, 0, entry);
+        apps = next;
+        save();
+    }
+
+    function move(index, delta) {
+        const next = apps.slice();
+        const j = index + delta;
+        if (index < 0 || j < 0 || j >= next.length)
+            return;
+        const it = next.splice(index, 1)[0];
+        next.splice(j, 0, it);
+        apps = next;
+        save();
+    }
+
+    function newInstance(app) {
+        const d = app.desktop ? DesktopEntries.byId(app.desktop) : DesktopEntries.heuristicLookup(app.wmclass || app.id);
+        if (d)
+            d.execute();
+        else if (app.exec)
+            Quickshell.execDetached(["bash", "-lc", app.exec]);
+    }
+
+    function closeAll(app) {
+        const w = runningWins(app);
+        for (let i = 0; i < w.length; i++)
+            Niri.closeWindow(w[i].id);
     }
 
     function unpin(index) {
