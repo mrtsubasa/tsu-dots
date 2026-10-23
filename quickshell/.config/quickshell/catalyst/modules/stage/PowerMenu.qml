@@ -16,7 +16,8 @@ import qs.kit
 FocusScope {
     id: root
 
-    implicitWidth: Math.max(row.implicitWidth, 560) + 48
+    // largeur = contenu le plus large (aucune ligne ne déborde du cadre)
+    implicitWidth: Math.max(row.implicitWidth, schedRow.implicitWidth + 24, updRow.implicitWidth + 24, 560) + 48
     implicitHeight: col.implicitHeight + 40
 
     property int current: 0
@@ -291,6 +292,7 @@ FocusScope {
             tint: SessionCtl.scheduled ? Qt.alpha(Theme.warning, 0.08) : "transparent"
 
             RowLayout {
+                id: schedRow
                 anchors.fill: parent
                 anchors.leftMargin: 14
                 anchors.rightMargin: 8
@@ -333,10 +335,11 @@ FocusScope {
             radius: Tokens.rLg
 
             RowLayout {
+                id: updRow
                 anchors.fill: parent
                 anchors.leftMargin: 14
                 anchors.rightMargin: 8
-                spacing: 10
+                spacing: 8
 
                 Item {
                     implicitWidth: 20
@@ -383,7 +386,7 @@ FocusScope {
                     variant: root.armed === "update-reboot" ? "danger" : "secondary"
                     height_: 30
                     icon: "restart_alt"
-                    text: root.armed === "update-reboot" ? "Confirmer" : "Mettre à jour et redémarrer"
+                    text: root.armed === "update-reboot" ? "Confirmer" : "Et redémarrer"
                     onClicked: root.guarded("update-reboot", () => SessionCtl.update(true))
                 }
             }
