@@ -51,7 +51,7 @@ Item {
             root.tick++;
             if (root.remaining <= 0) {
                 WidgetStore.setProps(root.wid, { running: false, remaining: 0 });
-                Quickshell.execDetached(["notify-send", "-a", "Catalyst", "-i", "alarm", "Session terminée", "Prends une pause."]);
+                Quickshell.execDetached(["notify-send", "-a", ShellCfg.brand, "-i", "alarm", "Session terminée", "Prends une pause."]);
             }
         }
     }

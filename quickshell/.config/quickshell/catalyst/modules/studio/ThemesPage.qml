@@ -19,7 +19,7 @@ ColumnLayout {
     }
 
     // ---------------- thèmes complets ----------------
-    SectionHeader { Layout.fillWidth: true; text: "Thèmes Catalyst" }
+    SectionHeader { Layout.fillWidth: true; text: "Thèmes" }
 
     Flow {
         Layout.fillWidth: true
@@ -422,6 +422,6 @@ ColumnLayout {
         role: "caption"
         wrapMode: Text.WordWrap
         color: Theme.textFaint
-        text: "L'identité règle les rayons, le style de barre et la matière des surfaces. Chaque thème Catalyst en choisit une ; tu peux la changer ici sans toucher aux couleurs."
+        text: "L'identité règle les rayons, le style de barre et la matière des surfaces. Chaque thème en choisit une ; tu peux la changer ici sans toucher aux couleurs."
     }
 }

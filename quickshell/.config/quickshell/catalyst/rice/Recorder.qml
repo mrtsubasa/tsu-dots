@@ -50,7 +50,7 @@ Singleton {
         id: proc
         onExited: code => {
             if (root.file.length)
-                Quickshell.execDetached(["sh", "-c", "[ -s '" + root.file + "' ] && notify-send -a Catalyst -i video-x-generic 'Enregistrement terminé' '" + root.file + "'"]);
+                Quickshell.execDetached(["sh", "-c", "[ -s '" + root.file + "' ] && notify-send -a \"$(cat ~/.cache/catalyst/brand 2>/dev/null || echo catalyst)\" -i video-x-generic 'Enregistrement terminé' '" + root.file + "'"]);
         }
     }
 

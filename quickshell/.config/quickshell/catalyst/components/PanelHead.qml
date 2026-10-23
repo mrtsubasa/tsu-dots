@@ -34,7 +34,7 @@ RowLayout {
     ColumnLayout {
         Layout.fillWidth: true
         spacing: 0
-        Txt { role: "overline"; text: "// catalyst"; color: Theme.accent }
+        Txt { role: "overline"; text: "// " + ShellCfg.brand; color: Theme.accent }
         Txt { role: "title"; text: root.title; Layout.fillWidth: true }
     }
 

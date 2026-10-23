@@ -20,6 +20,9 @@ Singleton {
     property string palette: "tokyonight"
     // id du thème complet (identity + palette) appliqué, "" = custom/auto
     property string theme: ""
+    // mot de marque affiché dans l'interface (en-têtes, launcher, verrouillage…)
+    property string brand: "catalyst"
+    readonly property string brandPath: Quickshell.env("HOME") + "/.cache/catalyst/brand"
     // true une fois le premier chargement terminé (sécurise Themes/Atelier)
     property bool fileReady: false
 
@@ -45,6 +48,21 @@ Singleton {
         if (obj.palette)
             palette = obj.palette;
         theme = obj.theme || "";
+        brand = obj.brand !== undefined && String(obj.brand).trim().length ? String(obj.brand).trim() : "catalyst";
+        writeBrand();
+    }
+
+    // copie lisible par les scripts et hyprlock
+    function writeBrand() {
+        brandProc.command = ["sh", "-c", "mkdir -p \"$(dirname \"$1\")\" && printf '%s' \"$2\" > \"$1\"", "_", brandPath, brand];
+        brandProc.running = true;
+    }
+
+    function setBrand(v) {
+        const t = String(v || "").trim().slice(0, 32);
+        brand = t.length ? t : "catalyst";
+        save();
+        writeBrand();
     }
 
     function dump() {
@@ -57,7 +75,8 @@ Singleton {
             widgetsLayer: widgetsLayer,
             paletteMode: paletteMode,
             palette: palette,
-            theme: theme
+            theme: theme,
+            brand: brand
         }, null, 2) + "\n";
     }
 
@@ -91,5 +110,9 @@ Singleton {
 
     Process {
         id: writeProc
+    }
+
+    Process {
+        id: brandProc
     }
 }

@@ -192,7 +192,7 @@ ColumnLayout {
             icon: "save"
             text: "Enregistrer"
             height_: 30
-            onClicked: Equalizer.savePreset("Catalyst " + Qt.formatDateTime(new Date(), "dd-MM hh'h'mm"))
+            onClicked: Equalizer.savePreset(ShellCfg.brand + " " + Qt.formatDateTime(new Date(), "dd-MM hh'h'mm"))
         }
     }
 }

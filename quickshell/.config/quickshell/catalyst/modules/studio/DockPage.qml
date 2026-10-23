@@ -134,7 +134,7 @@ ColumnLayout {
                 implicitHeight: 48
                 icon: sep ? "horizontal_rule" : ""
                 title: sep ? "Séparateur" : (modelData.name || modelData.id || "")
-                subtitle: sep ? "" : (String(modelData.exec || "").indexOf("spell:") === 0 ? "Panneau Catalyst" : (modelData.wmclass || modelData.desktop || ""))
+                subtitle: sep ? "" : (String(modelData.exec || "").indexOf("spell:") === 0 ? "Panneau " + ShellCfg.brand : (modelData.wmclass || modelData.desktop || ""))
 
                 AppIcon {
                     visible: !pinned.sep

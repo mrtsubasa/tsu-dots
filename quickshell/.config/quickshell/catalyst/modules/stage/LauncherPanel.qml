@@ -198,7 +198,7 @@ FocusScope {
                     Txt {
                         visible: row.modelData.kind === "cmd"
                         role: "overline"
-                        text: "catalyst"
+                        text: ShellCfg.brand
                         color: row.current ? Theme.accent : Theme.textFaint
                     }
                     Rectangle {
@@ -229,7 +229,7 @@ FocusScope {
             visible: Search.results.length === 0
             icon: "search_off"
             title: Search.query.length ? "Aucun résultat pour « " + Search.query + " »" : ""
-            text: "Astuce : = pour calculer, > pour une commande, : pour les commandes Catalyst."
+            text: "Astuce : = pour calculer, > pour une commande, : pour les commandes " + ShellCfg.brand + "."
         }
 
         // ---- pied ----

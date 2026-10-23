@@ -40,6 +40,25 @@ ColumnLayout {
         }
         SettingRow {
             Layout.fillWidth: true
+            icon: "diamond"
+            title: "Mot de marque"
+            subtitle: "Affiché dans les en-têtes, le launcher, le Studio, les notifications et l'écran de verrouillage. Actuel : « " + ShellCfg.brand + " »"
+            Field {
+                width: 180
+                placeholder: ShellCfg.brand
+                onAccepted: t => { ShellCfg.setBrand(t); text = ""; }
+            }
+            IconButton {
+                icon: "restart_alt"
+                size: 30
+                iconSize: 17
+                tooltip: "Revenir à « catalyst »"
+                disabled: ShellCfg.brand === "catalyst"
+                onClicked: ShellCfg.setBrand("catalyst")
+            }
+        }
+        SettingRow {
+            Layout.fillWidth: true
             icon: "chat_bubble"
             title: "Statut"
             Field {

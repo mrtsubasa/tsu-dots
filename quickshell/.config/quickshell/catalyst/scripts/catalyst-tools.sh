@@ -6,7 +6,7 @@
 #   catalyst-tools.sh shot-full  écran complet
 set -u
 
-notify() { notify-send -a "Catalyst" "$@" 2>/dev/null || true; }
+notify() { notify-send -a "$(cat ~/.cache/catalyst/brand 2>/dev/null || echo catalyst)" "$@" 2>/dev/null || true; }
 
 case "${1:-}" in
 ocr)

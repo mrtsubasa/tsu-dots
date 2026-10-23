@@ -87,7 +87,7 @@ FocusScope {
                     ColumnLayout {
                         spacing: 0
                         Txt { role: "title"; text: "Studio" }
-                        Txt { role: "overline"; text: "tsubasa catalyst"; color: Theme.accent }
+                        Txt { role: "overline"; text: ShellCfg.brand; color: Theme.accent }
                     }
                 }
 

@@ -99,7 +99,7 @@ ColumnLayout {
         Layout.fillWidth: true
         Repeater {
             model: [
-                { k: "mark", t: "Marque Catalyst", i: "diamond", d: "Clic : applications · clic droit : Studio" },
+                { k: "mark", t: "Marque ◆", i: "diamond", d: "Clic : applications · clic droit : Studio" },
                 { k: "workspaces", t: "Workspaces", i: "view_week", d: "Actif, occupés, vides, spécial" },
                 { k: "window", t: "Fenêtre active", i: "web_asset", d: "Icône et titre" },
                 { k: "clock", t: "Horloge", i: "schedule", d: "Clic : calendrier" }

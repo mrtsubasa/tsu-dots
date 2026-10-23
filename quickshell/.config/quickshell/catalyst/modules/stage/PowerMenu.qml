@@ -58,6 +58,24 @@ FocusScope {
         ColumnLayout {
             Layout.alignment: Qt.AlignHCenter
             spacing: 2
+            Art {
+                Layout.alignment: Qt.AlignHCenter
+                Layout.bottomMargin: 10
+                Layout.preferredWidth: 72
+                Layout.preferredHeight: 72
+                source: Identity.hasAvatar ? Identity.avatar : ""
+                radius: Identity.avatarShape === "square" ? Tokens.rMd : (Identity.avatarShape === "soft" ? Tokens.rLg : 36)
+                fallbackIcon: "person"
+
+                Rectangle {
+                    anchors.fill: parent
+                    anchors.margins: -3
+                    radius: parent.radius + 3
+                    color: "transparent"
+                    border.width: 2
+                    border.color: root.armed.length ? Theme.error : Theme.accent
+                }
+            }
             Txt {
                 Layout.alignment: Qt.AlignHCenter
                 role: "overline"
