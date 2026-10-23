@@ -1,9 +1,13 @@
 {
   "id": "catalyst-dark",
   "label": "Catalyst Dark",
-  "description": "Identité principale — graphite quasi noir, violet électrique, bleu glace et rose retenu.",
-  "identity": "tsubasa",
+  "description": "Identité principale — graphite quasi noir, violet électrique, bleu glace, rose retenu.",
+  "identity": "catalyst",
   "mode": "dark",
+  "effects": {
+    "glow": 0.25,
+    "glass": 0.84
+  },
   "hyprland": {
     "active": "#A78BFA",
     "active2": "#78BFFF",
@@ -11,10 +15,10 @@
   },
   "palette": {
     "background": "#0B0A12",
-    "blueDark": "#06050C",
-    "surface0": "#13101F",
+    "blueDark": "#07060D",
+    "surface0": "#100E18",
     "surface1": "#15131F",
-    "surface2": "#201B2C",
+    "surface2": "#1E1A2B",
     "surface3": "#2A2440",
     "text": "#F4F1FA",
     "textReverse": "#0B0A12",

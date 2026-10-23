@@ -5,82 +5,165 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 
+/*
+ * Theme — couleurs et typographie du shell (Tsubasa Catalyst v3).
+ *
+ * Deux couches :
+ *   1. rôles « matériaux » (primary, surfaceContainer*, ink…) : remplis par la
+ *      palette active — preset complet (Themes), palette lyne (Palettes) ou
+ *      Material You (matugen, mode "auto"). Les anciens modules les lisent.
+ *   2. tokens sémantiques (accent, text*, s0..s4, border, glass…) : dérivés de
+ *      la couche 1. Tout nouveau composant (kit/) ne lit QUE ceux-là.
+ */
 Singleton {
     id: root
 
-    property color primary: "#a5dbff"
+    // =====================================================================
+    // 1. Rôles matériaux (écrits par apply())
+    // =====================================================================
+    property color primary: "#a78bfa"
     Behavior on primary { enabled: root.animated; ColorAnimation { duration: 400; easing.type: Easing.InOutCubic } }
-    property color inkPrimary: "#00344b"
+    property color inkPrimary: "#0b0a12"
     Behavior on inkPrimary { enabled: root.animated; ColorAnimation { duration: 400; easing.type: Easing.InOutCubic } }
-    property color primaryContainer: "#6fc2f2"
-    property color inkPrimaryContainer: "#003045"
-    property color secondary: "#adcae0"
-    property color inkSecondary: "#153344"
-    property color tertiary: "#f1c5ff"
-    property color inkTertiary: "#481c5d"
-    property color error: "#ffb4ab"
+    property color primaryContainer: "#a78bfa"
+    property color inkPrimaryContainer: "#0b0a12"
+    property color secondary: "#a49caf"
+    property color inkSecondary: "#5c5675"
+    property color tertiary: "#f38bcb"
+    Behavior on tertiary { enabled: root.animated; ColorAnimation { duration: 400; easing.type: Easing.InOutCubic } }
+    property color inkTertiary: "#0b0a12"
+    property color error: "#ff8fa3"
     Behavior on error { enabled: root.animated; ColorAnimation { duration: 400; easing.type: Easing.InOutCubic } }
-    property color inkError: "#690005"
-    property color background: "#101417"
+    property color inkError: "#0b0a12"
+    property color background: "#0b0a12"
     Behavior on background { enabled: root.animated; ColorAnimation { duration: 400; easing.type: Easing.InOutCubic } }
-    property color inkBg: "#e0e3e7"
-    Behavior on inkBg { enabled: root.animated; ColorAnimation { duration: 400; easing.type: Easing.InOutCubic } }
-    property color surface: "#101417"
-    property color ink: "#e0e3e7"
+    property color inkBg: "#f4f1fa"
+    property color surface: "#0b0a12"
+    property color ink: "#f4f1fa"
     Behavior on ink { enabled: root.animated; ColorAnimation { duration: 400; easing.type: Easing.InOutCubic } }
-    property color surfaceVariant: "#3f484e"
-    property color inkMuted: "#bfc8cf"
+    property color surfaceVariant: "#201b2c"
+    property color inkMuted: "#a49caf"
     Behavior on inkMuted { enabled: root.animated; ColorAnimation { duration: 400; easing.type: Easing.InOutCubic } }
-    property color surfaceDim: "#101417"
-    property color surfaceBright: "#363a3d"
-    property color surfaceContainerLowest: "#0b0f11"
-    property color surfaceContainerLow: "#181c1f"
+    property color surfaceDim: "#06050c"
+    property color surfaceBright: "#201b2c"
+    property color surfaceContainerLowest: "#06050c"
+    Behavior on surfaceContainerLowest { enabled: root.animated; ColorAnimation { duration: 400; easing.type: Easing.InOutCubic } }
+    property color surfaceContainerLow: "#100e18"
     Behavior on surfaceContainerLow { enabled: root.animated; ColorAnimation { duration: 400; easing.type: Easing.InOutCubic } }
-    property color surfaceContainer: "#1c2023"
+    property color surfaceContainer: "#15131f"
     Behavior on surfaceContainer { enabled: root.animated; ColorAnimation { duration: 400; easing.type: Easing.InOutCubic } }
-    property color surfaceContainerHigh: "#272a2e"
+    property color surfaceContainerHigh: "#201b2c"
     Behavior on surfaceContainerHigh { enabled: root.animated; ColorAnimation { duration: 400; easing.type: Easing.InOutCubic } }
-    property color surfaceContainerHighest: "#313538"
-    property color outline: "#899299"
-    property color outlineVariant: "#3f484e"
+    property color surfaceContainerHighest: "#2a2440"
+    Behavior on surfaceContainerHighest { enabled: root.animated; ColorAnimation { duration: 400; easing.type: Easing.InOutCubic } }
+    property color outline: "#3a3450"
+    property color outlineVariant: "#201b2c"
     Behavior on outlineVariant { enabled: root.animated; ColorAnimation { duration: 400; easing.type: Easing.InOutCubic } }
-    property color success: "#a6d189"
+    property color success: "#6ee7b7"
     Behavior on success { enabled: root.animated; ColorAnimation { duration: 400; easing.type: Easing.InOutCubic } }
-    // --- semantic accents (DESIGN-V2 §2 / brief §4) ---
     property color warning: "#f5c46b"
     Behavior on warning { enabled: root.animated; ColorAnimation { duration: 400; easing.type: Easing.InOutCubic } }
-    // ice blue : second highlight, liens, jauges, info
+    // bleu glace : second highlight, info, jauges
     property color electric: "#78bfff"
     Behavior on electric { enabled: root.animated; ColorAnimation { duration: 400; easing.type: Easing.InOutCubic } }
-    // signature pink : états importants et sélection — ne doit pas dominer
+    // rose signature : états importants, sélection forte — jamais en aplat large
     property color signature: "#f38bcb"
     Behavior on signature { enabled: root.animated; ColorAnimation { duration: 400; easing.type: Easing.InOutCubic } }
-    // neutres : information / focus / indisponible
+
+    // effets du thème (preset.effects) — 0 = sobre, 1 = néon assumé
+    property real glow: 0.25
+    Behavior on glow { enabled: root.animated; NumberAnimation { duration: 400 } }
+    property real glassAlpha: 0.86
+
+    property string uiStyle: "tsubasa"
+    property string mode: "auto"
+    property bool animated: true
+
+    // =====================================================================
+    // 2. Tokens sémantiques
+    // =====================================================================
+    // texte
+    readonly property color text: ink
+    readonly property color textSub: inkMuted
+    readonly property color textFaint: Qt.alpha(ink, 0.42)
+    readonly property color onAccent: inkPrimary
+
+    // accents
+    readonly property color accent: primary
+    readonly property color accent2: electric
     readonly property color info: electric
     readonly property color focusRing: primary
+    readonly property color selection: Qt.alpha(primary, 0.18)
+
+    // surfaces : s0 (fond le plus bas) → s4 (le plus élevé)
+    readonly property color bg: background
+    readonly property color s0: surfaceContainerLowest
+    readonly property color s1: surfaceContainerLow
+    readonly property color s2: surfaceContainer
+    readonly property color s3: surfaceContainerHigh
+    readonly property color s4: surfaceContainerHighest
+    readonly property color glass: Qt.alpha(surfaceContainer, glassAlpha)
+
+    // lignes : blanc translucide → s'adapte à toutes les palettes sombres
+    readonly property color border: Qt.alpha(ink, 0.075)
+    readonly property color borderStrong: Qt.alpha(ink, 0.14)
+    readonly property color divider: Qt.alpha(ink, 0.06)
+
+    // états interactifs (couches posées sur un fond)
+    readonly property color stateHover: Qt.alpha(ink, 0.06)
+    readonly property color statePress: Qt.alpha(ink, 0.10)
+    readonly property color stateActive: Qt.alpha(primary, 0.16)
+
     readonly property color disabledInk: Qt.alpha(ink, 0.38)
     readonly property color disabledSurface: Qt.alpha(surfaceContainerHigh, 0.38)
+
+    // compat anciens modules
     readonly property color surfaceV2: surfaceContainer
-
-    property string uiStyle: "islands"
-    property string mode: "auto"
-    // crossfade thème (écrit par Tokens en chargeant reducedMotion)
-    property bool animated: true
-    readonly property string font: "JetBrainsMono Nerd Font"
-    readonly property string uiFont: "Satoshi"
+    readonly property color surface2: surfaceContainerHigh
     readonly property real veil: 0.78
-
     readonly property color layer0: Qt.alpha(background, 0.78)
     readonly property color layer1: Qt.alpha(surfaceContainerLow, 0.92)
     readonly property color layer2: Qt.alpha(surfaceContainer, 0.94)
     readonly property color layer3: Qt.alpha(surfaceContainerHigh, 0.96)
     readonly property color hover: Qt.alpha(primary, 0.14)
     readonly property color hoverStrong: Qt.alpha(primary, 0.22)
-    readonly property color hairline: Qt.alpha(outlineVariant, 0.7)
+    readonly property color hairline: border
     readonly property color scrim: Qt.rgba(0, 0, 0, 0.42)
 
+    // =====================================================================
+    // Typographie
+    // =====================================================================
+    readonly property string uiFont: "Inter"
+    readonly property string displayFont: "Space Grotesk"
+    readonly property string monoFont: "JetBrainsMono Nerd Font"
+    readonly property string iconFont: "Material Symbols Rounded"
+    // glyphes Nerd Font des anciens modules
+    readonly property string font: "JetBrainsMono Nerd Font"
+
+    // =====================================================================
+    // Helpers
+    // =====================================================================
     function mix(a, b, t) {
         return Qt.rgba(a.r * (1 - t) + b.r * t, a.g * (1 - t) + b.g * t, a.b * (1 - t) + b.b * t, a.a * (1 - t) + b.a * t);
+    }
+
+    function hex(c) {
+        const s = String(c);
+        return s.length > 7 ? "#" + s.substring(s.length - 6) : s;
+    }
+
+    // couleur sémantique par nom (presets, widgets, notifs)
+    function role(name) {
+        switch (name) {
+        case "accent": return primary;
+        case "accent2": case "electric": case "info": return electric;
+        case "signature": return signature;
+        case "success": return success;
+        case "warning": return warning;
+        case "error": case "danger": return error;
+        case "muted": return inkMuted;
+        default: return ink;
+        }
     }
 
     function c(obj, key, fallback) {
@@ -92,6 +175,11 @@ Singleton {
         apply(obj);
     }
 
+    function applyEffects(fx) {
+        glow = fx && fx.glow !== undefined ? fx.glow : 0.25;
+        glassAlpha = fx && fx.glass !== undefined ? fx.glass : 0.86;
+    }
+
     function reload() {
         // une palette forcée (preset / thème complet) ne doit jamais être
         // écrasée par un changement de fond d'écran
@@ -100,10 +188,28 @@ Singleton {
         try {
             const t = colorFile.text();
             if (t && t.length)
-                apply(JSON.parse(t));
+                applyAuto(JSON.parse(t));
         } catch (e) {
             colorFile.reload();
         }
+    }
+
+    // Material You : matugen ne fournit ni electric ni signature ni warning —
+    // on les dérive pour que le mode auto reste cohérent avec la charte.
+    function applyAuto(obj) {
+        if (!obj)
+            return;
+        const o = Object.assign({}, obj);
+        if (!o.electric)
+            o.electric = o.secondary || o.primary;
+        if (!o.signature)
+            o.signature = o.tertiary || o.primary;
+        if (!o.warning)
+            o.warning = "#f5c46b";
+        if (!o.success)
+            o.success = "#6ee7b7";
+        apply(o);
+        applyEffects(null);
     }
 
     function apply(obj) {
@@ -149,9 +255,9 @@ Singleton {
             if (root.mode !== "auto")
                 return;
             try {
-                root.apply(JSON.parse(text()));
+                root.applyAuto(JSON.parse(text()));
             } catch (e) {
-                console.log("[Palette] parse error", e);
+                console.log("[Theme] parse error", e);
             }
         }
     }

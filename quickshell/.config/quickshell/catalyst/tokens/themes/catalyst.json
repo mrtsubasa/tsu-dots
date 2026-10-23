@@ -1,0 +1,23 @@
+{
+  "id": "catalyst",
+  "label": "Catalyst",
+  "description": "Capsule flottante, rayons doux, verre sombre.",
+  "chrome": {
+    "radius": { "sm": 8, "md": 12, "lg": 16, "xl": 22, "pill": 16, "full": 999 },
+    "blurBackdrop": true,
+    "veil": 0.78,
+    "grain": 0.06,
+    "hairline": 1,
+    "borderAlpha": 0.55,
+    "topHighlight": 0.1
+  },
+  "bar": {
+    "mode": "floating",
+    "height": 36,
+    "marginTop": 6,
+    "marginX": 8,
+    "gap": 8,
+    "opacity": 0.84
+  },
+  "dock": { "position": "bottom", "indicator": "pill" }
+}

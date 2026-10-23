@@ -91,13 +91,46 @@ Singleton {
         hidePopover();
     }
 
+    // anciens noms de panneaux → surfaces v3
+    readonly property var aliases: ({ dashboard: "control", home: "control", notifications: "control" })
+
+    function resolve(name) {
+        return aliases[name] || name;
+    }
+
+    // section du centre de contrôle à afficher à l'ouverture (ex. "notifs")
+    property string focusSection: ""
+    // sous-page demandée pour le centre de contrôle (net, bt, out, in, eq, power)
+    property string controlPage: ""
+
+    // ancrage horizontal (coordonnées écran) de la surface ouverte depuis un
+    // élément de barre : { x: centre, w: largeur }
+    property var anchor: null
+
+    function openAt(name, win, item, section) {
+        name = resolve(name);
+        const n = outputOf(win);
+        if (active === name && (!n.length || n === outputName)) {
+            hide();
+            return;
+        }
+        if (item) {
+            const p = item.mapToItem(null, 0, 0);
+            anchor = { x: p.x + item.width / 2, w: item.width };
+        } else {
+            anchor = null;
+        }
+        focusSection = section || "";
+        show(name, win);
+    }
+
     function show(name, src) {
         hidePopover();
+        name = resolve(name);
         if (!name || name === "none") {
             hide();
             return;
         }
-        Quickshell.execDetached(["bash", "-c", "pgrep -x swaync >/dev/null && timeout 0.4 swaync-client -cp || true"]);
         pin(src);
         if (!outputName && Niri.focusedOutput)
             outputName = Niri.focusedOutput;
@@ -107,6 +140,7 @@ Singleton {
     }
 
     function toggle(name, src) {
+        name = resolve(name);
         const n = outputOf(src);
         if (active === name && (!n.length || n === outputName)) {
             hide();

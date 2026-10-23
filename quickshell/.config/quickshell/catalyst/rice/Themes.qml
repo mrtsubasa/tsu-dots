@@ -91,9 +91,10 @@ Singleton {
         if (data.identity && data.identity.length)
             Chrome.setIdentity(data.identity);
 
-        // 2. palette
+        // 2. palette + effets (halo, opacité du verre)
         Theme.mode = "theme";
         Theme.applyMapped(Palettes.lyneMapped(data.palette));
+        Theme.applyEffects(data.effects || null);
 
         active = id || "";
 
@@ -106,13 +107,29 @@ Singleton {
 
         // 4. accents Hyprland (bordures de fenêtre)
         scheduleAccent();
+
+        // 5. applications (GTK, rofi, hyprlock…) : uniquement sur choix explicite
+        if (persist !== false)
+            syncApps(data);
+    }
+
+    // Rend les templates matugen avec la palette du thème (scripts/theme-sync.py)
+    // pour que GTK, rofi et l'écran de verrouillage suivent le thème complet.
+    readonly property string syncScript: Quickshell.env("HOME") + "/.config/quickshell/catalyst/scripts/theme-sync.py"
+    function syncApps(data) {
+        syncProc.command = ["python3", syncScript, "--json", JSON.stringify(data)];
+        syncProc.running = true;
     }
 
     // Revenir au mode Material You (palette tirée du fond d'écran)
     function setAuto() {
         active = "";
         Palettes.setAuto();
+        Theme.applyEffects(null);
         scheduleAccent();
+        // matugen régénère les fichiers des applis depuis le fond d'écran
+        syncProc.command = ["python3", syncScript, "--auto"];
+        syncProc.running = true;
     }
 
     // ------------------------------------------------------------------
@@ -154,6 +171,7 @@ Singleton {
             description: "Thème enregistré depuis la configuration courante.",
             identity: Theme.uiStyle,
             mode: "dark",
+            effects: { glow: Theme.glow, glass: Theme.glassAlpha },
             hyprland: {
                 active: currentPalette().accent,
                 active2: currentPalette().electric,
@@ -388,6 +406,11 @@ Singleton {
     }
 
     Process { id: rmProc }
+
+    Process {
+        id: syncProc
+        stderr: SplitParser { onRead: data => console.log("[theme-sync]", data) }
+    }
 
     Process { id: accentProc }
 }

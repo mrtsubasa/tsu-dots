@@ -51,9 +51,13 @@ Singleton {
     property real lastVol: 0.7
     property int posTick: 0
 
+    // consommateurs de la position (cartes visibles) : le minuteur ne tourne
+    // que s'il y en a au moins un
+    property int posWatchers: 0
+
     Timer {
-        interval: 450
-        running: root.playing && root.has
+        interval: 1000
+        running: root.playing && root.has && root.posWatchers > 0
         repeat: true
         onTriggered: root.posTick++
     }

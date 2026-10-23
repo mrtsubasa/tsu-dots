@@ -5,6 +5,9 @@ import Quickshell
 import Quickshell.Io
 import qs.rice
 import "./modules/bar/"
+import "./modules/topbar/"
+import "./modules/stage/"
+import "./modules/notifs/"
 import "./modules/atelier/"
 import "./modules/osd/"
 import "./modules/notifications/"
@@ -25,18 +28,19 @@ import "./modules/omarchy/"
 import "./modules/blackarch/"
 import "./modules/overview/"
 import "./modules/widgets/"
+import "./modules/dev/"
 
 ShellRoot {
     // Instancie le moteur de thèmes dès le démarrage : c'est lui qui restaure
     // le thème complet (identité + palette + accents Hyprland) persisté.
     Component.onCompleted: Themes.refresh()
 
-    Bar {}
+    TopBar {}
+    Stage {}
+    Toasts {}
     BarPopover {}
     Atelier {}
     Osd {}
-    NotifPopup {}
-    Dashboard {}
     Launcher {}
     AiPanel {}
     VmPanel {}
@@ -55,6 +59,7 @@ ShellRoot {
     WidgetHost { layerKind: "desk" }
     WidgetHost { layerKind: "top" }
     WidgetEditor {}
+    KitGallery {}
 
     IpcHandler {
         target: "panels"
@@ -88,6 +93,14 @@ ShellRoot {
             return PanelService.active;
         }
 
+        // ouvre le centre de contrôle sur une sous-page : net bt out in eq power
+        function control(page: string): string {
+            PanelService.controlPage = page || "";
+            if (PanelService.active !== "control")
+                PanelService.show("control");
+            return PanelService.active;
+        }
+
         function atelier(): string {
             PanelService.toggle("atelier");
             return PanelService.active;
@@ -101,6 +114,28 @@ ShellRoot {
             PanelService.popoverGeom = { output: out, x: 0, w: 48 };
             PanelService.popover = id;
             return PanelService.popover;
+        }
+    }
+
+    // qs ipc -p ~/.config/quickshell/catalyst call diag <fn> — état réel des services
+    IpcHandler {
+        target: "diag"
+
+        function net(): string {
+            return JSON.stringify({
+                wired: Net.wired, wiredName: Net.wiredName, speed: Net.linkSpeed,
+                hasWifi: Net.hasWifi, wifiOn: Net.wifiOn, ssid: Net.ssid,
+                online: Net.online, label: Net.label, glyph: Net.glyph, nets: Net.networks.length,
+                bt: Net.btOn
+            });
+        }
+
+        function sys(): string {
+            return JSON.stringify({ temp: SysInfo.temp, tempPath: SysInfo.tempPath, cpu: SysInfo.cpu, ram: SysInfo.ram, ramText: SysInfo.ramText, disk: SysInfo.diskText, up: SysInfo.uptime, clock: SysInfo.clock, date: SysInfo.date });
+        }
+
+        function wm(): string {
+            return JSON.stringify({ out: Niri.focusedOutput, title: Niri.focusedTitle, ws: Niri.workspaces.length, wins: Niri.windows.length });
         }
     }
 

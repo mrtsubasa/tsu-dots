@@ -5,20 +5,90 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import Quickshell.Bluetooth
+import Quickshell.Networking
 
+// Réseau via NetworkManager (D-Bus, piloté par événements) : filaire + wifi.
+// L'API historique (wifiOn, ssid, networks, connectNetwork…) est conservée.
 Singleton {
     id: root
 
-    property bool wifiOn: true
-    property bool wifiConnected: false
-    property string ssid: ""
-    property int signal: 0
-    property var networks: []
+    readonly property var devices: Networking.devices ? Networking.devices.values : []
+
+    readonly property var wiredDev: {
+        const d = devices;
+        let pick = null;
+        for (let i = 0; i < d.length; i++) {
+            if (d[i].type !== DeviceType.Wired)
+                continue;
+            if (d[i].connected)
+                return d[i];
+            if (!pick)
+                pick = d[i];
+        }
+        return pick;
+    }
+    readonly property var wifiDev: {
+        const d = devices;
+        for (let i = 0; i < d.length; i++)
+            if (d[i].type === DeviceType.Wifi)
+                return d[i];
+        return null;
+    }
+
+    readonly property bool hasWifi: wifiDev !== null && Networking.wifiHardwareEnabled
+    readonly property bool wired: wiredDev !== null && wiredDev.connected
+    readonly property string wiredName: wired ? (wiredDev.network ? wiredDev.network.name : wiredDev.name) : ""
+    readonly property int linkSpeed: wired && wiredDev.linkSpeed ? wiredDev.linkSpeed : 0
+
+    readonly property bool wifiOn: Networking.wifiEnabled
+    readonly property var activeWifi: {
+        if (!wifiDev || !wifiDev.networks)
+            return null;
+        const n = wifiDev.networks.values;
+        for (let i = 0; i < n.length; i++)
+            if (n[i].connected)
+                return n[i];
+        return null;
+    }
+    readonly property bool wifiConnected: activeWifi !== null
+    readonly property string ssid: activeWifi ? activeWifi.name : ""
+    readonly property int signal: activeWifi ? Math.round(activeWifi.signalStrength * 100) : 0
+
+    readonly property bool online: wired || wifiConnected
+    readonly property bool limited: Networking.connectivity === NetworkConnectivity.Limited || Networking.connectivity === NetworkConnectivity.Portal
+
+    // [{ ssid, signal, security, inUse, known, net }]
+    readonly property var networks: {
+        if (!wifiDev || !wifiDev.networks)
+            return [];
+        const src = wifiDev.networks.values;
+        const out = [];
+        for (let i = 0; i < src.length; i++) {
+            const n = src[i];
+            if (!n.name || !n.name.length)
+                continue;
+            out.push({
+                ssid: n.name,
+                signal: Math.round((n.signalStrength || 0) * 100),
+                security: n.security === WifiSecurityType.Open ? "" : "WPA",
+                inUse: !!n.connected,
+                known: !!n.known,
+                net: n
+            });
+        }
+        out.sort((a, b) => (b.inUse - a.inUse) || (b.signal - a.signal));
+        return out;
+    }
+
     readonly property var adapter: Bluetooth.defaultAdapter
     readonly property bool btOn: adapter ? !!adapter.enabled : false
     readonly property string btGlyph: btOn ? "󰂯" : "󰂲"
 
     readonly property string glyph: {
+        if (wired)
+            return limited ? "󰈂" : "󰈀";
+        if (!hasWifi)
+            return "󰈂";
         if (!wifiOn)
             return "󰖪";
         if (!wifiConnected)
@@ -32,9 +102,20 @@ Singleton {
         return "󰤟";
     }
 
+    readonly property string label: {
+        if (wired)
+            return linkSpeed > 0 ? "Ethernet · " + (linkSpeed >= 1000 ? (linkSpeed / 1000) + " Gb/s" : linkSpeed + " Mb/s") : "Ethernet";
+        if (wifiConnected)
+            return ssid;
+        if (hasWifi && wifiOn)
+            return "Non connecté";
+        if (hasWifi)
+            return "Wi-Fi coupé";
+        return "Hors ligne";
+    }
+
     function toggleWifi() {
-        wifiProc.command = ["nmcli", "radio", "wifi", wifiOn ? "off" : "on"];
-        wifiProc.running = true;
+        Networking.wifiEnabled = !Networking.wifiEnabled;
     }
 
     function toggleBt() {
@@ -42,121 +123,47 @@ Singleton {
             adapter.enabled = !adapter.enabled;
     }
 
+    // l'état est poussé par D-Bus : refresh() ne fait que relancer un scan
     function refresh() {
-        infoProc.running = true;
+        listNetworks();
     }
 
     function listNetworks() {
-        listProc.running = true;
+        if (wifiDev && wifiDev.scannerEnabled !== undefined) {
+            wifiDev.scannerEnabled = true;
+            scanStop.restart();
+        }
     }
 
     function connectNetwork(ssid) {
-        connProc.command = ["nmcli", "dev", "wifi", "connect", String(ssid)];
-        connProc.running = true;
+        const list = networks;
+        for (let i = 0; i < list.length; i++) {
+            if (list[i].ssid !== ssid)
+                continue;
+            if (list[i].known || !list[i].security.length)
+                list[i].net.connect();
+            else
+                askConnect(ssid);
+            return;
+        }
     }
 
+    function disconnectWifi() {
+        if (activeWifi)
+            activeWifi.disconnect();
+    }
+
+    // réseau protégé inconnu : la saisie du mot de passe reste à nmcli
     function askConnect(ssid) {
         Quickshell.execDetached(["alacritty", "-e", "nmcli", "--ask", "dev", "wifi", "connect", String(ssid)]);
     }
 
-    function _parseNetLine(line) {
-        const parts = [];
-        let cur = "", esc = false;
-        for (let i = 0; i < line.length; i++) {
-            const ch = line[i];
-            if (esc) {
-                cur += ch;
-                esc = false;
-            } else if (ch === "\\") {
-                esc = true;
-            } else if (ch === ":") {
-                parts.push(cur);
-                cur = "";
-            } else {
-                cur += ch;
-            }
-        }
-        parts.push(cur);
-        return parts;
-    }
-
     Timer {
-        interval: 3000
-        running: true
-        repeat: true
-        triggeredOnStart: true
-        onTriggered: root.refresh()
-    }
-
-    Process {
-        id: infoProc
-        command: ["bash", "-c", "nmcli -t -f WIFI g; nmcli -t -f IN-USE,SIGNAL,SSID dev wifi | awk -F: '$1==\"yes\"{print $2 \":\" $3; exit}'; nmcli -t -f IN-USE,SIGNAL,SECURITY,SSID dev wifi list"]
-        property string buf: ""
-        stdout: SplitParser {
-            onRead: data => infoProc.buf += data + "\n"
+        id: scanStop
+        interval: 15000
+        onTriggered: {
+            if (root.wifiDev && root.wifiDev.scannerEnabled !== undefined)
+                root.wifiDev.scannerEnabled = false;
         }
-        onRunningChanged: if (running)
-            buf = ""
-        onExited: {
-            const lines = buf.trim().split("\n");
-            root.wifiOn = (lines[0] || "").toLowerCase().indexOf("enabled") >= 0 || lines[0] === "enabled";
-            const active = (lines[1] || "").trim();
-            if (active.indexOf(":") >= 0) {
-                const p = active.split(":");
-                root.signal = parseInt(p[0]) || 0;
-                root.ssid = (p[1] || "").trim();
-            } else {
-                root.signal = 0;
-                root.ssid = "";
-            }
-            root.wifiConnected = root.ssid.length > 0;
-
-            const seen = {};
-            const nets = [];
-            for (let i = 2; i < lines.length; i++) {
-                const raw = (lines[i] || "").trim();
-                if (!raw || raw.indexOf(":") < 0)
-                    continue;
-                const parts = root._parseNetLine(raw);
-                if (parts.length < 4)
-                    continue;
-                const inUse = parts[0] === "yes" || parts[0] === "*";
-                const sig = parseInt(parts[1]) || 0;
-                const sec = (parts[2] || "").trim();
-                const name = parts[3] || "";
-                if (!name.length)
-                    continue;
-                const key = name + "·" + sec;
-                if (seen[key] !== undefined) {
-                    if (inUse || sig > nets[seen[key]].signal) {
-                        nets[seen[key]] = { ssid: name, signal: sig, security: sec, inUse: inUse || nets[seen[key]].inUse };
-                    }
-                    continue;
-                }
-                seen[key] = nets.length;
-                nets.push({ ssid: name, signal: sig, security: sec, inUse: inUse });
-            }
-            nets.sort((a, b) => (b.inUse - a.inUse) || (b.signal - a.signal));
-            root.networks = nets;
-        }
-    }
-
-    Process {
-        id: listProc
-        command: ["nmcli", "dev", "wifi", "list", "if", "active"]
-        onExited: root.refresh()
-    }
-
-    Process {
-        id: connProc
-        onExited: {
-            root.refresh();
-            root.listNetworks();
-        }
-    }
-
-    Process {
-        id: wifiProc
-        onExited: root.refresh()
     }
 }

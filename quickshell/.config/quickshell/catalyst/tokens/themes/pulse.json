@@ -1,0 +1,23 @@
+{
+  "id": "pulse",
+  "label": "Pulse",
+  "description": "Îlots arrondis, halo d'accent.",
+  "chrome": {
+    "radius": { "sm": 10, "md": 14, "lg": 18, "xl": 24, "pill": 18, "full": 999 },
+    "blurBackdrop": true,
+    "veil": 0.76,
+    "grain": 0.08,
+    "hairline": 1,
+    "borderAlpha": 0.6,
+    "topHighlight": 0.12
+  },
+  "bar": {
+    "mode": "islands",
+    "height": 36,
+    "marginTop": 8,
+    "marginX": 10,
+    "gap": 8,
+    "opacity": 0.8
+  },
+  "dock": { "position": "bottom", "indicator": "glow" }
+}

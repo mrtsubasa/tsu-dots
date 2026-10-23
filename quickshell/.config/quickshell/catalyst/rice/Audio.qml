@@ -20,11 +20,14 @@ Singleton {
     readonly property bool muted: sinkReady ? (sink.audio.muted ?? false) : false
     readonly property bool micMuted: sourceReady ? (source.audio.muted ?? false) : true
     readonly property string sinkName: sinkReady ? (sink.description || sink.name || "sortie audio") : "sortie audio"
+    // amplification autorisée jusqu'à 150 % (même limite que les raccourcis wpctl -l 1.5)
+    readonly property real maxVolume: 1.5
     readonly property real volume: {
         if (!sinkReady)
             return 0;
-        return Math.max(0, Math.min(1, sink.audio.volume));
+        return Math.max(0, Math.min(maxVolume, sink.audio.volume));
     }
+    readonly property real micVolume: sourceReady ? Math.max(0, Math.min(maxVolume, source.audio.volume)) : 0
     readonly property int percentage: Math.round(volume * 100)
 
     readonly property string glyph: {
@@ -104,7 +107,14 @@ Singleton {
         if (!sinkReady)
             return;
         sink.audio.muted = false;
-        sink.audio.volume = Math.max(0, Math.min(1, v));
+        sink.audio.volume = Math.max(0, Math.min(maxVolume, v));
+    }
+
+    function setMicVolume(v) {
+        if (!sourceReady)
+            return;
+        source.audio.muted = false;
+        source.audio.volume = Math.max(0, Math.min(maxVolume, v));
     }
 
     function toggleMute() {

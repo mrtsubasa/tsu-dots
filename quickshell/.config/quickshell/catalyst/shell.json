@@ -5,7 +5,7 @@
   "replaceWaybar": true,
   "widgets": true,
   "widgetsLayer": "desk",
-  "paletteMode": "auto",
-  "palette": "silver-protocol",
-  "theme": ""
+  "paletteMode": "theme",
+  "palette": "catalyst-dark",
+  "theme": "catalyst-dark"
 }

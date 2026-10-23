@@ -5,6 +5,15 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 
+/*
+ * Tokens — géométrie du design system (Tsubasa Catalyst v3).
+ *
+ * Sources :
+ *   tokens/shell.json            réglages globaux (densité, reduced motion…)
+ *   tokens/themes/<pack>.json    pack d'identité choisi par le thème
+ *                                (rayons, barre, verre, effets)
+ * Aucune valeur de géométrie ne doit être codée en dur dans un composant.
+ */
 Singleton {
     id: root
 
@@ -14,25 +23,26 @@ Singleton {
         if (s === "islands") return "ilots";
         if (s === "silverwolf") return "wolf";
         if (s === "apple" || s === "initiald") return s;
-        if (["lain", "tsubasa", "brume", "signal", "eclipse"].indexOf(s) >= 0) return s;
-        return "ilots";
+        if (["catalyst", "protocol", "pulse", "lain", "tsubasa", "brume", "signal", "eclipse", "wolf", "ilots"].indexOf(s) >= 0) return s;
+        return "catalyst";
     }
     readonly property string baseDir: Quickshell.env("HOME") + "/.config/quickshell/catalyst/tokens"
     readonly property string shellPath: baseDir + "/shell.json"
     readonly property string packPath: baseDir + "/themes/" + packId + ".json"
 
     // --- shell.json ---
-    property string density: "air"
+    property string density: "regular"
     property bool reducedMotion: false
-    property real shellBarOpacity: 0.82
+    property real shellBarOpacity: 0.86
     property real shellVeil: 0.78
     property bool shellBlurBackdrop: true
+    property bool shellReady: false
 
     // --- identity pack (null = built-in defaults) ---
     property var pack: null
 
     // =====================================================================
-    // SPACING SCALE — unité 4px, rien en dehors
+    // SPACING — unité 4 px
     // =====================================================================
     readonly property int s0: 0
     readonly property int s1: 4
@@ -50,8 +60,19 @@ Singleton {
     }
 
     // =====================================================================
-    // TYPE SCALE — plancher 11px
+    // TYPE SCALE (kit v3) — plancher 11 px
     // =====================================================================
+    readonly property int fDisplay: 44     // horloge écran de verrouillage / widget
+    readonly property int fHero: 28        // titres de panneaux larges
+    readonly property int fTitle: 17       // titre de panneau
+    readonly property int fHeading: 14     // titre de carte / section
+    readonly property int fBody: 13        // texte courant
+    readonly property int fLabel: 12       // libellés de contrôles
+    readonly property int fCaption: 11     // méta, sous-titres
+    readonly property int fOverline: 11    // MICRO-LABELS en capitales, tracking large
+    readonly property real trackOverline: 1.4
+
+    // compat v2
     readonly property int tDisplay: 34
     readonly property int tTitle: 22
     readonly property int tSection: 11
@@ -65,27 +86,46 @@ Singleton {
     readonly property int tIconSmall: 11
 
     // =====================================================================
+    // ICÔNES & CONTRÔLES
+    // =====================================================================
+    readonly property int iconXs: 14
+    readonly property int iconSm: 16
+    readonly property int iconMd: 20
+    readonly property int iconLg: 24
+    readonly property int iconXl: 32
+
+    readonly property int ctrlSm: 28       // icon-button compact (barre)
+    readonly property int ctrl: 34         // bouton standard
+    readonly property int ctrlLg: 40       // champ de recherche, bouton principal
+    readonly property int rowH: 44         // ligne de liste
+    readonly property int tileH: 60        // tuile de réglage rapide
+    readonly property int sliderH: 36      // piste de slider « épaisse »
+    readonly property int panelPad: 16
+    readonly property int sectionGap: 14
+
+    // =====================================================================
     // DENSITY
     // =====================================================================
     readonly property bool isCompact: density === "compact"
     readonly property bool isRegular: density === "regular"
     readonly property int densityDelta: isCompact ? -4 : (isRegular ? -2 : 0)
     readonly property real densityScale: isCompact ? 0.7 : (isRegular ? 0.85 : 1.0)
-    // padding pills / overlays suivent la densité (arrondi au multiple de 4)
     function dens(px) {
         return Math.max(4, Math.round(px * densityScale / 4) * 4);
     }
 
     // =====================================================================
-    // RADIUS SCALE (pack identité, défaut = Îlots)
+    // RADIUS (pack d'identité)
     // =====================================================================
     readonly property var _r: {
         const p = pack && pack.chrome && pack.chrome.radius ? pack.chrome.radius : null;
         return p ? p : { sm: 8, md: 12, lg: 16, pill: 14, full: 999 };
     }
+    readonly property int rXs: Math.max(2, Math.round(_r.sm / 2))
     readonly property int rSm: _r.sm
     readonly property int rMd: _r.md
     readonly property int rLg: _r.lg
+    readonly property int rXl: _r.xl !== undefined ? _r.xl : _r.lg + 6
     readonly property int rPill: _r.pill
     readonly property int rFull: _r.full
 
@@ -101,24 +141,32 @@ Singleton {
 
     // =====================================================================
     // BAR GEOMETRY — exclusiveZone = marginTop + barHeight
+    //   mode : "floating" (une capsule) | "islands" (3 îlots) | "attached" (bord à bord)
     // =====================================================================
-    readonly property var _bar: pack && pack.bar ? pack.bar : { mode: "islands", height: 28, marginTop: 8, marginX: 12, gap: 8, opacity: 0.82 }
-    readonly property string barMode: _bar.mode
+    readonly property var _bar: pack && pack.bar ? pack.bar : { mode: "floating", height: 34, marginTop: 6, marginX: 8, gap: 8, opacity: 0.86 }
+    readonly property string barMode: _bar.mode === "continuous" ? (_bar.marginX > 0 ? "floating" : "attached") : (_bar.mode || "floating")
     readonly property bool barIslands: barMode === "islands"
+    readonly property bool barAttached: barMode === "attached"
     readonly property int barBase: _bar.height
-    readonly property int barHeight: Math.max(24, barBase + densityDelta)
-    readonly property int marginTop: _bar.marginTop
-    readonly property int marginX: _bar.marginX
+    readonly property int barHeight: Math.max(26, barBase + densityDelta)
+    readonly property int marginTop: barAttached ? 0 : _bar.marginTop
+    readonly property int marginX: barAttached ? 0 : _bar.marginX
     readonly property int barGap: _bar.gap
     readonly property real barOpacity: _bar.opacity !== undefined ? _bar.opacity : shellBarOpacity
     readonly property int exclusive: marginTop + barHeight
     readonly property string barTopHairline: _bar.topHairline || ""
     readonly property string barBottomHairline: _bar.bottomHairline || ""
     readonly property bool barClockSeconds: _bar.clockSeconds === true
+    readonly property int barRadius: barAttached ? 0 : (barIslands ? rLg : Math.min(rLg, Math.round(barHeight / 2)))
+    // taille des cibles cliquables dans la barre (jamais < 24)
+    readonly property int barItem: Math.max(24, barHeight - 8)
 
     readonly property int overlayMargin: dens(16)
     readonly property int pillH: isCompact ? 36 : (isRegular ? 40 : 44)
     readonly property int dockIcon: isCompact ? 28 : (isRegular ? 32 : 36)
+
+    // position verticale des panneaux sous la barre
+    readonly property int belowBar: exclusive + 8
 
     // =====================================================================
     // ELEVATION e0..e4
@@ -142,13 +190,12 @@ Singleton {
         return { blur: 48, alpha: 0.45, y: 16 };
     }
 
-    // bordure externe commune e1+
     function borderOf(alphaMul) {
-        return Qt.alpha(Theme.outlineVariant, borderAlpha * (alphaMul === undefined ? 1 : alphaMul));
+        return Qt.alpha(Theme.ink, 0.075 * (alphaMul === undefined ? 1 : alphaMul) / 0.55 * borderAlpha);
     }
 
     // =====================================================================
-    // MIGRATION : lit l'existant (panel.json / rice.json) au premier lancement
+    // Persistance
     // =====================================================================
     Component.onCompleted: reloadShell()
 
@@ -167,20 +214,25 @@ Singleton {
         saveShell();
     }
 
+    function setBarOpacity(v) {
+        shellBarOpacity = v;
+        saveShell();
+    }
+
     function setIdentity(id) {
         saveShell();
     }
 
     function saveShell() {
+        if (!shellReady)
+            return;
         const obj = {
-            "$schema": "catalyst.shell/v2",
+            "$schema": "catalyst.shell/v3",
             identity: packId,
-            legacyIdentities: false,
             density: density,
             reducedMotion: reducedMotion,
-            bar: { layout: barMode, opacity: shellBarOpacity },
-            chrome: { veil: shellVeil, blurBackdrop: shellBlurBackdrop },
-            motion: { fast: Motion.fast, base: Motion.base, slow: Motion.slow, theme: Motion.themeDuration }
+            bar: { opacity: shellBarOpacity },
+            chrome: { veil: shellVeil, blurBackdrop: shellBlurBackdrop }
         };
         shellWrite.command = ["bash", "-c", "cat > '" + shellPath + "' << 'EOF'\n" + JSON.stringify(obj, null, 2) + "\nEOF"];
         shellWrite.running = true;
@@ -194,6 +246,7 @@ Singleton {
         if (obj.chrome && obj.chrome.veil !== undefined) shellVeil = obj.chrome.veil;
         if (obj.chrome && obj.chrome.blurBackdrop !== undefined) shellBlurBackdrop = !!obj.chrome.blurBackdrop;
         Theme.animated = !reducedMotion;
+        shellReady = true;
     }
 
     function applyPack(obj) {
@@ -210,8 +263,10 @@ Singleton {
                 root.applyShell(JSON.parse(text()));
             } catch (e) {
                 console.log("[Tokens] shell.json parse error", e);
+                root.shellReady = true;
             }
         }
+        onLoadFailed: root.shellReady = true
     }
 
     FileView {

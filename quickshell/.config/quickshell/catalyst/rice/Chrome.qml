@@ -8,7 +8,7 @@ Singleton {
     id: root
 
     readonly property string st: Theme.uiStyle
-    readonly property bool preset: ["apple", "islands", "silverwolf", "lain", "tsubasa", "initiald", "brume", "signal", "eclipse"].indexOf(st) >= 0
+    readonly property bool preset: ["catalyst", "protocol", "pulse", "apple", "islands", "silverwolf", "lain", "tsubasa", "initiald", "brume", "signal", "eclipse"].indexOf(st) >= 0
 
     readonly property bool islands: Tokens.barIslands
     readonly property bool continuous: !islands
@@ -50,6 +50,7 @@ Singleton {
     readonly property bool brackets: st === "silverwolf" || st === "lain" || st === "initiald"
 
     readonly property string mark: {
+        if (st === "catalyst" || st === "protocol" || st === "pulse") return "◆";
         if (st === "silverwolf") return "SW";
         if (st === "lain") return "LN";
         if (st === "tsubasa") return "TS";
@@ -60,6 +61,9 @@ Singleton {
     }
 
     readonly property string displayName: {
+        if (st === "catalyst") return "Catalyst";
+        if (st === "protocol") return "Protocol";
+        if (st === "pulse") return "Pulse";
         if (st === "silverwolf") return "Wolf";
         if (st === "islands") return "Îlots";
         if (st === "lain") return "Lain";
@@ -73,6 +77,9 @@ Singleton {
     }
 
     readonly property var identities: [
+        { id: "catalyst", label: "Catalyst" },
+        { id: "protocol", label: "Protocol" },
+        { id: "pulse", label: "Pulse" },
         { id: "islands", label: "Îlots" },
         { id: "silverwolf", label: "Wolf" },
         { id: "lain", label: "Lain" },

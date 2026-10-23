@@ -1,0 +1,23 @@
+{
+  "id": "protocol",
+  "label": "Protocol",
+  "description": "Bord à bord, angles précis, filets nets.",
+  "chrome": {
+    "radius": { "sm": 4, "md": 6, "lg": 8, "xl": 10, "pill": 6, "full": 999 },
+    "blurBackdrop": true,
+    "veil": 0.82,
+    "grain": 0.0,
+    "hairline": 1,
+    "borderAlpha": 0.7,
+    "topHighlight": 0.06
+  },
+  "bar": {
+    "mode": "attached",
+    "height": 34,
+    "marginTop": 0,
+    "marginX": 0,
+    "gap": 8,
+    "opacity": 0.92
+  },
+  "dock": { "position": "bottom", "indicator": "square" }
+}

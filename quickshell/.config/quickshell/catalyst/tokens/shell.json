@@ -1,21 +1,13 @@
 {
-  "$schema": "catalyst.shell/v2",
-  "identity": "ilots",
-  "legacyIdentities": false,
+  "$schema": "catalyst.shell/v3",
+  "identity": "catalyst",
   "density": "air",
   "reducedMotion": false,
   "bar": {
-    "layout": "continuous",
     "opacity": 0.82
   },
   "chrome": {
     "veil": 0.78,
     "blurBackdrop": true
-  },
-  "motion": {
-    "fast": 150,
-    "base": 220,
-    "slow": 280,
-    "theme": 400
   }
 }

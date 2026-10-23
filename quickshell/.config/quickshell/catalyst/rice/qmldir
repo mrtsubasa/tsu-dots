@@ -35,3 +35,5 @@ singleton Weather Weather.qml
 singleton Night Night.qml
 singleton SessionLock SessionLock.qml
 singleton PkgsData PkgsData.qml
+singleton Caffeine Caffeine.qml
+singleton Power Power.qml

@@ -12,6 +12,11 @@ Singleton {
     property string output: "all"
     property int height: 0
     property real opacity: 0
+    // métriques système dans la barre : auto (seulement en alerte) | always | off
+    property string metrics: "auto"
+    // ordre des éléments de droite (réordonnable depuis le Studio)
+    property var rightOrder: ["media", "metrics", "tray", "status", "notif", "power"]
+    readonly property var rightDefault: ["media", "metrics", "tray", "status", "notif", "power"]
     property var modules: ({
         menu: true,
         home: true,
@@ -42,7 +47,11 @@ Singleton {
         notif: true,
         power: true,
         term: true,
-        profile: true
+        profile: true,
+        mark: true,
+        metrics: true,
+        status: true,
+        tools: false
     })
 
     function on(id) {
@@ -69,6 +78,27 @@ Singleton {
         save();
     }
 
+    function setMetrics(v) {
+        metrics = v;
+        save();
+    }
+
+    function setRightOrder(list) {
+        rightOrder = list;
+        save();
+    }
+
+    function move(id, delta) {
+        const list = rightOrder.slice();
+        const i = list.indexOf(id);
+        const j = i + delta;
+        if (i < 0 || j < 0 || j >= list.length)
+            return;
+        list.splice(i, 1);
+        list.splice(j, 0, id);
+        setRightOrder(list);
+    }
+
     function setOpacity(v) {
         opacity = v;
         save();
@@ -89,6 +119,8 @@ Singleton {
             output: output,
             height: height,
             opacity: opacity,
+            metrics: metrics,
+            rightOrder: rightOrder,
             modules: modules
         };
         writeProc.command = ["bash", "-c", "cat > " + shellEscape(path) + " << 'EOF'\n" + JSON.stringify(obj, null, 2) + "\nEOF"];
@@ -112,6 +144,17 @@ Singleton {
                     root.height = o.height;
                 if (o.opacity !== undefined)
                     root.opacity = o.opacity;
+                if (o.metrics)
+                    root.metrics = o.metrics;
+                if (Array.isArray(o.rightOrder)) {
+                    // garde les éléments connus + ajoute les nouveaux
+                    const known = root.rightDefault;
+                    const out = o.rightOrder.filter(k => known.indexOf(k) >= 0);
+                    for (let i = 0; i < known.length; i++)
+                        if (out.indexOf(known[i]) < 0)
+                            out.push(known[i]);
+                    root.rightOrder = out;
+                }
                 if (o.modules) {
                     const next = Object.assign({}, root.modules, o.modules);
                     root.modules = next;

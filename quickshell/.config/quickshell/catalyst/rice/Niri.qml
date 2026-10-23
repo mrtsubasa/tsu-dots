@@ -4,6 +4,7 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import Quickshell.Hyprland
 
 Singleton {
     id: root
@@ -482,8 +483,25 @@ Singleton {
         }
     }
 
+    // Hyprland : rafraîchissement piloté par les événements IPC (socket2),
+    // regroupés sur 40 ms. Le timer lent n'est qu'un filet de sécurité.
+    // Niri garde l'ancien polling.
+    Connections {
+        target: root.hyprland ? Hyprland : null
+        function onRawEvent(event) {
+            if (!evDebounce.running)
+                evDebounce.start();
+        }
+    }
+
     Timer {
-        interval: 400
+        id: evDebounce
+        interval: 40
+        onTriggered: root.refresh()
+    }
+
+    Timer {
+        interval: root.hyprland ? 5000 : 400
         running: true
         repeat: true
         triggeredOnStart: true
