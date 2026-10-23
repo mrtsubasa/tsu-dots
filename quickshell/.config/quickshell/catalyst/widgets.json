@@ -10,6 +10,7 @@
       "w": 380,
       "h": 210,
       "visible": true,
+      "z": 0,
       "props": {}
     },
     {
@@ -21,6 +22,7 @@
       "w": 330,
       "h": 300,
       "visible": true,
+      "z": 0,
       "props": {}
     },
     {
@@ -32,6 +34,7 @@
       "w": 400,
       "h": 168,
       "visible": true,
+      "z": 0,
       "props": {}
     },
     {
@@ -43,10 +46,11 @@
       "w": 330,
       "h": 214,
       "visible": true,
+      "z": 0,
       "props": {
         "running": false,
-        "endsAt": 1792608419549,
-        "remaining": 1499
+        "endsAt": 1792768511533,
+        "remaining": 1497
       }
     }
   ]

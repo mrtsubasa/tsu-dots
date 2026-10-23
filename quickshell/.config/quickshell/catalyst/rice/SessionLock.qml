@@ -27,7 +27,7 @@ Scope {
     }
 
     Timer {
-        interval: 2000
+        interval: 3000
         repeat: true
         running: true
         onTriggered: if (!probe.running)

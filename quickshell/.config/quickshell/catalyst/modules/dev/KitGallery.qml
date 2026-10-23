@@ -9,7 +9,7 @@ import qs.kit
 // Galerie du kit (dev) : qs ipc … call panels toggle kit
 PanelWindow {
     id: win
-    visible: PanelService.active === "kit" && PanelService.onScreen(screen)
+    visible: PanelService.active === "kit"
     screen: Quickshell.screens.length > 1 ? Quickshell.screens[1] : Quickshell.screens[0]
     implicitWidth: 760
     implicitHeight: 620

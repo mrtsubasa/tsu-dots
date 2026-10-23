@@ -32,8 +32,9 @@ Singleton {
         onTriggered: root.refresh()
     }
 
+    // l'état ne change normalement que par toggle() : sonde lente de secours
     Timer {
-        interval: 2500
+        interval: 15000
         running: true
         repeat: true
         onTriggered: root.refresh()
