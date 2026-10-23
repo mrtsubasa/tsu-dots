@@ -39,3 +39,5 @@ singleton Caffeine Caffeine.qml
 singleton Power Power.qml
 singleton Recorder Recorder.qml
 singleton Search Search.qml
+singleton Profiles Profiles.qml
+singleton Walls Walls.qml

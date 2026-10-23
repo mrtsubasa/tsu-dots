@@ -39,7 +39,6 @@ ShellRoot {
     Stage {}
     Toasts {}
     BarPopover {}
-    Atelier {}
     Osd {}
     AiPanel {}
     VmPanel {}
@@ -97,6 +96,14 @@ ShellRoot {
             PanelService.controlPage = page || "";
             if (PanelService.active !== "control")
                 PanelService.show("control");
+            return PanelService.active;
+        }
+
+        // ouvre le Studio sur une page : themes wall bar dock desk panels profiles
+        function studio(page: string): string {
+            PanelService.studioPage = page || "";
+            if (PanelService.active !== "studio")
+                PanelService.show("studio");
             return PanelService.active;
         }
 

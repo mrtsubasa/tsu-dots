@@ -24,3 +24,7 @@ Popout 1.0 Popout.qml
 Mark 1.0 Mark.qml
 BarItem 1.0 BarItem.qml
 Menu 1.0 Menu.qml
+SettingRow 1.0 SettingRow.qml
+Group 1.0 Group.qml
+Swatch 1.0 Swatch.qml
+Field 1.0 Field.qml

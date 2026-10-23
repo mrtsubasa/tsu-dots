@@ -144,13 +144,15 @@ Singleton {
     //   mode : "floating" (une capsule) | "islands" (3 îlots) | "attached" (bord à bord)
     // =====================================================================
     readonly property var _bar: pack && pack.bar ? pack.bar : { mode: "floating", height: 34, marginTop: 6, marginX: 8, gap: 8, opacity: 0.86 }
-    readonly property string barMode: _bar.mode === "continuous" ? (_bar.marginX > 0 ? "floating" : "attached") : (_bar.mode || "floating")
+    readonly property string packBarMode: _bar.mode === "continuous" ? (_bar.marginX > 0 ? "floating" : "attached") : (_bar.mode || "floating")
+    // le Studio peut imposer un style de barre indépendamment du thème
+    readonly property string barMode: BarCfg.style.length ? BarCfg.style : packBarMode
     readonly property bool barIslands: barMode === "islands"
     readonly property bool barAttached: barMode === "attached"
-    readonly property int barBase: _bar.height
+    readonly property int barBase: BarCfg.height > 0 ? BarCfg.height : _bar.height
     readonly property int barHeight: Math.max(26, barBase + densityDelta)
-    readonly property int marginTop: barAttached ? 0 : _bar.marginTop
-    readonly property int marginX: barAttached ? 0 : _bar.marginX
+    readonly property int marginTop: barAttached ? 0 : (_bar.marginTop > 0 ? _bar.marginTop : 6)
+    readonly property int marginX: barAttached ? 0 : (_bar.marginX > 0 ? _bar.marginX : 8)
     readonly property int barGap: _bar.gap
     readonly property real barOpacity: _bar.opacity !== undefined ? _bar.opacity : shellBarOpacity
     readonly property int exclusive: marginTop + barHeight

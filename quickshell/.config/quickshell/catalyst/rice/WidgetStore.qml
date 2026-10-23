@@ -35,10 +35,10 @@ Singleton {
     })
 
     readonly property var types: [
-        { type: "clock", label: "Horloge", glyph: "󰥔", w: 380, h: 210 },
-        { type: "sys", label: "Système", glyph: "󰒳", w: 330, h: 300 },
-        { type: "media", label: "Lecteur", glyph: "󰝚", w: 400, h: 168 },
-        { type: "focus", label: "Minuteur", glyph: "󰔛", w: 330, h: 214 }
+        { type: "clock", label: "Horloge", glyph: "󰥔", icon: "schedule", w: 380, h: 210 },
+        { type: "sys", label: "Système", glyph: "󰒳", icon: "monitoring", w: 330, h: 300 },
+        { type: "media", label: "Lecteur", glyph: "󰝚", icon: "music_note", w: 400, h: 168 },
+        { type: "focus", label: "Minuteur", glyph: "󰔛", icon: "timer", w: 330, h: 214 }
     ]
 
     function defOf(type) {

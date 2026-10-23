@@ -12,6 +12,8 @@ Singleton {
     property string output: "all"
     property int height: 0
     property real opacity: 0
+    // style de barre imposé ("" = celui du thème) : floating | islands | attached
+    property string style: ""
     // métriques système dans la barre : auto (seulement en alerte) | always | off
     property string metrics: "auto"
     // ordre des éléments de droite (réordonnable depuis le Studio)
@@ -78,6 +80,11 @@ Singleton {
         save();
     }
 
+    function setStyle(v) {
+        style = v || "";
+        save();
+    }
+
     function setMetrics(v) {
         metrics = v;
         save();
@@ -119,6 +126,7 @@ Singleton {
             output: output,
             height: height,
             opacity: opacity,
+            style: style,
             metrics: metrics,
             rightOrder: rightOrder,
             modules: modules
@@ -146,6 +154,7 @@ Singleton {
                     root.opacity = o.opacity;
                 if (o.metrics)
                     root.metrics = o.metrics;
+                root.style = o.style || "";
                 if (Array.isArray(o.rightOrder)) {
                     // garde les éléments connus + ajoute les nouveaux
                     const known = root.rightDefault;

@@ -1,0 +1,242 @@
+{
+  "name": "Catalyst — état initial v3",
+  "created": 1792765946,
+  "files": {
+    "shell": {
+      "bar": true,
+      "osd": true,
+      "atelier": true,
+      "replaceWaybar": true,
+      "widgets": true,
+      "widgetsLayer": "desk",
+      "paletteMode": "theme",
+      "palette": "catalyst-dark",
+      "theme": "catalyst-dark"
+    },
+    "bar": {
+      "output": "all",
+      "height": 0,
+      "opacity": 0,
+      "modules": {
+        "menu": true,
+        "home": true,
+        "workspaces": true,
+        "window": true,
+        "clock": true,
+        "cpu": true,
+        "memory": true,
+        "gpu": true,
+        "temp": true,
+        "disk": true,
+        "media": true,
+        "ai": true,
+        "vm": true,
+        "scripts": true,
+        "chat": true,
+        "bots": true,
+        "ops": true,
+        "wall": true,
+        "clip": true,
+        "binds": true,
+        "pkgs": true,
+        "network": true,
+        "vpn": true,
+        "target": true,
+        "pulse": true,
+        "tray": true,
+        "notif": true,
+        "power": true,
+        "term": true,
+        "profile": true
+      }
+    },
+    "widgets": {
+      "seq": 5,
+      "items": [
+        {
+          "id": "w1",
+          "type": "clock",
+          "screen": "",
+          "x": 40,
+          "y": 96,
+          "w": 380,
+          "h": 210,
+          "visible": true,
+          "props": {}
+        },
+        {
+          "id": "w2",
+          "type": "sys",
+          "screen": "",
+          "x": 40,
+          "y": 336,
+          "w": 330,
+          "h": 300,
+          "visible": true,
+          "props": {}
+        },
+        {
+          "id": "w3",
+          "type": "media",
+          "screen": "",
+          "x": 460,
+          "y": 96,
+          "w": 400,
+          "h": 168,
+          "visible": true,
+          "props": {}
+        },
+        {
+          "id": "w4",
+          "type": "focus",
+          "screen": "",
+          "x": 460,
+          "y": 296,
+          "w": 330,
+          "h": 214,
+          "visible": true,
+          "props": {
+            "running": false,
+            "endsAt": 1792608419549,
+            "remaining": 1499
+          }
+        }
+      ]
+    },
+    "tokens": {
+      "$schema": "catalyst.shell/v3",
+      "identity": "catalyst",
+      "density": "air",
+      "reducedMotion": false,
+      "bar": {
+        "opacity": 0.82
+      },
+      "chrome": {
+        "veil": 0.78,
+        "blurBackdrop": true
+      }
+    },
+    "dock": {
+      "enabled": false,
+      "align": "center",
+      "apps": [
+        {
+          "exec": "dolphin",
+          "icon": "org.kde.dolphin",
+          "id": "dolphin",
+          "name": "Fichiers",
+          "wmclass": "dolphin"
+        },
+        {
+          "exec": "alacritty",
+          "icon": "Alacritty",
+          "id": "alacritty",
+          "name": "Terminal",
+          "wmclass": "Alacritty"
+        },
+        {
+          "exec": "zen-browser",
+          "icon": "zen-browser",
+          "id": "zen",
+          "name": "Zen",
+          "wmclass": "zen"
+        },
+        {
+          "exec": "codium",
+          "icon": "vscodium",
+          "id": "codium",
+          "name": "VSCodium",
+          "wmclass": "codium"
+        },
+        {
+          "exec": "vesktop",
+          "icon": "vesktop",
+          "id": "vesktop",
+          "name": "Discord",
+          "wmclass": "vesktop"
+        },
+        {
+          "exec": "spotify",
+          "icon": "spotify-client",
+          "id": "spotify",
+          "name": "Spotify",
+          "wmclass": "spotify"
+        },
+        {
+          "type": "separator"
+        },
+        {
+          "exec": "spell:launcher",
+          "icon": "application-menu",
+          "id": "launcher",
+          "name": "Apps",
+          "wmclass": ""
+        },
+        {
+          "exec": "spell:dashboard",
+          "icon": "preferences-system",
+          "id": "dashboard",
+          "name": "Réglages",
+          "wmclass": ""
+        },
+        {
+          "exec": "/home/tsu/.local/scripts/Workspace-Manager/overview.sh",
+          "icon": "view-grid-symbolic",
+          "id": "overview",
+          "name": "Overview",
+          "wmclass": ""
+        }
+      ],
+      "gap": 10,
+      "icon_size": 32,
+      "mag_range": 72,
+      "margin_bottom": 4,
+      "max_scale": 1.8799999952316284,
+      "monitors": "primary",
+      "opacity": 0.5,
+      "padding": 16,
+      "position": "bottom",
+      "show_dots": true,
+      "show_labels": "hover",
+      "show_pill": true,
+      "autohide": false,
+      "theme": "apple"
+    },
+    "panel": {
+      "slot": "mr",
+      "width": 360,
+      "bg": "follow",
+      "veil": 0.78,
+      "grain": 0.12,
+      "vignette": true,
+      "halo": true,
+      "show_clock": true,
+      "show_stats": true,
+      "show_actions": true,
+      "show_power": true,
+      "display_name": "Tsubasa Catalyst",
+      "avatar": "/home/tsu/Images/Lce/Untitled.png",
+      "os_label": "Catalyst",
+      "show_os": true,
+      "radius": 16,
+      "glow": "neon",
+      "border": "accent",
+      "density": "air",
+      "avatar_shape": "circle",
+      "clock12": true,
+      "clock_sec": true,
+      "clock_size": "l",
+      "show_user": true,
+      "show_meta": true,
+      "show_date": true,
+      "status": "IT Enthusiast",
+      "height_mode": "auto",
+      "bar_style": "catalyst",
+      "panel_style": "catalyst",
+      "bar_opacity": 0.62,
+      "bar_font": 12,
+      "bar_border": true,
+      "bar_height": 28
+    }
+  }
+}

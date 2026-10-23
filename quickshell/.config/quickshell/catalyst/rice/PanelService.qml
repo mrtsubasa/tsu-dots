@@ -92,7 +92,7 @@ Singleton {
     }
 
     // anciens noms de panneaux → surfaces v3
-    readonly property var aliases: ({ dashboard: "control", home: "control", notifications: "control" })
+    readonly property var aliases: ({ dashboard: "control", home: "control", notifications: "control", atelier: "studio" })
 
     function resolve(name) {
         return aliases[name] || name;
@@ -102,6 +102,8 @@ Singleton {
     property string focusSection: ""
     // sous-page demandée pour le centre de contrôle (net, bt, out, in, eq, power)
     property string controlPage: ""
+    // page demandée pour le Studio (themes, wall, bar, dock, desk, panels, profiles)
+    property string studioPage: ""
 
     // ancrage horizontal (coordonnées écran) de la surface ouverte depuis un
     // élément de barre : { x: centre, w: largeur }

@@ -5,6 +5,7 @@ import Quickshell.Wayland
 import qs.rice
 import qs.kit
 import "../control"
+import "../studio"
 
 // Stage : couche plein écran (par moniteur) qui accueille les surfaces
 // transitoires v3. Clic hors surface ou Échap = fermeture. La fenêtre n'existe
@@ -23,13 +24,13 @@ Scope {
             readonly property bool here: PanelService.onScreen(modelData)
             readonly property string want: here ? PanelService.active : ""
 
-            readonly property bool anyShown: cc.shown || cal.shown || media.shown || power.shown || sysmon.shown || launcher.shown
+            readonly property bool anyShown: cc.shown || cal.shown || media.shown || power.shown || sysmon.shown || launcher.shown || studio.shown
             visible: anyShown
             color: "transparent"
             exclusionMode: ExclusionMode.Ignore
             WlrLayershell.namespace: "catalyst-stage"
             WlrLayershell.layer: WlrLayer.Overlay
-            WlrLayershell.keyboardFocus: want.length && (cc.open || cal.open || media.open || power.open || sysmon.open || launcher.open) ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+            WlrLayershell.keyboardFocus: want.length && (cc.open || cal.open || media.open || power.open || sysmon.open || launcher.open || studio.open) ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
             anchors { top: true; bottom: true; left: true; right: true }
 
             // abscisse d'ancrage (centre de l'élément de barre cliqué)
@@ -150,6 +151,27 @@ Scope {
                         focus: launcher.open
                         sourceComponent: LauncherPanel {
                             maxHeight: stage.height * 0.68
+                        }
+                    }
+                }
+
+                // ---- Studio (centré) ----
+                Popout {
+                    id: studio
+                    open: stage.want === "studio"
+                    from: "center"
+                    width: studioLoader.item ? studioLoader.item.implicitWidth : 0
+                    height: studioLoader.item ? studioLoader.item.implicitHeight : 0
+                    anchors.centerIn: parent
+                    anchors.verticalCenterOffset: Tokens.exclusive / 2
+                    Loader {
+                        id: studioLoader
+                        anchors.fill: parent
+                        active: studio.open || studio.shown
+                        focus: studio.open
+                        sourceComponent: Studio {
+                            maxHeight: stage.height - Tokens.belowBar - 40
+                            focus: true
                         }
                     }
                 }

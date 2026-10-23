@@ -281,6 +281,14 @@ Singleton {
         function onFileReadyChanged() {
             root.applyStored();
         }
+        // shell.json modifié de l'extérieur (profil chargé, édition manuelle)
+        function onThemeChanged() {
+            if (!root.loaded || !root.presetsReady)
+                return;
+            const id = ShellCfg.theme;
+            if (id && id.length && id !== root.active && root.byId(id))
+                root.applyData(id, root.byId(id).data, false);
+        }
     }
 
     // ------------------------------------------------------------------
@@ -306,8 +314,10 @@ Singleton {
             const t = String(v).replace("#", "");
             return t.substring(0, 6).toLowerCase() || fallback;
         };
-        const a = pick(hy && hy.active, rgb(Theme.primary));
-        const b = pick(hy && hy.active2, rgb(Theme.tertiary));
+        // accent personnalisé (Studio) : la bordure suit la couleur live
+        const custom = hy && preset.data.palette && rgb(Theme.primary) !== pick(preset.data.palette.accent, "");
+        const a = custom ? rgb(Theme.primary) : pick(hy && hy.active, rgb(Theme.primary));
+        const b = custom ? rgb(Theme.electric) : pick(hy && hy.active2, rgb(Theme.electric));
         const cIn = pick(hy && hy.inactive, rgb(Theme.outlineVariant));
 
         const body = [
