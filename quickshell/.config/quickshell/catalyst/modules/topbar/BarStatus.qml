@@ -3,8 +3,7 @@ import qs.rice
 import qs.kit
 
 // Grappe d'état → centre de contrôle. Réseau, Bluetooth (si un appareil est
-// connecté), volume, micro (seulement s'il est actif = capture en cours /
-// non muet). Molette = volume ; clic milieu = muet.
+// connecté), volume, micro coupé. Molette = volume ; clic milieu = muet.
 BarItem {
     id: root
 
@@ -75,12 +74,12 @@ BarItem {
         fill: 1
         color: Audio.muted ? Theme.textFaint : Theme.text
     }
+    // micro coupé (rappel) — l'usage du micro par une appli est signalé à part
     Icon {
         anchors.verticalCenter: parent.verticalCenter
-        visible: Audio.sourceReady && !Audio.micMuted
-        name: "mic"
+        visible: Audio.sourceReady && Audio.micMuted
+        name: "mic_off"
         size: 16
-        fill: 1
-        color: Theme.signature
+        color: Theme.error
     }
 }

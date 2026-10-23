@@ -124,6 +124,7 @@ Scope {
 
                     BarRecord { visible: want }
                     BarShutdown { barWin: win; visible: want }
+                    BarPrivacy { barWin: win; visible: want }
 
                     Repeater {
                         model: BarCfg.rightOrder

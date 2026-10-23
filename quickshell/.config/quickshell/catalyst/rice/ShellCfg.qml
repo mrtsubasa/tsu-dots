@@ -27,6 +27,11 @@ Singleton {
     property real trueToneStrength: 0.7
     property bool nightLight: false
     property int nightTemp: 3800
+    // vie privée / audio
+    property bool dndOnShare: true
+    property string rawMic: ""          // dernier micro physique choisi (node.name)
+    // mode jeu automatique quand un jeu passe en plein écran
+    property bool autoGameMode: true
     readonly property string brandPath: Quickshell.env("HOME") + "/.cache/catalyst/brand"
     // true une fois le premier chargement terminé (sécurise Themes/Atelier)
     property bool fileReady: false
@@ -61,6 +66,12 @@ Singleton {
             nightLight = !!obj.nightLight;
         if (obj.nightTemp !== undefined)
             nightTemp = Math.max(2500, Math.min(5500, Number(obj.nightTemp) || 3800));
+        if (obj.dndOnShare !== undefined)
+            dndOnShare = !!obj.dndOnShare;
+        if (obj.rawMic !== undefined)
+            rawMic = String(obj.rawMic || "");
+        if (obj.autoGameMode !== undefined)
+            autoGameMode = !!obj.autoGameMode;
         brand = obj.brand !== undefined && String(obj.brand).trim().length ? String(obj.brand).trim() : "catalyst";
         writeBrand();
     }
@@ -93,7 +104,10 @@ Singleton {
             trueTone: trueTone,
             trueToneStrength: trueToneStrength,
             nightLight: nightLight,
-            nightTemp: nightTemp
+            nightTemp: nightTemp,
+            dndOnShare: dndOnShare,
+            rawMic: rawMic,
+            autoGameMode: autoGameMode
         }, null, 2) + "\n";
     }
 

@@ -3,6 +3,7 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import Quickshell.Services.Pipewire
 import qs.rice
 import "./modules/bar/"
 import "./modules/topbar/"
@@ -159,6 +160,29 @@ ShellRoot {
     }
 
     IpcHandler {
+        target: "audio"
+
+        function mic(): string {
+            Audio.toggleMic();
+            return Audio.micMuted ? "muted" : "live";
+        }
+
+        function processed(state: string): string {
+            Mic.setProcessed(state === "on");
+            return state;
+        }
+
+        function call(state: string): string {
+            Mic.setCallMode(state === "on" ? true : (state === "off" ? false : !Mic.callMode));
+            return Mic.callMode ? "on" : "off";
+        }
+
+        function status(): string {
+            return JSON.stringify({ source: Audio.defaultSourceName, mic: Audio.sourceReady ? Audio.mic.name : "", muted: Audio.micMuted, processed: Mic.processed, ee: Mic.eeAvailable, call: Mic.callMode, micApps: Privacy.micApps, cam: Privacy.cameraApps, share: Privacy.screenShare });
+        }
+    }
+
+    IpcHandler {
         target: "record"
 
         function toggle(mode: string): string {
@@ -187,6 +211,11 @@ ShellRoot {
 
         function sys(): string {
             return JSON.stringify({ temp: SysInfo.temp, tempPath: SysInfo.tempPath, cpu: SysInfo.cpu, ram: SysInfo.ram, ramText: SysInfo.ramText, disk: SysInfo.diskText, up: SysInfo.uptime, clock: SysInfo.clock, date: SysInfo.date });
+        }
+
+        function streams(): string {
+            const n = Pipewire.nodes.values || [];
+            return JSON.stringify(n.filter(x => x.isStream).map(x => ({ name: x.name, desc: x.description, sink: x.isSink, type: String(x.type), props: x.properties ? Object.keys(x.properties).length : -1, mc: x.properties ? x.properties["media.class"] : null, app: x.properties ? x.properties["application.name"] : null })));
         }
 
         function wm(): string {

@@ -218,7 +218,17 @@ Item {
                 }
                 Tile {
                     Layout.fillWidth: true
-                    Layout.columnSpan: 2
+                    icon: "video_call"
+                    title: "Mode visio"
+                    subtitle: Mic.callMode ? "Actif" : (Mic.processed ? "Micro traité" : "Micro brut")
+                    active: Mic.callMode
+                    accent: Theme.success
+                    expandable: true
+                    onClicked: Mic.setCallMode(!Mic.callMode)
+                    onExpand: root.go("call")
+                }
+                Tile {
+                    Layout.fillWidth: true
                     icon: "coffee"
                     title: "Rester éveillé"
                     subtitle: Caffeine.on ? "Veille suspendue" : "Désactivé"
@@ -276,8 +286,8 @@ Item {
                         variant: "tonal"
                         size: Tokens.sliderH
                         radius: Tokens.rMd
-                        tooltip: "Entrée : " + Audio.inputName
-                        onClicked: root.go("in")
+                        tooltip: "Micro & visio : " + Audio.inputName
+                        onClicked: root.go("call")
                     }
                 }
                 Slider {
@@ -365,6 +375,7 @@ Item {
                 case "eq": return eqC;
                 case "power": return powerC;
                 case "display": return displayC;
+                case "call": return callC;
                 default: return null;
                 }
             }
@@ -378,4 +389,5 @@ Item {
     Component { id: eqC; EqPage { width: sub.width; onBack: root.go("out") } }
     Component { id: powerC; PowerPage { width: sub.width; onBack: root.go("main") } }
     Component { id: displayC; DisplayPage { width: sub.width; onBack: root.go("main") } }
+    Component { id: callC; CallPage { width: sub.width; onBack: root.go("main"); onOpenInputs: root.go("in") } }
 }
