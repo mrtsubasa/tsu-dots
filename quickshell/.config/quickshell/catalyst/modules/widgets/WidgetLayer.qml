@@ -3,44 +3,46 @@ import QtQuick
 import Quickshell
 import qs.rice
 
-// Conteneur plein écran partagé par la couche de fond (WidgetHost) et la
-// couche d'édition rendue dans l'atelier. Le modèle est une liste d'identifiants
-// stable : ajouter/suppression seulement, pour que les cartes survivent aux
-// déplacements redimensionnements.
+// Conteneur plein écran partagé par la couche de bureau (WidgetHost) et la
+// couche d'édition (WidgetEditor). Modèle = identifiants stables : les cartes
+// survivent aux déplacements et redimensionnements. Dessine les guides
+// d'alignement pendant un déplacement.
 Item {
     id: layer
 
     property string outputName: ""
     property bool editMode: false
+    property var guides: []            // [{ v: bool, at: px }]
 
     readonly property string primaryName: Quickshell.screens.length ? Quickshell.screens[0].name : ""
 
-    Component {
-        id: compClock
-        WidgetClock {}
-    }
-    Component {
-        id: compSys
-        WidgetSys {}
-    }
-    Component {
-        id: compMedia
-        WidgetMedia {}
-    }
-    Component {
-        id: compFocus
-        WidgetFocus {}
+    function onThisScreen(e) {
+        return (e.screen || primaryName) === outputName;
     }
 
-    function componentFor(type) {
-        if (type === "sys")
-            return compSys;
-        if (type === "media")
-            return compMedia;
-        if (type === "focus")
-            return compFocus;
-        return compClock;
+    // rectangles des autres widgets visibles de cet écran (magnétisme)
+    function rectsExcept(wid) {
+        const out = [];
+        const list = WidgetStore.items;
+        for (let i = 0; i < list.length; i++) {
+            const e = list[i];
+            if (e.id !== wid && e.visible && onThisScreen(e))
+                out.push({ x: e.x, y: e.y, w: e.w, h: e.h });
+        }
+        return out;
     }
+
+    readonly property var registry: ({
+        clock: "WidgetClock.qml",
+        calendar: "WidgetCalendar.qml",
+        sys: "WidgetSys.qml",
+        media: "WidgetMedia.qml",
+        focus: "WidgetFocus.qml",
+        notes: "WidgetNotes.qml",
+        weather: "WidgetWeather.qml",
+        launch: "WidgetLaunch.qml",
+        image: "WidgetImage.qml"
+    })
 
     Repeater {
         model: WidgetStore.ids
@@ -52,17 +54,32 @@ Item {
             wid: modelData
             editMode: layer.editMode
             bounds: layer
-            mine: {
-                const s = WidgetStore.get(modelData).screen || layer.primaryName;
-                return s === layer.outputName;
-            }
+            host: layer
+            mine: layer.onThisScreen(WidgetStore.get(modelData))
 
             Loader {
                 anchors.fill: parent
-                sourceComponent: layer.componentFor(WidgetStore.get(modelData).type)
+                // ne charge que les widgets visibles de cet écran
+                active: card.mine && (card.entry.visible || layer.editMode)
+                source: layer.registry[WidgetStore.get(card.modelData).type] || "WidgetClock.qml"
                 onLoaded: if (item)
-                    item.wid = modelData
+                    item.wid = card.modelData
             }
+        }
+    }
+
+    // guides d'alignement
+    Repeater {
+        model: layer.guides
+        Rectangle {
+            required property var modelData
+            z: 1000
+            color: Theme.signature
+            opacity: 0.8
+            x: modelData.v ? modelData.at : 0
+            y: modelData.v ? 0 : modelData.at
+            width: modelData.v ? 1 : layer.width
+            height: modelData.v ? layer.height : 1
         }
     }
 }

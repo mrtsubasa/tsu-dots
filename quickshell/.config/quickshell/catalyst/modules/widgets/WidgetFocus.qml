@@ -1,189 +1,111 @@
 pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Layouts
+import Quickshell
 import qs.rice
-import "../../components"
+import qs.kit
 
+// Minuteur de concentration (Pomodoro). L'état (en cours, fin, durée) est
+// persisté dans les props du widget : il survit à un redémarrage du shell.
 Item {
     id: root
 
     property string wid: ""
-    property real tick: 0
+    property int tick: 0
 
-    readonly property var entry: WidgetStore.get(wid)
-    readonly property var props: entry.props || ({})
+    readonly property var props: WidgetStore.get(wid).props || ({})
     readonly property real duration: Number(props.duration) > 0 ? Number(props.duration) : 1500
     readonly property bool running: !!props.running
     readonly property real endsAt: Number(props.endsAt) || 0
-
     readonly property real remaining: {
-        root.tick;
-        if (root.running)
-            return Math.max(0, Math.round((root.endsAt - Date.now()) / 1000));
-        return Math.max(0, Number(props.remaining) > 0 ? Number(props.remaining) : root.duration);
+        tick;
+        if (running)
+            return Math.max(0, Math.round((endsAt - Date.now()) / 1000));
+        return Math.max(0, props.remaining !== undefined ? Number(props.remaining) : duration);
     }
-
     readonly property bool done: remaining <= 0
-    readonly property real progress: duration > 0 ? 1 - (remaining / duration) : 0
 
     function fmt(sec) {
-        const s = Math.max(0, Math.floor(sec));
-        const m = Math.floor(s / 60);
-        const r = s % 60;
-        return (m < 10 ? "0" : "") + m + ":" + (r < 10 ? "0" : "") + r;
+        const m = Math.floor(sec / 60);
+        const s = Math.floor(sec % 60);
+        return (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
     }
-
     function start() {
-        WidgetStore.setProps(wid, {
-            running: true,
-            endsAt: Date.now() + Math.max(1, remaining) * 1000
-        });
+        WidgetStore.setProps(wid, { running: true, endsAt: Date.now() + Math.max(1, done ? duration : remaining) * 1000 });
     }
-
     function pause() {
-        WidgetStore.setProps(wid, {
-            running: false,
-            remaining: remaining
-        });
+        WidgetStore.setProps(wid, { running: false, remaining: remaining });
     }
-
     function reset() {
-        WidgetStore.setProps(wid, {
-            running: false,
-            remaining: duration
-        });
+        WidgetStore.setProps(wid, { running: false, remaining: duration });
     }
-
-    function stop() {
-        WidgetStore.setProps(wid, {
-            running: false,
-            remaining: 0
-        });
-    }
-
-    function nudge(delta) {
-        const nd = Math.max(300, Math.min(3600, duration + delta));
-        if (running) {
-            WidgetStore.setProps(wid, {
-                duration: nd,
-                endsAt: Date.now() + nd * 1000
-            });
-        } else {
-            WidgetStore.setProps(wid, {
-                duration: nd,
-                remaining: Math.min(nd, remaining + delta > 0 ? remaining + delta : nd)
-            });
-        }
+    function setDuration(min) {
+        WidgetStore.setProps(wid, { running: false, duration: min * 60, remaining: min * 60 });
     }
 
     Timer {
-        interval: 500
-        running: root.running
+        interval: 1000
         repeat: true
+        running: root.running && root.visible
         onTriggered: {
             root.tick++;
-            if (root.remaining <= 0)
-                root.stop();
+            if (root.remaining <= 0) {
+                WidgetStore.setProps(root.wid, { running: false, remaining: 0 });
+                Quickshell.execDetached(["notify-send", "-a", "Catalyst", "-i", "alarm", "Session terminée", "Prends une pause."]);
+            }
         }
     }
 
-    ColumnLayout {
+    RowLayout {
         anchors.fill: parent
-        spacing: 6
-
-        RowLayout {
-            Layout.fillWidth: true
-            spacing: 7
-
-            Text {
-                text: "󰔛"
-                font.family: Theme.font
-                font.pixelSize: 14
-                color: root.done ? Theme.warning : Theme.primary
-            }
-            Text {
-                text: "FOCUS"
-                font.family: Theme.font
-                font.pixelSize: 11
-                font.weight: Font.Bold
-                color: Theme.inkMuted
-                Layout.fillWidth: true
-                elide: Text.ElideRight
-            }
-            Text {
-                text: Math.round(root.duration / 60) + " MIN"
-                font.family: Theme.font
-                font.pixelSize: 11
-                color: Qt.alpha(Theme.inkMuted, 0.75)
-            }
-        }
+        spacing: 16
 
         Item {
+            Layout.preferredWidth: Math.min(root.height, root.width * 0.42)
             Layout.fillHeight: true
+            Ring {
+                anchors.centerIn: parent
+                size: Math.min(parent.width, parent.height)
+                thickness: 6
+                alert: false
+                tone: root.done ? Theme.warning : (root.running ? Theme.accent : Theme.textSub)
+                value: 1 - root.remaining / Math.max(1, root.duration)
+            }
+            Text {
+                anchors.centerIn: parent
+                text: root.done ? "✓" : root.fmt(root.remaining)
+                font.family: Theme.displayFont
+                font.pixelSize: Math.max(16, Math.min(parent.width, parent.height) * 0.2)
+                font.weight: Font.Medium
+                font.features: ({ "tnum": 1 })
+                color: root.done ? Theme.warning : Theme.text
+            }
         }
 
-        Text {
-            text: root.done ? "TERMINÉ" : root.fmt(root.remaining)
-            font.family: root.done ? Theme.uiFont : Theme.font
-            font.pixelSize: root.done ? 30 : 54
-            font.weight: Font.Black
-            color: root.done ? Theme.warning : Theme.ink
-            Layout.alignment: Qt.AlignHCenter
-            Layout.bottomMargin: 4
-        }
-
-        Rectangle {
+        ColumnLayout {
             Layout.fillWidth: true
-            height: 7
-            radius: 4
-            color: Qt.alpha(Theme.surfaceContainerHighest, 0.75)
-
-            Rectangle {
-                width: parent.width * Math.max(0, Math.min(1, root.progress))
-                height: parent.height
-                radius: parent.radius
-                color: root.done ? Theme.warning : Theme.primary
-
-                Behavior on width {
-                    NumberAnimation { duration: 500; easing.type: Easing.OutCubic }
+            spacing: 6
+            Txt { role: "overline"; text: "// focus"; color: Theme.accent }
+            Txt { role: "heading"; text: root.done ? "Terminé" : (root.running ? "Concentration" : "En pause") }
+            Item { Layout.fillHeight: true }
+            Flow {
+                Layout.fillWidth: true
+                spacing: 4
+                Repeater {
+                    model: [15, 25, 50]
+                    Button {
+                        required property int modelData
+                        height_: 26
+                        variant: Math.round(root.duration / 60) === modelData ? "primary" : "ghost"
+                        text: modelData + " min"
+                        onClicked: root.setDuration(modelData)
+                    }
                 }
             }
-        }
-
-        RowLayout {
-            Layout.fillWidth: true
-            Layout.topMargin: 6
-            spacing: 10
-
-            IconBtn {
-                icon: "󰍤"
-                onClicked: root.nudge(-300)
-            }
-            IconBtn {
-                icon: "󰑙"
-                onClicked: root.reset()
-            }
-            IconBtn {
-                icon: root.running ? "󰏤" : "󰐊"
-                accent: Theme.primary
-                onClicked: root.running ? root.pause() : root.start()
-            }
-            IconBtn {
-                icon: "󰐙"
-                onClicked: root.nudge(300)
-            }
-
-            Item {
-                Layout.fillWidth: true
-            }
-
-            Text {
-                text: root.running ? "EN COURS" : (root.done ? "PRÊT" : "PAUSE")
-                font.family: Theme.font
-                font.pixelSize: 10
-                font.weight: Font.Bold
-                color: root.running ? Theme.success : Qt.alpha(Theme.inkMuted, 0.8)
-                Layout.alignment: Qt.AlignVCenter
+            RowLayout {
+                spacing: 4
+                IconButton { icon: root.running ? "pause" : "play_arrow"; variant: "filled"; size: 34; onClicked: root.running ? root.pause() : root.start() }
+                IconButton { icon: "replay"; size: 30; tooltip: "Réinitialiser"; onClicked: root.reset() }
             }
         }
     }

@@ -1,102 +1,44 @@
-pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Layouts
 import qs.rice
+import qs.kit
 
+// Horloge : heure en Space Grotesk, jour, date ; mise à l'échelle avec la carte.
 Item {
     id: root
-
     property string wid: ""
-    property string hhmm: "00:00"
-    property string ss: "00"
-    property string day: ""
-
-    function tick() {
-        const d = new Date();
-        root.hhmm = Qt.formatTime(d, "HH:mm");
-        root.ss = Qt.formatTime(d, "ss");
-        root.day = Qt.formatDate(d, Locale.LongFormat);
-    }
-
-    Component.onCompleted: root.tick()
-
-    Timer {
-        interval: 1000
-        running: true
-        repeat: true
-        triggeredOnStart: true
-        onTriggered: root.tick()
-    }
+    readonly property real k: Math.max(0.6, Math.min(width / 340, height / 160))
 
     ColumnLayout {
         anchors.fill: parent
-        spacing: 4
+        spacing: 2
 
-        RowLayout {
-            spacing: 8
-            Layout.bottomMargin: 2
-
-            Text {
-                text: root.hhmm
-                font.family: Theme.uiFont
-                font.pixelSize: 66
-                font.weight: Font.Black
-                color: Theme.ink
-                Layout.alignment: Qt.AlignVCenter
-            }
-
-            Text {
-                text: root.ss
-                font.family: Theme.font
-                font.pixelSize: 17
-                font.weight: Font.Bold
-                color: Theme.primary
-                Layout.alignment: Qt.AlignVCenter
-                Layout.bottomMargin: 8
-            }
+        Txt {
+            role: "overline"
+            text: "// " + Qt.locale().toString(SysInfo.now, "dddd")
+            color: Theme.accent
         }
-
         Text {
-            text: root.day.toUpperCase()
-            font.family: Theme.font
-            font.pixelSize: 12
+            text: Identity.clock12 ? Qt.formatTime(SysInfo.now, "h:mm") : Qt.formatTime(SysInfo.now, "HH:mm")
+            color: Theme.text
+            font.family: Theme.displayFont
+            font.pixelSize: Math.round(76 * root.k)
             font.weight: Font.Medium
-            color: Theme.inkMuted
-            Layout.fillWidth: true
-            elide: Text.ElideRight
+            font.letterSpacing: -2 * root.k
+            font.features: ({ "tnum": 1 })
         }
-
-        Item {
-            Layout.fillHeight: true
-        }
-
+        Item { Layout.fillHeight: true }
         RowLayout {
-            spacing: 7
             Layout.fillWidth: true
-
-            Rectangle {
-                width: 7
-                height: 7
-                radius: 4
-                color: Theme.success
-            }
-
-            Text {
-                text: SysInfo.uptime.length ? ("UP " + SysInfo.uptime) : "UP —"
-                font.family: Theme.font
-                font.pixelSize: 11
-                color: Theme.inkMuted
+            spacing: 10
+            Txt {
+                role: "body"
+                text: Qt.locale().toString(SysInfo.now, "d MMMM yyyy")
+                color: Theme.textSub
                 Layout.fillWidth: true
-                elide: Text.ElideRight
             }
-
-            Text {
-                text: SysInfo.date
-                font.family: Theme.font
-                font.pixelSize: 11
-                color: Qt.alpha(Theme.inkMuted, 0.7)
-                Layout.alignment: Qt.AlignRight
-            }
+            Rectangle { width: 6; height: 6; radius: 3; color: Theme.success }
+            Txt { role: "mono"; text: "up " + SysInfo.uptime; color: Theme.textFaint; font.pixelSize: 11 }
         }
     }
 }
