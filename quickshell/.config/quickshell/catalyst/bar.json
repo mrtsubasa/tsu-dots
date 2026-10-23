@@ -1,7 +1,17 @@
 {
   "output": "all",
-  "height": 0,
-  "opacity": 0,
+  "height": 26,
+  "opacity": 0.48,
+  "style": "islands",
+  "metrics": "auto",
+  "rightOrder": [
+    "media",
+    "metrics",
+    "tray",
+    "status",
+    "notif",
+    "power"
+  ],
   "modules": {
     "menu": true,
     "home": true,
@@ -32,6 +42,10 @@
     "notif": true,
     "power": true,
     "term": true,
-    "profile": true
+    "profile": true,
+    "mark": true,
+    "metrics": true,
+    "status": true,
+    "tools": false
   }
 }

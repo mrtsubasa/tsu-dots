@@ -50,7 +50,7 @@ PanelWindow {
     }
 
     property real appear: 0
-    Behavior on appear { NumberAnimation { duration: 380; easing.type: Easing.OutCubic } }
+    Behavior on appear { NumberAnimation { duration: Motion.dur(Motion.slow); easing.type: Easing.BezierSpline; easing.bezierCurve: Motion.curveIn } }
 
     FocusScope {
         id: keyScope
@@ -62,17 +62,16 @@ PanelWindow {
             id: chrome
             anchors.fill: parent
             opacity: root.appear
-            scale: 0.92 + root.appear * 0.08
             transformOrigin: root.corner.indexOf("r") >= 0
                 ? (root.corner.indexOf("b") === 0 ? Item.BottomRight : Item.TopRight)
                 : (root.corner.indexOf("b") === 0 ? Item.BottomLeft : Item.TopLeft)
-            x: (1 - root.appear) * root.fromX
-            y: (1 - root.appear) * root.fromY
+            x: (1 - root.appear) * Motion.dx(root.fromX * 0.35)
+            y: (1 - root.appear) * Motion.dy(root.fromY * 0.6)
 
             Item {
                 id: body
                 anchors.fill: parent
-                anchors.margins: 16
+                anchors.margins: 18
                 opacity: Math.max(0, (root.appear - 0.15) / 0.85)
             }
         }

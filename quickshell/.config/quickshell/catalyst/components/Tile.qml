@@ -2,63 +2,49 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Layouts
 import qs.rice
+import qs.kit
 
-Rectangle {
+// Tuile d'action héritée (glyphe + libellé) — états du kit v3.
+Item {
     id: root
     property string icon: ""
     property string label: ""
-    property int iconSize: 22
+    property int iconSize: 20
     signal clicked
 
+    implicitHeight: 50
     height: 50
-    radius: 18
-    color: hover.containsMouse ? Qt.alpha(Theme.primary, 0.14) : Qt.alpha(Theme.surfaceContainerLow, 0.72)
-    border.width: 1
-    border.color: hover.containsMouse ? Qt.alpha(Theme.primary, 0.85) : Qt.alpha(Theme.outlineVariant, 0.7)
-
-    Behavior on color { ColorAnimation { duration: 90 } }
-    Behavior on border.color { ColorAnimation { duration: 90 } }
 
     Rectangle {
-        width: 2
-        height: parent.height - 12
-        radius: 1
-        anchors.verticalCenter: parent.verticalCenter
-        x: 6
-        color: Theme.primary
-        opacity: hover.containsMouse ? 1 : 0
-        Behavior on opacity { NumberAnimation { duration: 90 } }
+        anchors.fill: parent
+        radius: Tokens.rLg
+        color: Theme.s3
+        border.width: 1
+        border.color: layer.containsMouse ? Qt.alpha(Theme.accent, 0.5) : Theme.border
+        Behavior on border.color { ColorAnimation { duration: Motion.dur(Motion.fast) } }
     }
-
+    StateLayer {
+        id: layer
+        anchors.fill: parent
+        radius: Tokens.rLg
+        onClicked: root.clicked()
+    }
     RowLayout {
         anchors.fill: parent
-        anchors.leftMargin: 16
+        anchors.leftMargin: 14
         anchors.rightMargin: 12
-        spacing: 10
+        spacing: 12
         Text {
             text: root.icon
             font.family: Theme.font
             font.pixelSize: root.iconSize
-            color: Theme.primary
-            Layout.alignment: Qt.AlignVCenter
+            color: Theme.accent
         }
-        Text {
-            text: root.label
-            font.family: Theme.font
-            font.pixelSize: 13
-            font.weight: Font.DemiBold
-            color: hover.containsMouse ? Theme.primary : Theme.ink
-            elide: Text.ElideRight
+        Txt {
             Layout.fillWidth: true
-            Layout.alignment: Qt.AlignVCenter
+            role: "label"
+            text: root.label
+            font.weight: Font.DemiBold
         }
-    }
-
-    MouseArea {
-        id: hover
-        anchors.fill: parent
-        hoverEnabled: true
-        cursorShape: Qt.PointingHandCursor
-        onClicked: root.clicked()
     }
 }

@@ -2,7 +2,10 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Layouts
 import qs.rice
+import qs.kit
 
+// En-tête des panneaux hérités : glyphe (Nerd Font) en pastille, titre,
+// actions, fermeture — même langage que les en-têtes du kit v3.
 RowLayout {
     id: root
     property string icon: ""
@@ -12,49 +15,28 @@ RowLayout {
     signal closed
 
     Layout.fillWidth: true
-    spacing: 8
+    spacing: 10
 
     Rectangle {
-        id: pill
-        implicitWidth: Math.max(36, (iconT.visible ? iconT.implicitWidth + 8 : 0) + titleT.implicitWidth + 28)
-        Layout.fillWidth: true
-        Layout.maximumWidth: implicitWidth
-        Layout.minimumWidth: Math.min(implicitWidth, 120)
-        Layout.preferredHeight: 36
-        radius: 18
-        clip: true
-        color: Qt.alpha(Theme.primary, 0.18)
-
-        RowLayout {
-            anchors.fill: parent
-            anchors.leftMargin: 11
-            anchors.rightMargin: 11
-            spacing: 8
-
-            Text {
-                id: iconT
-                visible: root.icon.length > 0
-                text: root.icon
-                font.family: Theme.font
-                font.pixelSize: 14
-                color: Theme.primary
-            }
-            Text {
-                id: titleT
-                Layout.fillWidth: true
-                text: root.title
-                font.family: Theme.uiFont
-                font.pixelSize: 13
-                font.weight: Font.DemiBold
-                color: Theme.ink
-                elide: Text.ElideRight
-                horizontalAlignment: Text.AlignLeft
-                verticalAlignment: Text.AlignVCenter
-            }
+        visible: root.icon.length > 0
+        Layout.preferredWidth: 32
+        Layout.preferredHeight: 32
+        radius: Tokens.rMd
+        color: Theme.stateActive
+        Text {
+            anchors.centerIn: parent
+            text: root.icon
+            font.family: Theme.font
+            font.pixelSize: 16
+            color: Theme.accent
         }
     }
-
-    Item { Layout.fillWidth: true }
+    ColumnLayout {
+        Layout.fillWidth: true
+        spacing: 0
+        Txt { role: "overline"; text: "// catalyst"; color: Theme.accent }
+        Txt { role: "title"; text: root.title; Layout.fillWidth: true }
+    }
 
     Row {
         id: extra
@@ -62,9 +44,10 @@ RowLayout {
         Layout.alignment: Qt.AlignVCenter
     }
 
-    IconBtn {
+    IconButton {
         visible: root.closable
-        icon: "󰅖"
+        icon: "close"
+        tooltip: "Fermer"
         onClicked: root.closed()
     }
 }
