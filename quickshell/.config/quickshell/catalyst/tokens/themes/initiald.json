@@ -1,0 +1,25 @@
+{
+  "id": "initiald",
+  "label": "Initial D",
+  "aliases": [],
+  "chrome": {
+    "radius": { "sm": 2, "md": 2, "lg": 2, "pill": 2, "full": 999 },
+    "blurBackdrop": false,
+    "veil": 0.84,
+    "grain": 0.1,
+    "hairline": 1,
+    "borderAlpha": 0.7,
+    "topHighlight": 0
+  },
+  "bar": {
+    "mode": "continuous",
+    "height": 28,
+    "marginTop": 0,
+    "marginX": 0,
+    "gap": 8,
+    "opacity": 0.92,
+    "topHairline": "danger"
+  },
+  "dock": { "position": "bottom", "indicator": "square" },
+  "type": { "ui": "Satoshi", "chrome": "JetBrainsMono Nerd Font" }
+}

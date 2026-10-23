@@ -1,0 +1,25 @@
+{
+  "id": "eclipse",
+  "label": "Eclipse",
+  "aliases": [],
+  "chrome": {
+    "radius": { "sm": 6, "md": 10, "lg": 12, "pill": 12, "full": 999 },
+    "blurBackdrop": false,
+    "veil": 0.86,
+    "grain": 0.12,
+    "hairline": 1,
+    "borderAlpha": 0.55,
+    "topHighlight": 0.1
+  },
+  "bar": {
+    "mode": "continuous",
+    "height": 28,
+    "marginTop": 0,
+    "marginX": 0,
+    "gap": 8,
+    "opacity": 0.9,
+    "topHairline": "accent-secondary"
+  },
+  "dock": { "position": "bottom", "indicator": "pill" },
+  "type": { "ui": "Satoshi", "chrome": "JetBrainsMono Nerd Font" }
+}

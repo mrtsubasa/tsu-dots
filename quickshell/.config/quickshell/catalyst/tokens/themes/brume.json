@@ -1,0 +1,24 @@
+{
+  "id": "brume",
+  "label": "Brume",
+  "aliases": [],
+  "chrome": {
+    "radius": { "sm": 10, "md": 14, "lg": 18, "pill": 16, "full": 999 },
+    "blurBackdrop": true,
+    "veil": 0.74,
+    "grain": 0.08,
+    "hairline": 1,
+    "borderAlpha": 0.5,
+    "topHighlight": 0.14
+  },
+  "bar": {
+    "mode": "islands",
+    "height": 28,
+    "marginTop": 10,
+    "marginX": 16,
+    "gap": 12,
+    "opacity": 0.82
+  },
+  "dock": { "position": "bottom", "indicator": "pill" },
+  "type": { "ui": "Satoshi", "chrome": "JetBrainsMono Nerd Font" }
+}

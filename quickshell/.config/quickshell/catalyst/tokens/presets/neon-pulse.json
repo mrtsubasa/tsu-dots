@@ -1,0 +1,32 @@
+{
+  "id": "neon-pulse",
+  "label": "Neon Pulse",
+  "description": "Variante expressive — charbon profond, violet et magenta, rose plus visible, néon contrôlé.",
+  "identity": "signal",
+  "mode": "dark",
+  "hyprland": {
+    "active": "#B97BFF",
+    "active2": "#FF5FC8",
+    "inactive": "#3B2D55"
+  },
+  "palette": {
+    "background": "#0A0810",
+    "blueDark": "#060409",
+    "surface0": "#140F1E",
+    "surface1": "#191226",
+    "surface2": "#241A36",
+    "surface3": "#2E2245",
+    "text": "#F5EFFF",
+    "textReverse": "#0A0810",
+    "subtext": "#AC9EC6",
+    "subtextReverse": "#5A4B7A",
+    "accent": "#B97BFF",
+    "electric": "#FF5FC8",
+    "signature": "#FF9AD0",
+    "greyBlue": "#FF5FC8",
+    "success": "#8CE8B8",
+    "warning": "#FFC46B",
+    "error": "#FF7A9A",
+    "muted": "#3B2D55"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "bar": true,
+  "osd": true,
+  "atelier": true,
+  "replaceWaybar": true,
+  "widgets": true,
+  "widgetsLayer": "desk",
+  "paletteMode": "auto",
+  "palette": "silver-protocol",
+  "theme": ""
+}

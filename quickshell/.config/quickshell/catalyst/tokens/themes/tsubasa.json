@@ -1,0 +1,24 @@
+{
+  "id": "tsubasa",
+  "label": "Tsubasa",
+  "aliases": [],
+  "chrome": {
+    "radius": { "sm": 6, "md": 10, "lg": 14, "pill": 14, "full": 999 },
+    "blurBackdrop": false,
+    "veil": 0.78,
+    "grain": 0.1,
+    "hairline": 1,
+    "borderAlpha": 0.55,
+    "topHighlight": 0.12
+  },
+  "bar": {
+    "mode": "continuous",
+    "height": 32,
+    "marginTop": 6,
+    "marginX": 14,
+    "gap": 8,
+    "opacity": 0.82
+  },
+  "dock": { "position": "bottom", "indicator": "pill" },
+  "type": { "ui": "Satoshi", "chrome": "JetBrainsMono Nerd Font" }
+}

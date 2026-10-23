@@ -1,0 +1,27 @@
+{
+  "id": "wolf",
+  "label": "Wolf",
+  "aliases": ["silverwolf"],
+  "chrome": {
+    "radius": { "sm": 4, "md": 6, "lg": 6, "pill": 6, "full": 999 },
+    "blurBackdrop": false,
+    "veil": 0.82,
+    "grain": 0.12,
+    "hairline": 1,
+    "borderAlpha": 0.6,
+    "topHighlight": 0.1
+  },
+  "bar": {
+    "mode": "continuous",
+    "height": 28,
+    "marginTop": 0,
+    "marginX": 0,
+    "gap": 8,
+    "opacity": 0.9,
+    "clockSeconds": true,
+    "topHairline": "accent",
+    "bottomHairline": "accent-secondary"
+  },
+  "dock": { "position": "bottom", "indicator": "square" },
+  "type": { "ui": "JetBrainsMono Nerd Font", "chrome": "JetBrainsMono Nerd Font" }
+}

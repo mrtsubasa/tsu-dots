@@ -27,3 +27,9 @@ hyprland/.config/hypr/workspaces.conf
 theming/.config/gtk-3.0/colors.css
 theming/.config/gtk-4.0/colors.css
 
+
+# Tsubasa Catalyst — runtime / reference
+quickshell/.config/quickshell/sekaipop/
+quickshell/.config/quickshell/backups/
+quickshell/.config/quickshell/catalyst/logs/
+__pycache__/

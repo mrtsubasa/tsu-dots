@@ -1,0 +1,32 @@
+{
+  "id": "silver-protocol",
+  "label": "Silver Protocol",
+  "description": "Variante froide et technique — graphite, gris argent, bleu glace et cyan, violet retenu.",
+  "identity": "wolf",
+  "mode": "dark",
+  "hyprland": {
+    "active": "#7FD9FF",
+    "active2": "#A78BFA",
+    "inactive": "#29303A"
+  },
+  "palette": {
+    "background": "#0B0D11",
+    "blueDark": "#07080B",
+    "surface0": "#121519",
+    "surface1": "#171A20",
+    "surface2": "#20242B",
+    "surface3": "#292E36",
+    "text": "#EEF1F5",
+    "textReverse": "#0B0D11",
+    "subtext": "#9AA4B2",
+    "subtextReverse": "#4E5764",
+    "accent": "#7FD9FF",
+    "electric": "#67E8F9",
+    "signature": "#A78BFA",
+    "greyBlue": "#67E8F9",
+    "success": "#7DD3A8",
+    "warning": "#E8C07A",
+    "error": "#FF9B9B",
+    "muted": "#333A44"
+  }
+}

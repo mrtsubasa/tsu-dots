@@ -1,0 +1,1391 @@
+[
+  {
+    "id": "core",
+    "label": "Core",
+    "glyph": "󰣇",
+    "kind": "pacman",
+    "section": "core",
+    "desc": "Repos officiel Arch core",
+    "group": "official",
+    "servers": [],
+    "include": "",
+    "priority": 0
+  },
+  {
+    "id": "extra",
+    "label": "Extra",
+    "glyph": "󰣇",
+    "kind": "pacman",
+    "section": "extra",
+    "desc": "Repos officiel Arch extra",
+    "group": "official",
+    "servers": [],
+    "include": "",
+    "priority": 1
+  },
+  {
+    "id": "multilib",
+    "label": "Multilib",
+    "glyph": "󰕓",
+    "kind": "pacman",
+    "section": "multilib",
+    "desc": "Libs 32-bit (Steam, Wine…)",
+    "group": "official",
+    "servers": [],
+    "include": "",
+    "priority": 2
+  },
+  {
+    "id": "aur",
+    "label": "AUR",
+    "glyph": "󰣇",
+    "kind": "helper",
+    "section": "",
+    "desc": "Arch User Repository via paru/yay",
+    "group": "helper",
+    "servers": [],
+    "include": "",
+    "priority": 3
+  },
+  {
+    "id": "cachyos",
+    "label": "CachyOS",
+    "glyph": "󰣇",
+    "kind": "pacman",
+    "section": "cachyos",
+    "desc": "Paquets CachyOS",
+    "group": "distro",
+    "servers": [],
+    "include": "",
+    "priority": 4
+  },
+  {
+    "id": "cachyos-v3",
+    "label": "CachyOS v3",
+    "glyph": "󰣇",
+    "kind": "pacman",
+    "section": "cachyos-v3",
+    "desc": "Cachy x86-64-v3",
+    "group": "distro",
+    "servers": [],
+    "include": "",
+    "priority": 5
+  },
+  {
+    "id": "cachyos-core-v3",
+    "label": "CachyOS core-v3",
+    "glyph": "󰣇",
+    "kind": "pacman",
+    "section": "cachyos-core-v3",
+    "desc": "Core optimisé v3",
+    "group": "distro",
+    "servers": [],
+    "include": "",
+    "priority": 6
+  },
+  {
+    "id": "cachyos-extra-v3",
+    "label": "CachyOS extra-v3",
+    "glyph": "󰣇",
+    "kind": "pacman",
+    "section": "cachyos-extra-v3",
+    "desc": "Extra optimisé v3",
+    "group": "distro",
+    "servers": [],
+    "include": "",
+    "priority": 7
+  },
+  {
+    "id": "cachyos-v4",
+    "label": "CachyOS v4",
+    "glyph": "󰣇",
+    "kind": "pacman",
+    "section": "cachyos-v4",
+    "desc": "Cachy x86-64-v4",
+    "group": "distro",
+    "servers": [],
+    "include": "",
+    "priority": 8
+  },
+  {
+    "id": "blackarch",
+    "label": "BlackArch",
+    "glyph": "󰒃",
+    "kind": "pacman",
+    "section": "blackarch",
+    "desc": "Pentest / sécu (strap)",
+    "group": "security",
+    "servers": [],
+    "include": "",
+    "priority": 9
+  },
+  {
+    "id": "archlinuxcn",
+    "label": "archlinuxcn",
+    "title": "archlinuxcn",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "archlinuxcn",
+    "desc": "Packages by the Chinese Arch Linux community, all signed. Be aware that non-x86_64 packages are not fully maintained and tested. Create an issue if you find some problems.",
+    "group": "community",
+    "servers": [
+      "https://repo.archlinuxcn.org/$arch"
+    ],
+    "include": "",
+    "priority": 50,
+    "enable": "archlinuxcn"
+  },
+  {
+    "id": "chaotic-aur",
+    "label": "chaotic-aur",
+    "title": "chaotic-aur",
+    "glyph": "󰏗",
+    "kind": "pacman",
+    "section": "chaotic-aur",
+    "desc": "Auto builds AUR packages the maintainers use, update them hourly (a few are updated daily). It has several mirrors worldwide. Its main builder is hosted at the Federal University o",
+    "group": "community",
+    "servers": [
+      "https://geo-mirror.chaotic.cx/$repo/$arch"
+    ],
+    "include": "",
+    "priority": 50,
+    "enable": "chaotic-aur"
+  },
+  {
+    "id": "core-x86-64-v3",
+    "label": "core-x86-64-v3",
+    "glyph": "󰓅",
+    "kind": "pacman",
+    "section": "core-x86-64-v3",
+    "desc": "ALHP—stands for whatever you want it—provides official repositories compiled for specific x86-64 microarchitecture level with additional optimizations 1:",
+    "group": "perf",
+    "servers": [],
+    "include": "/etc/pacman.d/alhp-mirrorlist",
+    "priority": 100,
+    "enable": "alhp"
+  },
+  {
+    "id": "core-x86-64-v4",
+    "label": "core-x86-64-v4",
+    "glyph": "󰓅",
+    "kind": "pacman",
+    "section": "core-x86-64-v4",
+    "desc": "ALHP—stands for whatever you want it—provides official repositories compiled for specific x86-64 microarchitecture level with additional optimizations 1:",
+    "group": "perf",
+    "servers": [],
+    "include": "/etc/pacman.d/alhp-mirrorlist",
+    "priority": 100,
+    "enable": "alhp"
+  },
+  {
+    "id": "extra-x86-64-v3",
+    "label": "extra-x86-64-v3",
+    "glyph": "󰓅",
+    "kind": "pacman",
+    "section": "extra-x86-64-v3",
+    "desc": "ALHP—stands for whatever you want it—provides official repositories compiled for specific x86-64 microarchitecture level with additional optimizations 1:",
+    "group": "perf",
+    "servers": [],
+    "include": "/etc/pacman.d/alhp-mirrorlist",
+    "priority": 100,
+    "enable": "alhp"
+  },
+  {
+    "id": "extra-x86-64-v4",
+    "label": "extra-x86-64-v4",
+    "glyph": "󰓅",
+    "kind": "pacman",
+    "section": "extra-x86-64-v4",
+    "desc": "ALHP—stands for whatever you want it—provides official repositories compiled for specific x86-64 microarchitecture level with additional optimizations 1:",
+    "group": "perf",
+    "servers": [],
+    "include": "/etc/pacman.d/alhp-mirrorlist",
+    "priority": 100,
+    "enable": "alhp"
+  },
+  {
+    "id": "multilib-x86-64-v3",
+    "label": "multilib-x86-64-v3",
+    "glyph": "󰓅",
+    "kind": "pacman",
+    "section": "multilib-x86-64-v3",
+    "desc": "ALHP—stands for whatever you want it—provides official repositories compiled for specific x86-64 microarchitecture level with additional optimizations 1:",
+    "group": "perf",
+    "servers": [],
+    "include": "/etc/pacman.d/alhp-mirrorlist",
+    "priority": 100,
+    "enable": "alhp"
+  },
+  {
+    "id": "multilib-x86-64-v4",
+    "label": "multilib-x86-64-v4",
+    "glyph": "󰓅",
+    "kind": "pacman",
+    "section": "multilib-x86-64-v4",
+    "desc": "ALHP—stands for whatever you want it—provides official repositories compiled for specific x86-64 microarchitecture level with additional optimizations 1:",
+    "group": "perf",
+    "servers": [],
+    "include": "/etc/pacman.d/alhp-mirrorlist",
+    "priority": 100,
+    "enable": "alhp"
+  },
+  {
+    "id": "ada",
+    "label": "ada",
+    "title": "ada",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "ada",
+    "desc": "Arch Ada Repository—all packages relating to the Ada and SPARK programming languages.",
+    "group": "community",
+    "servers": [
+      "http://www.orthanc.site:8080/assets/arch_ada_repo"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "alerque",
+    "label": "alerque",
+    "title": "alerque",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "alerque",
+    "desc": "Typesetting, publishing, and font development related tools such as SILE, CaSILE, Fontship, and their related dependencies including many fonts, Lua rocks, and Python modules. Also",
+    "group": "community",
+    "servers": [
+      "https://arch.alerque.com/$arch"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "andontie-aur",
+    "label": "andontie-aur",
+    "title": "andontie-aur",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "andontie-aur",
+    "desc": "A repository containing the most popular AUR packages, as well as some I use all the time. New packages can be requested on the upstream website.",
+    "group": "community",
+    "servers": [
+      "https://aur.andontie.net/$arch"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "arcanisrepo",
+    "label": "arcanisrepo",
+    "title": "arcanisrepo",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "arcanisrepo",
+    "desc": "AUR packages (including some VCS packages), mostly development and scientific tools. Updated daily.",
+    "group": "community",
+    "servers": [
+      "https://repo.arcanis.me/$repo/$arch"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "arch-mact2",
+    "label": "arch-mact2",
+    "title": "arch-mact2",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "arch-mact2",
+    "desc": "Kernel and utilities for use on Macs with T2 security chip.",
+    "group": "community",
+    "servers": [
+      "https://mirror.funami.tech/arch-mact2/os/$arch"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "arch4edu",
+    "label": "arch4edu",
+    "title": "arch4edu",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "arch4edu",
+    "desc": "Community repository for Arch Linux and Arch Linux ARM that strives to provide the latest versions of most software used by college students.",
+    "group": "science",
+    "servers": [
+      "https://mirrors.tuna.tsinghua.edu.cn/arch4edu/$arch"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "archlinux-phalcon",
+    "label": "archlinux-phalcon",
+    "title": "archlinux-phalcon",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "archlinux-phalcon",
+    "desc": "Phalcon Framework PHP 5.6 - 7.x extension builds",
+    "group": "kernel",
+    "servers": [
+      "https://archlinux-phalcon.gitlab.io/repository"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "archlinux-php",
+    "label": "archlinux-php",
+    "title": "archlinux-php",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "archlinux-php",
+    "desc": "PHP 5.6 - 7.x old stable builds coexistable with mainline version",
+    "group": "kernel",
+    "servers": [
+      "https://archlinux-php.gitlab.io/repository"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "archlinuxgr",
+    "label": "archlinuxgr",
+    "title": "archlinuxgr",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "archlinuxgr",
+    "desc": "many interesting packages provided by the Hellenic (Greek) Arch Linux community",
+    "group": "community",
+    "servers": [
+      "https://archlinuxgr.tiven.org/archlinux/$arch"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "archzfs",
+    "label": "archzfs",
+    "title": "ArchZFS",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "archzfs",
+    "desc": "Packages for ZFS on Arch Linux.",
+    "group": "community",
+    "servers": [
+      "https://github.com/archzfs/archzfs/releases/download/experimental",
+      "https://mirrors.uni-plovdiv.net/archzfs/experimental"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "artafinde",
+    "label": "artafinde",
+    "title": "artafinde",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "artafinde",
+    "desc": "Personal repository with AUR and custom packages.",
+    "group": "community",
+    "servers": [
+      "https://pkgbuild.com/~artafinde/repo"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "aur-packages",
+    "label": "aur-packages",
+    "title": "aur-packages",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "aur-packages",
+    "desc": "Personal repository. Contains AUR packages with daily builds.",
+    "group": "community",
+    "servers": [
+      "https://github.com/its-me/arch-linux-repository/releases/download/latest"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "avr",
+    "label": "avr",
+    "title": "avr",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "avr",
+    "desc": "Some of the AUR builds I use personally, packages mainly related to kubernetes that I used to build for my own use as well as some of my own software that I also package.",
+    "group": "community",
+    "servers": [
+      "https://bouchaud.org/packages/$repo/$arch"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "bioarchlinux",
+    "label": "bioarchlinux",
+    "title": "bioarchlinux",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "bioarchlinux",
+    "desc": "Biological Software Repository for Arch Linux, incrudes R cran binary packages.",
+    "group": "science",
+    "servers": [
+      "https://repo.bioarchlinux.org/$arch"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "blackeagle-pre-community",
+    "label": "blackeagle-pre-community",
+    "title": "blackeagle-pre-community",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "blackeagle-pre-community",
+    "desc": "Testing of the by me maintained packages before moving to extra repository.",
+    "group": "community",
+    "servers": [
+      "https://repo.herecura.eu/$repo/$arch"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "build.kilabit.info",
+    "label": "build.kilabit.info",
+    "title": "build.kilabit.info",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "build.kilabit.info",
+    "desc": "Server = https://build.kilabit.info/aur",
+    "group": "community",
+    "servers": [
+      "https://build.kilabit.info/aur"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "coderkun-aur",
+    "label": "coderkun-aur",
+    "title": "coderkun-aur",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "coderkun-aur",
+    "desc": "AUR packages with random software. Supporting package deltas and package and database signing.",
+    "group": "community",
+    "servers": [
+      "https://arch.suruatoel.xyz/$repo/$arch/"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "condorcore",
+    "label": "condorcore",
+    "title": "condorcore",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "condorcore",
+    "desc": "Wazuh-SIEM packages that I co-maintain and AUR. signed from the database.",
+    "group": "community",
+    "servers": [
+      "https://aur.centauricorex.net/$arch"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "core-alucryd",
+    "label": "core-alucryd",
+    "title": "alucryd",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "core-alucryd",
+    "desc": "Various packages Maxime Gauduin maintains (or not) in the AUR, in particular the multilib repository is for various packages needed to run Steam without its runtime environment.",
+    "group": "community",
+    "servers": [
+      "https://pkgbuild.com/~alucryd/$repo/$arch"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "core-testing-alucryd",
+    "label": "core-testing-alucryd",
+    "title": "alucryd",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "core-testing-alucryd",
+    "desc": "Various packages Maxime Gauduin maintains (or not) in the AUR, in particular the multilib repository is for various packages needed to run Steam without its runtime environment.",
+    "group": "community",
+    "servers": [
+      "https://pkgbuild.com/~alucryd/$repo/$arch"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "desolve",
+    "label": "desolve",
+    "title": "desolve",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "desolve",
+    "desc": "Collection of some extra stuff, binary R cran.",
+    "group": "community",
+    "servers": [
+      "https://desolve.ru/archrepo/$arch"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "dkp-libs",
+    "label": "dkp-libs",
+    "title": "devkitpro",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "dkp-libs",
+    "desc": "Provides Homebrew toolchains for the Nintendo Wii, Gamecube, DS, GBA, Gamepark gp32, and Nintendo Switch.",
+    "group": "community",
+    "servers": [
+      "https://downloads.devkitpro.org/packages"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "dkp-linux",
+    "label": "dkp-linux",
+    "title": "devkitpro",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "dkp-linux",
+    "desc": "Provides Homebrew toolchains for the Nintendo Wii, Gamecube, DS, GBA, Gamepark gp32, and Nintendo Switch.",
+    "group": "community",
+    "servers": [
+      "https://downloads.devkitpro.org/packages/linux/$arch/"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "dx37essentials",
+    "label": "dx37essentials",
+    "title": "dx37essentials",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "dx37essentials",
+    "desc": "Personal repository. Contains packages from AUR, which I using every day.",
+    "group": "community",
+    "servers": [
+      "https://dx3756.ru/$repo/$arch",
+      "https://dx37.gitlab.io/$repo/$arch"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "extra-alucryd",
+    "label": "extra-alucryd",
+    "title": "alucryd",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "extra-alucryd",
+    "desc": "Various packages Maxime Gauduin maintains (or not) in the AUR, in particular the multilib repository is for various packages needed to run Steam without its runtime environment.",
+    "group": "community",
+    "servers": [
+      "https://pkgbuild.com/~alucryd/$repo/$arch"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "extra-testing-alucryd",
+    "label": "extra-testing-alucryd",
+    "title": "alucryd",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "extra-testing-alucryd",
+    "desc": "Various packages Maxime Gauduin maintains (or not) in the AUR, in particular the multilib repository is for various packages needed to run Steam without its runtime environment.",
+    "group": "community",
+    "servers": [
+      "https://pkgbuild.com/~alucryd/$repo/$arch"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "g14",
+    "label": "g14",
+    "title": "g14",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "g14",
+    "desc": "A custom repository for ASUS Linux, it contains prebuilt binaries for all of the software they offer.",
+    "group": "community",
+    "servers": [
+      "https://arch.asus-linux.org",
+      "https://naru.jhyub.dev/$repo"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "grawlinson",
+    "label": "grawlinson",
+    "title": "grawlinson",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "grawlinson",
+    "desc": "AUR packages maintained by the user as well as some experimental packages.",
+    "group": "community",
+    "servers": [
+      "https://mirror.little.kiwi",
+      "https://pkgbuild.com/~grawlinson/repo/$repo"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "heftig",
+    "label": "heftig",
+    "title": "heftig",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "heftig",
+    "desc": "Includes firefox-nightly, freetype2-git AUR and crawl-git",
+    "group": "community",
+    "servers": [
+      "https://pkgbuild.com/~heftig/repo/$arch"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "herecura",
+    "label": "herecura",
+    "title": "herecura",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "herecura",
+    "desc": "Additional packages not found in the Community repository.",
+    "group": "community",
+    "servers": [
+      "https://repo.herecura.eu/$repo/$arch"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "home_justkidding_arch_arch",
+    "label": "home_justkidding_arch_Arch",
+    "title": "jk-aur",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "home_justkidding_arch_Arch",
+    "desc": "Packages from the AUR I maintain and co-maintain.",
+    "group": "community",
+    "servers": [
+      "https://download.opensuse.org/repositories/home:/justkidding:/arch/Arch/$arch"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "home_manuelschneid3r_arch",
+    "label": "home_manuelschneid3r_Arch",
+    "title": "manuelschneid3r_Arch",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "home_manuelschneid3r_Arch",
+    "desc": "Albert launcher packages by the developer of Albert.",
+    "group": "community",
+    "servers": [
+      "https://download.opensuse.org/repositories/home:/manuelschneid3r/Arch/$arch"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "home_pbek_qownnotes_arch_extra",
+    "label": "home_pbek_QOwnNotes_Arch_Extra",
+    "title": "QOwnNotes",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "home_pbek_QOwnNotes_Arch_Extra",
+    "desc": "QOwnNotes is an open-source notepad and todo list manager with markdown support and ownCloud integration.",
+    "group": "community",
+    "servers": [
+      "https://download.opensuse.org/repositories/home:/pbek:/QOwnNotes/Arch_Extra/$arch"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "home_post-factum_kernels_arch",
+    "label": "home_post-factum_kernels_Arch",
+    "title": "post-factum kernels",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "home_post-factum_kernels_Arch",
+    "desc": "pf-kernel packages by its developer, post-factum.",
+    "group": "kernel",
+    "servers": [
+      "https://download.opensuse.org/repositories/home:/post-factum:/kernels/Arch/$arch"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "ivasilev",
+    "label": "ivasilev",
+    "title": "ivasilev",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "ivasilev",
+    "desc": "A variety of packages, mostly my own software and AUR builds.",
+    "group": "community",
+    "servers": [
+      "https://ivasilev.net/pacman/$arch"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "kawaii",
+    "label": "kawaii",
+    "title": "kawaii",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "kawaii",
+    "desc": "Kawaii modified packages from AUR and myself.",
+    "group": "community",
+    "servers": [
+      "https://raw.githubusercontent.com/LeonidPilyugin/kawaii-repo/main/x86_64/"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "kicad-nightly",
+    "label": "kicad-nightly",
+    "title": "kicad-nightly",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "kicad-nightly",
+    "desc": "Prebuilt nightly packages for KiCad",
+    "group": "community",
+    "servers": [
+      "https://kicad.gitlab.io/packaging/kicad-arch/kicad-arch-builder/"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "lahwaacz",
+    "label": "lahwaacz",
+    "title": "lahwaacz",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "lahwaacz",
+    "desc": "Personal repository with AUR packages.",
+    "group": "community",
+    "servers": [
+      "https://pkgbuild.com/~lahwaacz/repo"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "linux-lts66",
+    "label": "linux-lts66",
+    "title": "linux-lts66",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "linux-lts66",
+    "desc": "A repository for the linux-lts66 AUR kernel packages, including linux-lts66-headers AUR and linux-lts66-docs AUR.",
+    "group": "kernel",
+    "servers": [
+      "https://linux-lts66.bemxio.xyz/"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "linux-nitrous",
+    "label": "linux-nitrous",
+    "title": "linux-nitrous",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "linux-nitrous",
+    "desc": "Prebuilt packages of the linux-nitrous kernel.",
+    "group": "kernel",
+    "servers": [
+      "https://github.com/xdevs23/linux-nitrous/releases/latest/download"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "linux-surface",
+    "label": "linux-surface",
+    "title": "linux-surface",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "linux-surface",
+    "desc": "Prebuilt packages for the Microsoft Surface line of computers.",
+    "group": "kernel",
+    "servers": [
+      "https://pkg.surfacelinux.com/arch/"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "liquorix",
+    "label": "liquorix",
+    "title": "liquorix",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "liquorix",
+    "desc": "Automated builds of linux-lqx AUR, linux-lqx-headers AUR, and linux-lqx-docs AUR.",
+    "group": "kernel",
+    "servers": [
+      "https://liquorix.net/archlinux/$repo/$arch"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "mesa-git",
+    "label": "mesa-git",
+    "title": "mesa-git",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "mesa-git",
+    "desc": "Mesa git builds for the testing repositories",
+    "group": "community",
+    "servers": [
+      "https://pkgbuild.com/~lcarlier/$repo/$arch"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "miffe",
+    "label": "miffe",
+    "title": "miffe",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "miffe",
+    "desc": "AUR packages maintained by miffe, e.g. linux-mainline.",
+    "group": "community",
+    "servers": [
+      "https://arch.miffe.org/$arch/"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "multilib-alucryd",
+    "label": "multilib-alucryd",
+    "title": "alucryd",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "multilib-alucryd",
+    "desc": "Various packages Maxime Gauduin maintains (or not) in the AUR, in particular the multilib repository is for various packages needed to run Steam without its runtime environment.",
+    "group": "community",
+    "servers": [
+      "https://pkgbuild.com/~alucryd/$repo/$arch"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "multilib-testing-alucryd",
+    "label": "multilib-testing-alucryd",
+    "title": "alucryd",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "multilib-testing-alucryd",
+    "desc": "Various packages Maxime Gauduin maintains (or not) in the AUR, in particular the multilib repository is for various packages needed to run Steam without its runtime environment.",
+    "group": "community",
+    "servers": [
+      "https://pkgbuild.com/~alucryd/$repo/$arch"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "mxmeinhold",
+    "label": "mxmeinhold",
+    "title": "mxmeinhold",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "mxmeinhold",
+    "desc": "Packages I maintain in the AUR, currently just factorio-headless.",
+    "group": "community",
+    "servers": [
+      "https://arch.mxmeinhold.com/$arch"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "orhun",
+    "label": "orhun",
+    "title": "orhun",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "orhun",
+    "desc": "Personal repository with AUR and custom packages.",
+    "group": "community",
+    "servers": [
+      "https://pkgbuild.com/~orhun/repo"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "oscloud",
+    "label": "oscloud",
+    "title": "oscloud",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "oscloud",
+    "desc": "Various command-line tools and other packages from the AUR.",
+    "group": "community",
+    "servers": [
+      "http://repo.oscloud.info/"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "ownstuff",
+    "label": "ownstuff",
+    "title": "ownstuff",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "ownstuff",
+    "desc": "A lot of packages from the AUR and the referenced upstream page, e.g. a great number packages for mingw-w64 and Android cross compilation, nvidia-580xx packages (including compiled",
+    "group": "community",
+    "servers": [
+      "https://ftp.f3l.de/~martchus/$repo/os/$arch",
+      "https://martchus.dyn.f3l.de/repo/arch/$repo/os/$arch"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "ownstuff-testing",
+    "label": "ownstuff-testing",
+    "title": "ownstuff",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "ownstuff-testing",
+    "desc": "A lot of packages from the AUR and the referenced upstream page, e.g. a great number packages for mingw-w64 and Android cross compilation, nvidia-580xx packages (including compiled",
+    "group": "community",
+    "servers": [
+      "https://ftp.f3l.de/~martchus/$repo/os/$arch",
+      "https://martchus.dyn.f3l.de/repo/arch/$repo/os/$arch"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "pkgbuilder",
+    "label": "pkgbuilder",
+    "title": "pkgbuilder",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "pkgbuilder",
+    "desc": "A repository for PKGBUILDer, a Python AUR helper.",
+    "group": "community",
+    "servers": [
+      "https://pkgbuilder-repo.chriswarrick.com/"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "principia",
+    "label": "principia",
+    "title": "principia",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "principia",
+    "desc": "Binary builds of the principia AUR and principia-git AUR packages.",
+    "group": "community",
+    "servers": [
+      "https://arch.principia-web.se/$arch"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "pro-audio-legacy",
+    "label": "pro-audio-legacy",
+    "title": "pro-audio-legacy",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "pro-audio-legacy",
+    "desc": "Legacy tooling for Professional audio (e.g. jack AUR), mainly useful for old setups or CI.",
+    "group": "audio",
+    "servers": [
+      "https://pkgbuild.com/~dvzrv/repos/pro-audio-legacy/$arch"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "proaudio",
+    "label": "proaudio",
+    "title": "proaudio",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "proaudio",
+    "desc": "Professional audio packages not (yet) in the official repos, built for x86_64 and aarch64.",
+    "group": "audio",
+    "servers": [
+      "https://arch.osamc.de/$repo/$arch"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "python",
+    "label": "python",
+    "title": "ffy00 (python)",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "python",
+    "desc": "Provides several different Python versions (eg. 3.5, 3.6, 3.7). All active Python releases should be available here.",
+    "group": "community",
+    "servers": [
+      "https://ffy00.github.io/arch-python-repo/"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "quarry",
+    "label": "quarry",
+    "title": "quarry",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "quarry",
+    "desc": "Arch binary repository for Rubygems packages. See forum announcement for more information.",
+    "group": "community",
+    "servers": [
+      "https://pkgbuild.com/~anatolik/quarry/x86_64/"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "rayr",
+    "label": "rayr",
+    "title": "rayr",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "rayr",
+    "desc": "Prebuilt packages of my AUR packages, as an Arch repo.",
+    "group": "community",
+    "servers": [
+      "https://rayrsn.github.io/ArchRepo/$arch"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "repo.mksscryertower.quest",
+    "label": "repo.mksscryertower.quest",
+    "title": "repo.mksscryertower.quest",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "repo.mksscryertower.quest",
+    "desc": "Collection of AUR packages that I personally use: Crowdsec, libraries and etc.",
+    "group": "community",
+    "servers": [
+      "https://repo.mksscryertower.quest/repo/x86_64/"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "rne",
+    "label": "rne",
+    "title": "rne",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "rne",
+    "desc": "Collection of AUR packages that I personally use.",
+    "group": "community",
+    "servers": [
+      "https://srv.richard-neumann.de/pub/repo/"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "seblu",
+    "label": "seblu",
+    "title": "seblu",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "seblu",
+    "desc": "All seblu useful pre-built packages, some homemade (linux-seblu-meta, zfs-dkms, spotify, masterpdfeditor, etc.).",
+    "group": "community",
+    "servers": [
+      "https://al1.seblu.net/$repo/$arch",
+      "https://al2.seblu.net/$repo/$arch"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "seiichiro",
+    "label": "seiichiro",
+    "title": "seiichiro",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "seiichiro",
+    "desc": "AUR-packages I use frequently.",
+    "group": "community",
+    "servers": [
+      "https://www.seiichiro0185.org/repo/$arch"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "selinux",
+    "label": "selinux",
+    "title": "selinux",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "selinux",
+    "desc": "Provide binary packages for SELinux.",
+    "group": "security",
+    "servers": [
+      "https://github.com/archlinuxhardened/selinux/releases/download/ArchLinux-SELinux"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "sergej-repo",
+    "label": "sergej-repo",
+    "title": "sergej-repo",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "sergej-repo",
+    "desc": "nextcloud, prosody, and some other stuff.",
+    "group": "community",
+    "servers": [
+      "http://repo.p5n.pp.ru/$repo/os/$arch"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "stx4-any",
+    "label": "stx4-any",
+    "title": "stx4",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "stx4-any",
+    "desc": "Any – some fonts and fakepkgs; x86_64 – archival yet might useful packages (like PacmanXG4), and some AUR soft I use[d].",
+    "group": "community",
+    "servers": [
+      "https://starterx4.github.io/repos/arch/$arch/stx4"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "stx4-x86_64",
+    "label": "stx4-x86_64",
+    "title": "stx4",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "stx4-x86_64",
+    "desc": "Any – some fonts and fakepkgs; x86_64 – archival yet might useful packages (like PacmanXG4), and some AUR soft I use[d].",
+    "group": "community",
+    "servers": [
+      "https://starterx4.github.io/repos/arch/$arch/stx4"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "sublime-text",
+    "label": "sublime-text",
+    "title": "sublime-text",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "sublime-text",
+    "desc": "Sublime Text editor packages from developer's repository.",
+    "group": "community",
+    "servers": [
+      "https://download.sublimetext.com/arch/stable/$arch"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "supermario",
+    "label": "supermario",
+    "title": "supermario",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "supermario",
+    "desc": "AUR packages that I use or maintain.",
+    "group": "community",
+    "servers": [
+      "https://pkgs.finelli.dev/arch/$arch"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "taur",
+    "label": "taur",
+    "title": "taur",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "taur",
+    "desc": "Weekly builds of AUR packages (mostly for development) that I use.",
+    "group": "community",
+    "servers": [
+      "https://aur.toufy.me/builds"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "trinity",
+    "label": "trinity",
+    "title": "trinity",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "trinity",
+    "desc": "Trinity Desktop Environment.",
+    "group": "community",
+    "servers": [
+      "https://mirror.ppa.trinitydesktop.org/trinity/archlinux/$arch"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "vdr4arch",
+    "label": "vdr4arch",
+    "title": "vdr4arch",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "vdr4arch",
+    "desc": "A set of VDR packages for Arch Linux",
+    "group": "community",
+    "servers": [
+      "https://vdr4arch.github.io/$arch"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  },
+  {
+    "id": "xyne-x86_64",
+    "label": "xyne-x86_64",
+    "title": "xyne-x86_64",
+    "glyph": "󰏒",
+    "kind": "pacman",
+    "section": "xyne-x86_64",
+    "desc": "A repository for Xyne's own projects.",
+    "group": "community",
+    "servers": [
+      "https://xyne.dev/repos/xyne"
+    ],
+    "include": "",
+    "priority": 200,
+    "enable": "generic"
+  }
+]

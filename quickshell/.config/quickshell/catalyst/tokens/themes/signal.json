@@ -1,0 +1,25 @@
+{
+  "id": "signal",
+  "label": "Signal",
+  "aliases": [],
+  "chrome": {
+    "radius": { "sm": 4, "md": 6, "lg": 8, "pill": 8, "full": 999 },
+    "blurBackdrop": false,
+    "veil": 0.82,
+    "grain": 0.1,
+    "hairline": 1,
+    "borderAlpha": 0.6,
+    "topHighlight": 0.1
+  },
+  "bar": {
+    "mode": "continuous",
+    "height": 26,
+    "marginTop": 0,
+    "marginX": 0,
+    "gap": 10,
+    "opacity": 0.9,
+    "bottomHairline": "accent"
+  },
+  "dock": { "position": "bottom", "indicator": "square" },
+  "type": { "ui": "Satoshi", "chrome": "JetBrainsMono Nerd Font" }
+}
