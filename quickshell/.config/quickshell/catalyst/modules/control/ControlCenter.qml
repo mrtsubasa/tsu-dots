@@ -187,11 +187,24 @@ Item {
                 Tile {
                     Layout.fillWidth: true
                     icon: "nightlight"
-                    title: "Lumière nocturne"
-                    subtitle: Night.on ? "Écran plus chaud" : "Désactivée"
+                    title: "Mode nuit"
+                    subtitle: Night.on ? ShellCfg.nightTemp + " K" : "Désactivé"
                     active: Night.on
                     accent: Theme.warning
+                    expandable: true
                     onClicked: Night.toggle()
+                    onExpand: root.go("display")
+                }
+                Tile {
+                    Layout.fillWidth: true
+                    icon: "wb_twilight"
+                    title: "True Tone"
+                    subtitle: Night.trueTone ? (Night.on ? "Pause (nuit)" : Night.currentK + " K") : "Désactivé"
+                    active: Night.trueTone
+                    accent: Theme.accent2
+                    expandable: true
+                    onClicked: Night.setTrueTone(!Night.trueTone)
+                    onExpand: root.go("display")
                 }
                 Tile {
                     Layout.fillWidth: true
@@ -205,6 +218,7 @@ Item {
                 }
                 Tile {
                     Layout.fillWidth: true
+                    Layout.columnSpan: 2
                     icon: "coffee"
                     title: "Rester éveillé"
                     subtitle: Caffeine.on ? "Veille suspendue" : "Désactivé"
@@ -350,6 +364,7 @@ Item {
                 case "in": return inC;
                 case "eq": return eqC;
                 case "power": return powerC;
+                case "display": return displayC;
                 default: return null;
                 }
             }
@@ -362,4 +377,5 @@ Item {
     Component { id: inC; AudioPage { width: sub.width; kind: "in"; onBack: root.go("main") } }
     Component { id: eqC; EqPage { width: sub.width; onBack: root.go("out") } }
     Component { id: powerC; PowerPage { width: sub.width; onBack: root.go("main") } }
+    Component { id: displayC; DisplayPage { width: sub.width; onBack: root.go("main") } }
 }

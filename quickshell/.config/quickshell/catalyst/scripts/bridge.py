@@ -929,7 +929,7 @@ def weather():
     url = (
         "https://api.open-meteo.com/v1/forecast"
         f"?latitude={lat}&longitude={lon}"
-        "&current=temperature_2m,weather_code,apparent_temperature"
+        "&current=temperature_2m,weather_code,apparent_temperature,cloud_cover"
         "&daily=temperature_2m_max,temperature_2m_min"
         "&timezone=auto&forecast_days=1"
     )
@@ -961,6 +961,7 @@ def weather():
         "high": round(float(highs[0] or 0)),
         "low": round(float(lows[0] or 0)),
         "code": code,
+        "clouds": int(cur.get("cloud_cover") or 0),
         "desc": desc,
         "glyph": glyph,
     }

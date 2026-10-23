@@ -99,6 +99,24 @@ ColumnLayout {
         }
         SettingRow {
             Layout.fillWidth: true
+            icon: "wb_twilight"
+            title: "True Tone"
+            subtitle: Night.trueTone ? "Blanc adapté à la lumière estimée · actuellement " + Night.currentK + " K (" + Night.phase + ")" : "Adapte le blanc de l'écran à la lumière du moment, sans capteur"
+            Slider {
+                visible: Night.trueTone
+                width: 160
+                implicitHeight: 30
+                icon: "tune"
+                value: Night.strength
+                onMoved: v => Night.setStrength(v)
+            }
+            Toggle {
+                checked: Night.trueTone
+                onToggled: v => Night.setTrueTone(v)
+            }
+        }
+        SettingRow {
+            Layout.fillWidth: true
             icon: "animation"
             title: "Réduire les animations"
             subtitle: "Ouvertures instantanées, aucun déplacement ; les fondus restent"

@@ -123,6 +123,7 @@ Scope {
                     spacing: 2
 
                     BarRecord { visible: want }
+                    BarShutdown { barWin: win; visible: want }
 
                     Repeater {
                         model: BarCfg.rightOrder

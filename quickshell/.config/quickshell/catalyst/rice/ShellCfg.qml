@@ -22,6 +22,11 @@ Singleton {
     property string theme: ""
     // mot de marque affiché dans l'interface (en-têtes, launcher, verrouillage…)
     property string brand: "catalyst"
+    // affichage : True Tone (blanc adapté à la lumière estimée), lumière nocturne
+    property bool trueTone: false
+    property real trueToneStrength: 0.7
+    property bool nightLight: false
+    property int nightTemp: 3800
     readonly property string brandPath: Quickshell.env("HOME") + "/.cache/catalyst/brand"
     // true une fois le premier chargement terminé (sécurise Themes/Atelier)
     property bool fileReady: false
@@ -48,6 +53,14 @@ Singleton {
         if (obj.palette)
             palette = obj.palette;
         theme = obj.theme || "";
+        if (obj.trueTone !== undefined)
+            trueTone = !!obj.trueTone;
+        if (obj.trueToneStrength !== undefined)
+            trueToneStrength = Math.max(0.1, Math.min(1, Number(obj.trueToneStrength) || 0.7));
+        if (obj.nightLight !== undefined)
+            nightLight = !!obj.nightLight;
+        if (obj.nightTemp !== undefined)
+            nightTemp = Math.max(2500, Math.min(5500, Number(obj.nightTemp) || 3800));
         brand = obj.brand !== undefined && String(obj.brand).trim().length ? String(obj.brand).trim() : "catalyst";
         writeBrand();
     }
@@ -76,7 +89,11 @@ Singleton {
             paletteMode: paletteMode,
             palette: palette,
             theme: theme,
-            brand: brand
+            brand: brand,
+            trueTone: trueTone,
+            trueToneStrength: trueToneStrength,
+            nightLight: nightLight,
+            nightTemp: nightTemp
         }, null, 2) + "\n";
     }
 

@@ -39,3 +39,4 @@ singleton Recorder Recorder.qml
 singleton Search Search.qml
 singleton Profiles Profiles.qml
 singleton Walls Walls.qml
+singleton SessionCtl SessionCtl.qml

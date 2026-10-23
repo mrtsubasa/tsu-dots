@@ -7,5 +7,10 @@
   "widgetsLayer": "desk",
   "paletteMode": "theme",
   "palette": "catalyst-dark",
-  "theme": "catalyst-dark"
+  "theme": "catalyst-dark",
+  "brand": "catalyst",
+  "trueTone": true,
+  "trueToneStrength": 0.7,
+  "nightLight": false,
+  "nightTemp": 3800
 }

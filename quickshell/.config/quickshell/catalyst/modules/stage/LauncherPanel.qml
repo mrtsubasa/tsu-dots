@@ -150,8 +150,8 @@ FocusScope {
                         AppIcon {
                             visible: row.modelData.kind === "app"
                             anchors.centerIn: parent
-                            appId: row.modelData.appId || ""
-                            iconName: row.modelData.icon || ""
+                            appId: row.modelData.kind === "app" ? (row.modelData.appId || "") : ""
+                            iconName: row.modelData.kind === "app" ? (row.modelData.icon || "") : ""
                             label: row.modelData.title
                             size: 30
                         }

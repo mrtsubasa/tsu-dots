@@ -140,6 +140,25 @@ ShellRoot {
     }
 
     IpcHandler {
+        target: "display"
+
+        function truetone(state: string): string {
+            Night.setTrueTone(state === "on" || state === "1" || state === "true");
+            return Night.trueTone ? "on" : "off";
+        }
+
+        function night(state: string): string {
+            if ((state === "on") !== Night.on)
+                Night.toggle();
+            return Night.on ? "on" : "off";
+        }
+
+        function status(): string {
+            return JSON.stringify({ trueTone: Night.trueTone, night: Night.on, phase: Night.phase, elevation: Math.round(Night.elevation * 10) / 10, ambientK: Night.ambientK, targetK: Night.targetK, currentK: Night.currentK, ready: Night.ready, clouds: Weather.clouds });
+        }
+    }
+
+    IpcHandler {
         target: "record"
 
         function toggle(mode: string): string {

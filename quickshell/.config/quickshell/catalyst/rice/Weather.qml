@@ -17,6 +17,8 @@ Singleton {
     property real lat: 0
     property real lon: 0
     property bool ready: false
+    // couverture nuageuse 0..100 (True Tone)
+    property int clouds: 0
 
     function refresh() {
         Bridge.call(["weather"], function (r) {
@@ -31,6 +33,7 @@ Singleton {
             glyph = r.glyph || glyph;
             lat = r.lat ?? lat;
             lon = r.lon ?? lon;
+            clouds = r.clouds ?? clouds;
             ready = true;
         });
     }
