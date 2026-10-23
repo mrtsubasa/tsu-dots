@@ -68,7 +68,7 @@ Scope {
                 id: cardHost
                 z: 2
                 x: host.cardX
-                y: Chrome.barHeight + 16
+                y: Tokens.belowBar
                 width: host.cardW
                 height: host.cardH
                 opacity: host.appear
@@ -81,45 +81,19 @@ Scope {
                     active: host.visible
                     sourceComponent: {
                         switch (PanelService.popover) {
-                        case "calendar":
-                            return calendarComp;
-                        case "network":
-                            return networkComp;
-                        case "audio":
-                            return audioComp;
-                        case "eq":
-                            return eqComp;
-                        case "media":
-                            return mediaComp;
                         case "tray":
                             return trayComp;
-                        case "tools":
-                            return toolsComp;
                         case "term":
                             return termComp;
-                        case "home":
-                            return homeComp;
-                        case "apps":
-                            return appsComp;
-                        case "profile":
-                            return profileComp;
                         }
                         return null;
                     }
                 }
             }
 
-            Component { id: calendarComp; CalendarPopover {} }
-            Component { id: networkComp; NetworkPopover {} }
-            Component { id: audioComp; AudioPopover {} }
-            Component { id: eqComp; EqPopover {} }
-            Component { id: mediaComp; MediaPopover {} }
+            // popovers conservés : menus des applis du tray, mini-terminal
             Component { id: trayComp; TrayPopover {} }
-            Component { id: toolsComp; ToolsPopover {} }
             Component { id: termComp; TermPopover {} }
-            Component { id: homeComp; HomePopover {} }
-            Component { id: appsComp; AppsPopover {} }
-            Component { id: profileComp; ProfilePopover {} }
         }
     }
 }

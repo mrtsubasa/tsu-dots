@@ -18,8 +18,6 @@ singleton Notifs Notifs.qml
 singleton Bright Bright.qml
 singleton Net Net.qml
 singleton BarCfg BarCfg.qml
-singleton BarBits BarBits.qml
-singleton LauncherData LauncherData.qml
 singleton AiData AiData.qml
 singleton VmData VmData.qml
 singleton ScriptsData ScriptsData.qml

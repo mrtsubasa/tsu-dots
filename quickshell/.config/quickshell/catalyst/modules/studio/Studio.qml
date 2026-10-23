@@ -22,7 +22,7 @@ FocusScope {
         { id: "bar", label: "Barre", icon: "toolbar", desc: "Style, éléments, ordre" },
         { id: "dock", label: "Dock", icon: "dock_to_bottom", desc: "Position, taille, applications" },
         { id: "desk", label: "Bureau", icon: "dashboard_customize", desc: "Widgets et disposition" },
-        { id: "panels", label: "Interface", icon: "tune", desc: "Densité, animations, OSD" },
+        { id: "panels", label: "Profil & interface", icon: "manage_accounts", desc: "Avatar, nom, densité, animations, OSD" },
         { id: "profiles", label: "Profils", icon: "bookmarks", desc: "Sauvegarder et restaurer" }
     ]
 

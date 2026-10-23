@@ -79,6 +79,7 @@ Singleton {
             { id: "lock", title: "Verrouiller", subtitle: "hyprlock", icon: "lock", kw: "lock verrouiller", action: sh("loginctl lock-session") },
             { id: "power", title: "Session", subtitle: "Veille, redémarrer, éteindre", icon: "power_settings_new", kw: "power shutdown reboot logout eteindre", action: panel("power") },
             { id: "terminal", title: "Terminal", subtitle: "alacritty", icon: "terminal", kw: "terminal shell console", action: sh("alacritty") },
+            { id: "miniterm", title: "Mini-terminal", subtitle: "Commande rapide sous la barre", icon: "keyboard_command_key", kw: "term mini commande rapide", action: () => { PanelService.hide(); PanelService.popoverGeom = { output: PanelService.outputName || Niri.focusedOutput, x: 0, w: 48 }; PanelService.popover = "term"; } },
             { id: "restart", title: "Relancer le shell", subtitle: "Recharge Quickshell", icon: "restart_alt", kw: "reload restart quickshell", action: sh(Quickshell.env("HOME") + "/.config/quickshell/catalyst/scripts/catalyst-session.sh restart") }
         ];
         const ps = Themes.presets;
