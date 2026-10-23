@@ -42,3 +42,5 @@ singleton Walls Walls.qml
 singleton SessionCtl SessionCtl.qml
 singleton Privacy Privacy.qml
 singleton Mic Mic.qml
+singleton Ifaces Ifaces.qml
+singleton Gpu Gpu.qml
