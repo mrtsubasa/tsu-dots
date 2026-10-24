@@ -24,13 +24,13 @@ Scope {
             readonly property bool here: PanelService.onScreen(modelData)
             readonly property string want: here ? PanelService.active : ""
 
-            readonly property bool anyShown: cc.shown || cal.shown || media.shown || power.shown || sysmon.shown || launcher.shown || studio.shown || clip.shown || binds.shown
+            readonly property bool anyShown: cc.shown || cal.shown || media.shown || power.shown || sysmon.shown || launcher.shown || studio.shown || clip.shown || binds.shown || containers.shown
             visible: anyShown
             color: "transparent"
             exclusionMode: ExclusionMode.Ignore
             WlrLayershell.namespace: "catalyst-stage"
             WlrLayershell.layer: WlrLayer.Overlay
-            WlrLayershell.keyboardFocus: want.length && (cc.open || cal.open || media.open || power.open || sysmon.open || launcher.open || studio.open || clip.open || binds.open) ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+            WlrLayershell.keyboardFocus: want.length && (cc.open || cal.open || media.open || power.open || sysmon.open || launcher.open || studio.open || clip.open || binds.open || containers.open) ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
             anchors { top: true; bottom: true; left: true; right: true }
 
             // abscisse d'ancrage (centre de l'élément de barre cliqué)
@@ -191,6 +191,25 @@ Scope {
                         focus: binds.open
                         sourceComponent: BindsPanel {
                             maxHeight: stage.height - 120
+                        }
+                    }
+                }
+
+                // ---- conteneurs (centré) ----
+                Popout {
+                    id: containers
+                    open: stage.want === "containers"
+                    from: "center"
+                    width: contLoader.item ? contLoader.item.implicitWidth : 0
+                    height: contLoader.item ? contLoader.item.implicitHeight : 0
+                    anchors.centerIn: parent
+                    Loader {
+                        id: contLoader
+                        anchors.fill: parent
+                        active: containers.open
+                        focus: containers.open
+                        sourceComponent: ContainersPanel {
+                            maxHeight: stage.height - 140
                         }
                     }
                 }
