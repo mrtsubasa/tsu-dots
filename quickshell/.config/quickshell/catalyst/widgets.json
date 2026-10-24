@@ -1,56 +1,18 @@
 {
-  "seq": 5,
+  "seq": 8,
   "items": [
     {
-      "id": "w1",
-      "type": "clock",
-      "screen": "",
+      "id": "w5",
+      "type": "launch",
+      "screen": "DP-2",
       "x": 40,
-      "y": 96,
-      "w": 380,
-      "h": 210,
+      "y": 92,
+      "w": 360,
+      "h": 184,
       "visible": true,
-      "z": 0,
-      "props": {}
-    },
-    {
-      "id": "w2",
-      "type": "sys",
-      "screen": "",
-      "x": 40,
-      "y": 336,
-      "w": 330,
-      "h": 300,
-      "visible": true,
-      "z": 0,
-      "props": {}
-    },
-    {
-      "id": "w3",
-      "type": "media",
-      "screen": "",
-      "x": 460,
-      "y": 96,
-      "w": 400,
-      "h": 168,
-      "visible": true,
-      "z": 0,
-      "props": {}
-    },
-    {
-      "id": "w4",
-      "type": "focus",
-      "screen": "",
-      "x": 460,
-      "y": 296,
-      "w": 330,
-      "h": 214,
-      "visible": true,
-      "z": 0,
+      "z": 8,
       "props": {
-        "running": false,
-        "endsAt": 1792768511533,
-        "remaining": 1497
+        "style": "glass"
       }
     }
   ]

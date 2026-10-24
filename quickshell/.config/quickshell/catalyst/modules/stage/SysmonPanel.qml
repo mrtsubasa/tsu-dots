@@ -19,9 +19,15 @@ Item {
 
     Component.onCompleted: {
         SysInfo.fastUsers++;
+        Gpu.users++;
+        Ifaces.fastUsers++;
         ps.running = true;
     }
-    Component.onDestruction: SysInfo.fastUsers = Math.max(0, SysInfo.fastUsers - 1)
+    Component.onDestruction: {
+        SysInfo.fastUsers = Math.max(0, SysInfo.fastUsers - 1);
+        Gpu.users = Math.max(0, Gpu.users - 1);
+        Ifaces.fastUsers = Math.max(0, Ifaces.fastUsers - 1);
+    }
 
     Timer {
         interval: 2000
@@ -36,8 +42,10 @@ Item {
         property var buf: []
         stdout: SplitParser {
             onRead: data => {
-                if (ps.buf.length < 5)
-                    ps.buf.push(data.trim().split(/\s+/));
+                const f = data.trim().split(/\s+/);
+                // exclut la commande de mesure elle-même
+                if (ps.buf.length < 5 && f[3] !== "ps")
+                    ps.buf.push(f);
             }
         }
         onRunningChanged: if (running) buf = []
@@ -85,6 +93,39 @@ Item {
             Gauge { value: SysInfo.ram; label: Math.round(SysInfo.ram * 100) + "%"; caption: "Mémoire" }
             Gauge { visible: SysInfo.hasTemp; value: SysInfo.temp / 100; label: Math.round(SysInfo.temp) + "°"; caption: "Temp." }
             Gauge { value: SysInfo.disk; label: Math.round(SysInfo.disk * 100) + "%"; caption: "Disque" }
+        }
+
+        // GPU
+        RowLayout {
+            Layout.fillWidth: true
+            visible: Gpu.available && Gpu.memTotal > 0
+            spacing: 0
+            Gauge { value: Gpu.util; label: Math.round(Gpu.util * 100) + "%"; caption: "GPU" }
+            Gauge { value: Gpu.mem; label: Math.round(Gpu.mem * 100) + "%"; caption: "VRAM" }
+            Gauge { value: Gpu.temp / 100; label: Math.round(Gpu.temp) + "°"; caption: "GPU temp." }
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 2
+                Txt { role: "mono"; text: Math.round(Gpu.power) + " W"; font.pixelSize: 13; font.weight: Font.DemiBold; Layout.alignment: Qt.AlignHCenter }
+                Txt { role: "overline"; text: "conso"; Layout.alignment: Qt.AlignHCenter }
+            }
+        }
+        Txt {
+            Layout.fillWidth: true
+            visible: Gpu.available && Gpu.memTotal > 0
+            role: "caption"
+            text: Gpu.name + " · VRAM " + Gpu.memText
+        }
+
+        // réseau
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 12
+            Icon { name: "swap_vert"; size: 16; color: Theme.textSub }
+            Txt { role: "mono"; text: "↓ " + Ifaces.human(Ifaces.rxRate); color: Theme.accent2 }
+            Txt { role: "mono"; text: "↑ " + Ifaces.human(Ifaces.txRate); color: Theme.accent }
+            Item { Layout.fillWidth: true }
+            Txt { role: "caption"; text: Ifaces.primary ? Ifaces.primary.label : "" }
         }
 
         RowLayout {

@@ -18,11 +18,28 @@ BarItem {
     readonly property bool alerting: cpuHot || ramHot || tempHot
 
     want: BarCfg.on("metrics") && BarCfg.metrics !== "off" && (always || alerting)
-    tooltip: "CPU " + Math.round(SysInfo.cpu * 100) + "% · RAM " + SysInfo.ramText + (SysInfo.hasTemp ? " · " + Math.round(SysInfo.temp) + " °C" : "")
+    tooltip: "CPU " + Math.round(SysInfo.cpu * 100) + "% · RAM " + SysInfo.ramText + (SysInfo.hasTemp ? " · " + Math.round(SysInfo.temp) + " °C" : "") + (_gpu ? " · GPU " + Math.round(Gpu.util * 100) + "% " + Gpu.memText : "")
     padX: 8
     spacing: 10
     active: PanelService.active === "sysmon" && PanelService.outputName === (barWin ? barWin.outputName : "")
     onClicked: PanelService.openAt("sysmon", root.barWin, root)
+
+    // le GPU n'est interrogé que si la barre l'affiche en permanence
+    property bool _gpu: false
+    function syncGpu() {
+        const on = root.always && root.want && Gpu.available;
+        if (on === _gpu)
+            return;
+        _gpu = on;
+        Gpu.users = Math.max(0, Gpu.users + (on ? 1 : -1));
+    }
+    onAlwaysChanged: syncGpu()
+    onWantChanged: syncGpu()
+    Component.onCompleted: syncGpu()
+    Component.onDestruction: {
+        if (_gpu)
+            Gpu.users = Math.max(0, Gpu.users - 1);
+    }
 
     component Metric: Row {
         id: m
@@ -65,5 +82,11 @@ BarItem {
         icon: "device_thermostat"
         value: Math.round(SysInfo.temp) + "°"
         hot: root.tempHot
+    }
+    Metric {
+        visible: root._gpu && Gpu.memTotal > 0
+        icon: "developer_board"
+        value: Math.round(Gpu.util * 100) + "% " + Math.round(Gpu.temp) + "°"
+        hot: Gpu.temp >= 83
     }
 }
