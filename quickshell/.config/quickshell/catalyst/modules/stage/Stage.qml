@@ -24,13 +24,13 @@ Scope {
             readonly property bool here: PanelService.onScreen(modelData)
             readonly property string want: here ? PanelService.active : ""
 
-            readonly property bool anyShown: cc.shown || cal.shown || media.shown || power.shown || sysmon.shown || launcher.shown || studio.shown || clip.shown
+            readonly property bool anyShown: cc.shown || cal.shown || media.shown || power.shown || sysmon.shown || launcher.shown || studio.shown || clip.shown || binds.shown
             visible: anyShown
             color: "transparent"
             exclusionMode: ExclusionMode.Ignore
             WlrLayershell.namespace: "catalyst-stage"
             WlrLayershell.layer: WlrLayer.Overlay
-            WlrLayershell.keyboardFocus: want.length && (cc.open || cal.open || media.open || power.open || sysmon.open || launcher.open || studio.open || clip.open) ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+            WlrLayershell.keyboardFocus: want.length && (cc.open || cal.open || media.open || power.open || sysmon.open || launcher.open || studio.open || clip.open || binds.open) ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
             anchors { top: true; bottom: true; left: true; right: true }
 
             // abscisse d'ancrage (centre de l'élément de barre cliqué)
@@ -172,6 +172,25 @@ Scope {
                         focus: clip.open
                         sourceComponent: ClipPanel {
                             maxHeight: stage.height * 0.7
+                        }
+                    }
+                }
+
+                // ---- raccourcis (centré) ----
+                Popout {
+                    id: binds
+                    open: stage.want === "binds"
+                    from: "center"
+                    width: bindsLoader.item ? bindsLoader.item.implicitWidth : 0
+                    height: bindsLoader.item ? bindsLoader.item.implicitHeight : 0
+                    anchors.centerIn: parent
+                    Loader {
+                        id: bindsLoader
+                        anchors.fill: parent
+                        active: binds.open
+                        focus: binds.open
+                        sourceComponent: BindsPanel {
+                            maxHeight: stage.height - 120
                         }
                     }
                 }

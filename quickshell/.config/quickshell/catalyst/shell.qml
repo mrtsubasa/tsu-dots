@@ -17,7 +17,6 @@ import "./modules/chat/"
 import "./modules/bots/"
 import "./modules/ops/"
 import "./modules/wall/"
-import "./modules/binds/"
 import "./modules/pkgs/"
 import "./modules/dock/"
 import "./modules/omarchy/"
@@ -43,7 +42,6 @@ ShellRoot {
     BotsPanel {}
     OpsPanel {}
     WallPanel {}
-    BindsPanel {}
     PkgsPanel {}
     Dock {}
     OmarchyPanel {}
