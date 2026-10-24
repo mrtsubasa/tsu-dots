@@ -44,3 +44,4 @@ singleton Privacy Privacy.qml
 singleton Mic Mic.qml
 singleton Ifaces Ifaces.qml
 singleton Gpu Gpu.qml
+singleton Clip Clip.qml

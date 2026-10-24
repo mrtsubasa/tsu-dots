@@ -16,7 +16,6 @@ import "./modules/scripts/"
 import "./modules/chat/"
 import "./modules/bots/"
 import "./modules/ops/"
-import "./modules/clip/"
 import "./modules/wall/"
 import "./modules/binds/"
 import "./modules/pkgs/"
@@ -43,7 +42,6 @@ ShellRoot {
     ChatPanel {}
     BotsPanel {}
     OpsPanel {}
-    ClipPanel {}
     WallPanel {}
     BindsPanel {}
     PkgsPanel {}
