@@ -51,6 +51,7 @@ Singleton {
         term: true,
         profile: true,
         mark: true,
+        arsenal: true,
         metrics: true,
         status: true,
         tools: false

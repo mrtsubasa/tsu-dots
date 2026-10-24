@@ -227,6 +227,26 @@ l'ouverture.
 
 ---
 
+## Arsenal — navigateur d'outils
+
+Bouton **arsenal** dans la barre (ou launcher : « arsenal », ou panneau
+`arsenal`). Liste **tous** tes outils de sécurité installés (groupes
+BlackArch), façon menu Kali/Parrot :
+
+- colonne de **catégories** (Scanners, Recon, Web, Exploitation, Réseau,
+  Windows, Cassage, Forensic, Reverse…) avec compteurs, plus **Favoris** et
+  **Récents** ;
+- **recherche** instantanée par nom et description ;
+- clic sur un outil → **détail** : description longue, version, site, et la
+  liste de ses **exécutables** (un paquet peut en fournir plusieurs) ;
+- actions : **Terminal** (lance l'outil prêt à l'emploi), **Aide** (`--help`),
+  **man**, **favori** (★), **copier le nom**. Les outils graphiques se lancent
+  directement.
+
+Données : `scripts/arsenal.py` lit la base pacman locale (aucun réseau, aucun
+sudo) et met en cache `~/.cache/catalyst/arsenal.json`, reconstruit quand tu
+installes ou retires des paquets. Masquable depuis le Studio → Barre.
+
 ## VPN (style Kali / Parrot)
 
 Centre de contrôle → Réseau → **VPN** (ou launcher : « vpn »). Tout passe par

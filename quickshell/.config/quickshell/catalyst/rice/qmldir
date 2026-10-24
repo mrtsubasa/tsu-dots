@@ -49,3 +49,4 @@ singleton Keybinds Keybinds.qml
 singleton Containers Containers.qml
 singleton GameMode GameMode.qml
 singleton Vpn Vpn.qml
+singleton Arsenal Arsenal.qml

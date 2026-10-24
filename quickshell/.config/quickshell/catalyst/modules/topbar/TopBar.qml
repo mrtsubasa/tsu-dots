@@ -102,8 +102,14 @@ Scope {
                         id: winTitle
                         outputName: win.outputName
                         visible: BarCfg.on("window") && title.length > 0
-                        maxWidth: Math.max(80, (win.width / 2) - left.x - 260 - (center.width / 2))
+                        maxWidth: Math.max(80, (win.width / 2) - left.x - 320 - (center.width / 2))
                     }
+                    Rectangle {
+                        visible: arsenalItem.visible && !win.islands
+                        width: 1; height: 14; color: Theme.divider
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                    BarArsenal { id: arsenalItem; barWin: win; visible: want; anchors.verticalCenter: parent.verticalCenter }
                 }
 
                 // ---- centre ----
