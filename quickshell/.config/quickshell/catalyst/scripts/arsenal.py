@@ -95,6 +95,94 @@ def gui_binaries():
     return exe
 
 
+REPO_LABEL = {
+    "cachyos-v3": "cachyos", "cachyos-core-v3": "cachyos", "cachyos-extra-v3": "cachyos",
+    "cachyos": "cachyos", "core": "core", "extra": "extra", "multilib": "multilib",
+    "chaotic-aur": "chaotic", "blackarch": "blackarch", "archstrike": "archstrike",
+}
+
+
+def config_repo_order():
+    order = []
+    try:
+        for line in Path("/etc/pacman.conf").read_text().splitlines():
+            m = re.match(r"^\[([a-z0-9-]+)\]\s*$", line.strip())
+            if m and m.group(1) != "options":
+                order.append(m.group(1))
+    except OSError:
+        pass
+    return order
+
+
+def origin_map():
+    """nom -> dépôt d'origine : premier dépôt (ordre pacman.conf) qui fournit
+    la version installée. Reflète d'où pacman a réellement pris le paquet."""
+    order = config_repo_order()
+    rank = {r: i for i, r in enumerate(order)}
+    best = {}
+    for line in run(["pacman", "-Sl"]).splitlines():
+        parts = line.split()
+        if len(parts) < 4 or "[inst" not in parts[3].lower() and "[install" not in line:
+            # ligne installée ? le marqueur varie selon la locale -> teste large
+            if "install" not in line and "inst" not in line:
+                continue
+        if len(parts) < 2:
+            continue
+        repo, name = parts[0], parts[1]
+        r = rank.get(repo, 999)
+        if name not in best or r < best[name][0]:
+            best[name] = (r, repo)
+    return {n: REPO_LABEL.get(v[1], v[1]) for n, v in best.items()}
+
+
+# Outils de sécurité « classiques » fournis par les dépôts Arch officiels
+# (extra/multilib/cachyos), que BlackArch ne repackage pas. Inclus seulement
+# s'ils sont installés. name -> catégories.
+MAINSTREAM = {
+    "nmap": ["scanner", "recon"], "sqlmap": ["webapp", "exploitation"],
+    "wireshark-qt": ["sniffer", "networking"], "wireshark-cli": ["sniffer", "networking"],
+    "tcpdump": ["sniffer", "networking"], "john": ["cracker"], "hashcat": ["cracker"],
+    "hydra": ["cracker"], "aircrack-ng": ["wireless", "cracker"], "bettercap": ["sniffer", "spoof"],
+    "ettercap": ["sniffer", "spoof"], "metasploit": ["exploitation"], "nikto": ["webapp", "scanner"],
+    "wpscan": ["webapp", "scanner"], "gobuster": ["webapp", "fuzzer"], "ffuf": ["webapp", "fuzzer"],
+    "dirb": ["webapp"], "masscan": ["scanner"], "netcat": ["networking"], "socat": ["networking"],
+    "proxychains-ng": ["proxy"], "tor": ["proxy", "tunnel"], "torsocks": ["proxy"],
+    "openvpn": ["networking", "tunnel"], "wireguard-tools": ["networking", "tunnel"],
+    "radare2": ["reversing", "disassembler"], "rizin": ["reversing", "disassembler"],
+    "ghidra": ["reversing", "disassembler"], "gdb": ["debugger", "reversing"],
+    "binwalk": ["forensic", "firmware"], "foremost": ["forensic"], "sleuthkit": ["forensic"],
+    "autopsy": ["forensic"], "volatility3": ["forensic"], "steghide": ["stego"],
+    "exiftool": ["forensic", "recon"], "hashid": ["crypto"], "hashcat-utils": ["cracker"],
+    "yara": ["malware"], "clamav": ["defensive", "malware"], "rkhunter": ["defensive"],
+    "lynis": ["defensive", "code-audit"], "nuclei": ["scanner", "webapp"],
+    "subfinder": ["recon"], "amass": ["recon"], "httpx": ["recon", "webapp"],
+    "whatweb": ["recon", "webapp"], "dnsrecon": ["recon"], "dnsenum": ["recon"],
+    "fierce": ["recon"], "theharvester": ["recon"], "recon-ng": ["recon"],
+    "responder": ["spoof", "networking"], "impacket": ["exploitation", "windows"],
+    "crackmapexec": ["windows", "exploitation"], "evil-winrm": ["windows"],
+    "enum4linux": ["windows", "recon"], "smbclient": ["windows", "networking"],
+    "frida": ["reversing", "mobile"], "apktool": ["mobile", "reversing"],
+    "jadx": ["mobile", "reversing"], "burpsuite": ["webapp", "proxy"],
+    "zaproxy": ["webapp", "proxy"], "mitmproxy": ["proxy", "sniffer"],
+    "aircrack-ng": ["wireless"], "reaver": ["wireless", "cracker"], "kismet": ["wireless", "sniffer"],
+    "hcxtools": ["wireless", "cracker"], "hcxdumptool": ["wireless"],
+    "cewl": ["cracker", "recon"], "crunch": ["cracker"], "medusa": ["cracker"],
+    "patator": ["cracker"], "chisel": ["tunnel", "networking"], "ligolo-ng": ["tunnel"],
+    "seclists": ["misc", "fuzzer"], "exploitdb": ["exploitation"],
+}
+
+
+def mainstream_installed():
+    names = list(MAINSTREAM)
+    present = set()
+    r = run(["pacman", "-Qq"] + names).splitlines() if names else []
+    # pacman -Qq échoue si un paquet manque : on filtre un par un via -T
+    missing = set()
+    for line in run(["pacman", "-T"] + names).splitlines():
+        missing.add(line.strip())
+    return [n for n in names if n not in missing]
+
+
 def build(force=False):
     db_mtime = PACMAN_DB.stat().st_mtime if PACMAN_DB.exists() else 0
     if not force and CACHE.is_file():
@@ -116,6 +204,9 @@ def build(force=False):
         cat = parts[0][len("blackarch-"):]
         tool_cats.setdefault(parts[1], set()).add(cat)
 
+    for name in mainstream_installed():
+        tool_cats.setdefault(name, set()).update(MAINSTREAM[name])
+
     # descriptions
     desc = {}
     names = list(tool_cats)
@@ -126,6 +217,7 @@ def build(force=False):
                 desc[n] = d
 
     guis = gui_binaries()
+    origin = origin_map()
     tools = []
     for name in sorted(tool_cats):
         c = sorted(tool_cats[name])
@@ -134,6 +226,7 @@ def build(force=False):
             "d": desc.get(name, ""),
             "c": c,
             "gui": name in guis,
+            "r": origin.get(name, "blackarch"),
         })
 
     counts = {}

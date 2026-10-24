@@ -188,10 +188,26 @@ FocusScope {
                                         }
                                         Txt { Layout.fillWidth: true; role: "caption"; text: toolRow.modelData.d || toolRow.modelData.c.join(", "); elide: Text.ElideRight }
                                     }
-                                    Txt {
-                                        visible: !rowHover.hovered
-                                        role: "overline"; color: Theme.textFaint
-                                        text: toolRow.modelData.c.length ? toolRow.modelData.c[0] : ""
+                                    Rectangle {
+                                        visible: !rowHover.hovered && !toolRow.expanded
+                                        implicitWidth: repoT.implicitWidth + 12
+                                        implicitHeight: 18
+                                        radius: 5
+                                        readonly property color tone: {
+                                            const r = toolRow.modelData.r;
+                                            if (r === "blackarch") return Theme.signature;
+                                            if (r === "chaotic") return Theme.accent2;
+                                            if (r === "cachyos") return Theme.accent;
+                                            return Theme.textSub;
+                                        }
+                                        color: Qt.alpha(tone, 0.14)
+                                        Txt {
+                                            id: repoT
+                                            anchors.centerIn: parent
+                                            role: "mono"; font.pixelSize: 9
+                                            text: toolRow.modelData.r
+                                            color: parent.tone
+                                        }
                                     }
                                     IconButton {
                                         visible: rowHover.hovered || toolRow.expanded
