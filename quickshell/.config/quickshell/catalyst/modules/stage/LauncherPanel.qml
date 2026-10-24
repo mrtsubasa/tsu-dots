@@ -196,9 +196,9 @@ FocusScope {
                         color: Theme.textFaint
                     }
                     Txt {
-                        visible: row.modelData.kind === "cmd"
+                        visible: ["cmd", "project", "ssh"].indexOf(row.modelData.kind) >= 0
                         role: "overline"
-                        text: ShellCfg.brand
+                        text: row.modelData.kind === "project" ? "projet" : (row.modelData.kind === "ssh" ? "ssh" : ShellCfg.brand)
                         color: row.current ? Theme.accent : Theme.textFaint
                     }
                     Rectangle {

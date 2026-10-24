@@ -32,6 +32,8 @@ Singleton {
     property string rawMic: ""          // dernier micro physique choisi (node.name)
     // mode jeu automatique quand un jeu passe en plein écran
     property bool autoGameMode: true
+    // éditeur pour ouvrir un projet depuis le launcher (commande)
+    property string editor: "code"
     readonly property string brandPath: Quickshell.env("HOME") + "/.cache/catalyst/brand"
     // true une fois le premier chargement terminé (sécurise Themes/Atelier)
     property bool fileReady: false
@@ -70,6 +72,8 @@ Singleton {
             dndOnShare = !!obj.dndOnShare;
         if (obj.rawMic !== undefined)
             rawMic = String(obj.rawMic || "");
+        if (obj.editor)
+            editor = String(obj.editor);
         if (obj.autoGameMode !== undefined)
             autoGameMode = !!obj.autoGameMode;
         brand = obj.brand !== undefined && String(obj.brand).trim().length ? String(obj.brand).trim() : "catalyst";
@@ -107,7 +111,8 @@ Singleton {
             nightTemp: nightTemp,
             dndOnShare: dndOnShare,
             rawMic: rawMic,
-            autoGameMode: autoGameMode
+            autoGameMode: autoGameMode,
+            editor: editor
         }, null, 2) + "\n";
     }
 

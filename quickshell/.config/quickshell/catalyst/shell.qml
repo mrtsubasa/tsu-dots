@@ -214,6 +214,12 @@ ShellRoot {
             return JSON.stringify(n.filter(x => x.isStream).map(x => ({ name: x.name, desc: x.description, sink: x.isSink, type: String(x.type), props: x.properties ? Object.keys(x.properties).length : -1, mc: x.properties ? x.properties["media.class"] : null, app: x.properties ? x.properties["application.name"] : null })));
         }
 
+        function search(q: string): string {
+            Search.refreshDev();
+            Search.setQuery(q);
+            return JSON.stringify(Search.results.slice(0, 6).map(r => r.kind + " | " + r.title + " | " + (r.subtitle || "")));
+        }
+
         function perf(): string {
             return JSON.stringify({ popups: Notifs.popupCount, held: Notifs.held.length, notifs: Notifs.count, posWatchers: Players.posWatchers, playing: Players.playing, sysFast: SysInfo.fastUsers, gpuUsers: Gpu.users, meter: Mic.meterUsers, monitoring: Mic.monitoring, ifacesFast: Ifaces.fastUsers, recording: Recorder.recording, active: PanelService.active, widgetsEdit: WidgetStore.edit });
         }

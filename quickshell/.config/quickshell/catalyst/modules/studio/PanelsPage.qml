@@ -117,6 +117,18 @@ ColumnLayout {
         }
         SettingRow {
             Layout.fillWidth: true
+            icon: "code"
+            title: "Éditeur des projets"
+            subtitle: "Commande lancée depuis le launcher pour ouvrir un projet git (actuel : " + ShellCfg.editor + ")"
+            Segmented {
+                compact: true
+                model: [{ id: "code", label: "VS Code" }, { id: "cursor", label: "Cursor" }, { id: "zed", label: "Zed" }, { id: "alacritty -e nvim", label: "Neovim" }]
+                current: ShellCfg.editor
+                onSelected: id => ShellCfg.set("editor", id)
+            }
+        }
+        SettingRow {
+            Layout.fillWidth: true
             icon: "animation"
             title: "Réduire les animations"
             subtitle: "Ouvertures instantanées, aucun déplacement ; les fondus restent"

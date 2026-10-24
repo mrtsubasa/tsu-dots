@@ -100,6 +100,60 @@ Singleton {
     }
 
     // ------------------------------------------------------------------
+    // Projets (dossiers git fréquents selon zoxide) & hôtes SSH
+    // ------------------------------------------------------------------
+    property var projects: []
+    property var sshHosts: []
+    property real _devAt: 0
+
+    function refreshDev() {
+        if (Date.now() - _devAt < 300000 || projProc.running)
+            return;
+        _devAt = Date.now();
+        projProc._acc = [];
+        projProc.running = true;
+    }
+
+    Process {
+        id: projProc
+        property var _acc: []
+        command: ["bash", "-c", "command -v zoxide >/dev/null || exit 0; zoxide query -l 2>/dev/null | head -120 | while read -r d; do [ -d \"$d/.git\" ] && echo \"$d\"; done | head -30"]
+        stdout: SplitParser { onRead: data => projProc._acc.push(data.trim()) }
+        onExited: root.projects = projProc._acc.filter(x => x.length)
+    }
+
+    FileView {
+        path: Quickshell.env("HOME") + "/.ssh/config"
+        watchChanges: true
+        onFileChanged: reload()
+        onLoaded: {
+            const out = [];
+            const ls = text().split("\n");
+            for (let i = 0; i < ls.length; i++) {
+                const m = ls[i].match(/^\s*Host\s+(.+)$/i);
+                if (!m)
+                    continue;
+                const names = m[1].trim().split(/\s+/);
+                for (let j = 0; j < names.length; j++)
+                    if (names[j].indexOf("*") < 0 && names[j].indexOf("?") < 0 && out.indexOf(names[j]) < 0)
+                        out.push(names[j]);
+            }
+            root.sshHosts = out;
+        }
+    }
+
+    function projectResult(dir, score) {
+        const home = Quickshell.env("HOME");
+        const name = dir.split("/").pop();
+        return { kind: "project", id: "p:" + dir, title: name, subtitle: dir.replace(home, "~") + "  ·  ouvrir dans " + ShellCfg.editor, icon: "folder_code", score: score,
+            action: () => { PanelService.hide(); Quickshell.execDetached(["bash", "-lc", ShellCfg.editor + " \"$1\"", "_", dir]); } };
+    }
+    function sshResult(host, score) {
+        return { kind: "ssh", id: "s:" + host, title: "ssh " + host, subtitle: "Connexion SSH dans un terminal", icon: "terminal", score: score,
+            action: () => { PanelService.hide(); Quickshell.execDetached(["alacritty", "-e", "ssh", host]); } };
+    }
+
+    // ------------------------------------------------------------------
     // Scoring
     // ------------------------------------------------------------------
     function fuzzy(hay, q) {
@@ -212,6 +266,8 @@ Singleton {
                 if (a && !a.noDisplay)
                     out.push(appResult(a, 0));
             }
+            for (let i = 0; i < Math.min(3, projects.length); i++)
+                out.push(projectResult(projects[i], 0));
             const fav = ["control", "studio", "shot", "ocr", "pick", "clip", "sysmon"];
             for (let i = 0; i < commands.length; i++)
                 if (fav.indexOf(commands[i].id) >= 0)
@@ -245,6 +301,20 @@ Singleton {
                 out.push(hits[i]);
         }
 
+        if (mode === "app") {
+            for (let i = 0; i < projects.length; i++) {
+                const sc = Math.max(fuzzy(projects[i].split("/").pop(), q), fuzzy(projects[i], q) * 0.6);
+                if (sc > 0)
+                    out.push(projectResult(projects[i], sc - 12));
+            }
+            const sq = q.replace(/^ssh\s*/, "");
+            for (let i = 0; i < sshHosts.length; i++) {
+                const sc = q.startsWith("ssh") ? 90 + fuzzy(sshHosts[i], sq) / 10 : fuzzy(sshHosts[i], q);
+                if (sc > 0)
+                    out.push(sshResult(sshHosts[i], sc - 8));
+            }
+        }
+
         const cmds = [];
         for (let i = 0; i < commands.length; i++) {
             const c = commands[i];
@@ -265,6 +335,7 @@ Singleton {
     }
 
     function reset() {
+        refreshDev();
         query = "";
         rebuild();
     }
