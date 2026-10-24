@@ -17,7 +17,7 @@ Item {
         for (let i = 0; i < model.length; i++)
             if (model[i].id === current)
                 return i;
-        return 0;
+        return -1;
     }
 
     Rectangle {
@@ -29,7 +29,8 @@ Item {
 
         Rectangle {
             id: ind
-            readonly property Item target: rep.count > root._idx ? rep.itemAt(root._idx) : null
+            visible: root._idx >= 0
+            readonly property Item target: root._idx >= 0 && rep.count > root._idx ? rep.itemAt(root._idx) : null
             x: target ? row.x + target.x : 4
             width: target ? target.width : 0
             y: 3

@@ -227,6 +227,29 @@ l'ouverture.
 
 ---
 
+## VPN (style Kali / Parrot)
+
+Centre de contrôle → Réseau → **VPN** (ou launcher : « vpn »). Tout passe par
+NetworkManager (`scripts/vpn.py`) : aucun `sudo`, état temps réel.
+
+- **Ajouter** : fichier (`.ovpn`, `.conf` WireGuard, `.pcf`…), configuration
+  **collée**, ou **WireGuard en saisie manuelle** (génération de clés incluse,
+  clé publique à donner au serveur).
+- **Connecter / déconnecter** ; si le VPN demande des identifiants, un
+  terminal `nmcli --ask` s'ouvre.
+- **Exporter** en fichier réutilisable sur n'importe quelle machine :
+  `.ovpn` avec certificats intégrés (lignes `user/group nm-openvpn` retirées),
+  `.conf` WireGuard complet. Dossier : `~/Documents/VPN` (droits 600) ou au choix.
+- **VPN seul** (`never-default`) : seuls les réseaux du VPN passent par le
+  tunnel, Internet reste sur la box (HTB / THM). **Auto** : connexion automatique.
+- **Réparer** : un VPN dont les certificats ont disparu est signalé ; on le
+  remplace par son fichier d'origine en gardant le nom.
+- Une copie de chaque configuration importée est conservée dans
+  `~/.local/share/catalyst/vpn` (600) pour l'export.
+- Autres types (AnyConnect, GlobalProtect, Fortinet, IPsec, L2TP, SSTP…) :
+  installer le plugin `networkmanager-<type>`, il est détecté automatiquement.
+- NetBird / Tailscale (gérés par leur propre démon) sont affichés en lecture seule.
+
 ## Barre : indicateurs contextuels
 
 N'apparaissent que lorsqu'ils ont quelque chose à dire : enregistrement

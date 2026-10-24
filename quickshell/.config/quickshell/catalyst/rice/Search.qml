@@ -60,6 +60,7 @@ Singleton {
             { id: "wall", title: "Fonds d'écran", subtitle: "Choisir un fond", icon: "wallpaper", kw: "wallpaper fond image", action: panel("wall") },
             { id: "binds", title: "Raccourcis clavier", subtitle: "Aide-mémoire", icon: "keyboard", kw: "keybinds shortcuts touches", action: panel("binds") },
             { id: "ai", title: "Panneau IA", subtitle: "Assistants", icon: "smart_toy", kw: "ai claude llm", action: panel("ai") },
+            { id: "vpn", title: "VPN", subtitle: Vpn.activeVpn ? "Connecté : " + Vpn.activeVpn.label : "Connecter, importer, exporter", icon: "vpn_key", kw: "vpn openvpn wireguard htb thm tryhackme hackthebox ovpn", action: () => { PanelService.controlPage = "vpn"; PanelService.show("control"); } },
             { id: "containers", title: "Conteneurs", subtitle: "Podman / Docker : état, journaux, shell", icon: "deployed_code", kw: "docker podman container conteneur lazydocker", action: panel("containers") },
             { id: "vm", title: "Machines virtuelles", subtitle: "VM", icon: "dns", kw: "vm qemu virt", action: panel("vm") },
             { id: "scripts", title: "Scripts", subtitle: "Lanceur de scripts", icon: "terminal", kw: "scripts", action: panel("scripts") },

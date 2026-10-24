@@ -387,6 +387,7 @@ Item {
                 case "power": return powerC;
                 case "display": return displayC;
                 case "call": return callC;
+                case "vpn": return vpnC;
                 default: return null;
                 }
             }
@@ -400,5 +401,6 @@ Item {
     Component { id: eqC; EqPage { width: sub.width; onBack: root.go("out") } }
     Component { id: powerC; PowerPage { width: sub.width; onBack: root.go("main") } }
     Component { id: displayC; DisplayPage { width: sub.width; onBack: root.go("main") } }
+    Component { id: vpnC; VpnPage { width: sub.width; onBack: root.go("net") } }
     Component { id: callC; CallPage { width: sub.width; onBack: root.go("main"); onOpenInputs: root.go("in") } }
 }

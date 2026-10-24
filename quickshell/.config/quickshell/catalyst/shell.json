@@ -10,10 +10,11 @@
   "theme": "catalyst-dark",
   "brand": "catalyst",
   "trueTone": true,
-  "trueToneStrength": 0.56973293768546,
+  "trueToneStrength": 0.5608308605341247,
   "nightLight": true,
   "nightTemp": 2500,
   "dndOnShare": true,
   "rawMic": "alsa_input.usb-352f_PD200X_Podcast_Microphone_214b206000000178-00.pro-input-0",
-  "autoGameMode": true
+  "autoGameMode": true,
+  "editor": "code"
 }

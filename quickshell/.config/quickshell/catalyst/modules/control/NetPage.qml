@@ -69,6 +69,17 @@ ColumnLayout {
         }
     }
 
+    // --- VPN ---
+    ListItem {
+        Layout.fillWidth: true
+        icon: Vpn.activeVpn ? "vpn_lock" : "vpn_key"
+        title: "VPN"
+        subtitle: Vpn.activeVpn ? "Connecté : " + Vpn.activeVpn.label : (Vpn.userVpns.length + " configuration(s) · importer, exporter, connecter")
+        selected: Vpn.activeVpn !== null
+        onClicked: PanelService.controlPage = "vpn"
+        Icon { name: "chevron_right"; size: 18; color: Theme.textSub }
+    }
+
     // --- débit ---
     RowLayout {
         Layout.fillWidth: true
