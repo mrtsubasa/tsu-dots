@@ -67,13 +67,27 @@ def run(cmd, timeout=40):
     return subprocess.run(cmd, capture_output=True, text=True, timeout=timeout).stdout
 
 
-def all_categories():
-    cats = []
+PREFIXES = ("blackarch-", "archstrike-")
+
+
+def all_groups():
+    groups = []
     for line in run(["pacman", "-Sg"]).splitlines():
         g = line.split()[0] if line.split() else ""
-        if g.startswith("blackarch-"):
-            cats.append(g[len("blackarch-"):])
-    return sorted(set(cats))
+        if g.startswith(PREFIXES):
+            groups.append(g)
+    return sorted(set(groups))
+
+
+def cat_of(group):
+    for pre in PREFIXES:
+        if group.startswith(pre):
+            return group[len(pre):]
+    return group
+
+
+def all_categories():
+    return sorted({cat_of(g) for g in all_groups()})
 
 
 def gui_binaries():
@@ -194,15 +208,14 @@ def build(force=False):
             pass
 
     cats = all_categories()
-    groups = ["blackarch-" + c for c in cats]
+    groups = all_groups()
     # name -> set(categories) via les groupes installés (source fiable)
     tool_cats = {}
     for line in run(["pacman", "-Qg"] + groups).splitlines():
         parts = line.split()
-        if len(parts) < 2 or not parts[0].startswith("blackarch-"):
+        if len(parts) < 2 or not parts[0].startswith(PREFIXES):
             continue
-        cat = parts[0][len("blackarch-"):]
-        tool_cats.setdefault(parts[1], set()).add(cat)
+        tool_cats.setdefault(parts[1], set()).add(cat_of(parts[0]))
 
     for name in mainstream_installed():
         tool_cats.setdefault(name, set()).update(MAINSTREAM[name])
@@ -226,7 +239,7 @@ def build(force=False):
             "d": desc.get(name, ""),
             "c": c,
             "gui": name in guis,
-            "r": origin.get(name, "blackarch"),
+            "r": origin.get(name, "blackarch"),  # dépôt réel, blackarch par défaut
         })
 
     counts = {}

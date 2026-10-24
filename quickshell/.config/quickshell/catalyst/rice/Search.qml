@@ -68,6 +68,7 @@ Singleton {
             { id: "bots", title: "Bots", subtitle: "Bots Discord", icon: "robot_2", kw: "bots discord oracle", action: panel("bots") },
             { id: "ops", title: "Ops", subtitle: "VPN, cibles", icon: "radar", kw: "ops vpn htb target", action: panel("ops") },
             { id: "pkgs", title: "Paquets", subtitle: "Gestion des paquets", icon: "package_2", kw: "packages pacman aur paquets", action: panel("pkgs") },
+            { id: "archstrike", title: "Ajouter le dépôt ArchStrike", subtitle: "Outils de sécurité en plus de BlackArch (ouvre un terminal, sudo)", icon: "library_add", kw: "archstrike depot repo securite outils ajouter", action: later(Quickshell.env("HOME") + "/.config/quickshell/catalyst/scripts/add-archstrike.sh; echo; read -n1 -rs") },
             { id: "arsenal", title: "Arsenal", subtitle: Arsenal.total + " outils de sécurité : rechercher, lancer", icon: "security", kw: "arsenal outils tools blackarch pentest securite kali parrot", action: panel("arsenal") },
             { id: "blackarch", title: "BlackArch", subtitle: "Outils de sécurité", icon: "security", kw: "blackarch pentest securite", action: panel("blackarch") },
             { id: "omarchy", title: "Omarchy", subtitle: "Menu Omarchy", icon: "apps", kw: "omarchy", action: panel("omarchy") },

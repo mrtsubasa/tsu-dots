@@ -243,6 +243,17 @@ BlackArch), façon menu Kali/Parrot :
   **man**, **favori** (★), **copier le nom**. Les outils graphiques se lancent
   directement.
 
+Le catalogue couvre les groupes **blackarch-\*** ET **archstrike-\***, plus une
+liste d'outils « classiques » d'Arch (nmap, sqlmap, wireshark, metasploit,
+hashcat, ghidra, bettercap, impacket…) que BlackArch ne repackage pas.
+Chaque outil affiche son **dépôt d'origine** (blackarch, chaotic, cachyos, extra…).
+
+**Dépôts alternatifs** : tu as déjà `blackarch` et `chaotic-aur`. Pour ajouter
+**ArchStrike** (outils complémentaires) : launcher → « ArchStrike », ou
+`scripts/add-archstrike.sh` dans un terminal (clé téléchargée en HTTPS depuis
+le domaine officiel, empreinte affichée avant approbation ; `remove` pour
+revenir en arrière). Ses outils apparaissent dans l'Arsenal une fois installés.
+
 Données : `scripts/arsenal.py` lit la base pacman locale (aucun réseau, aucun
 sudo) et met en cache `~/.cache/catalyst/arsenal.json`, reconstruit quand tu
 installes ou retires des paquets. Masquable depuis le Studio → Barre.
