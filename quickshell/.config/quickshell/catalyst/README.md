@@ -27,6 +27,11 @@ un moteur de thèmes ; chaque réglage est persistant et modifiable depuis le
 | **Widgets** | Studio → Bureau | 9 types, mode édition avec magnétisme |
 | **OSD / Toasts** | automatique | capsule volume/micro/luminosité ; 3 notifications max à l'écran |
 | **Verrouillage** | `Super+Alt+L`, hypridle | hyprlock (PAM) aux couleurs du thème |
+| **Micro & visio** | tuile Mode visio, `Super+Alt+V` | micro traité (EasyEffects) / brut, vumètre, « m'écouter », mode visio, qui utilise micro / caméra / écran |
+| **Presse-papiers** | `Super+X` | recherche, copie, suppression, tout effacer, pause de l'enregistrement |
+| **Raccourcis** | launcher `:raccourcis` | générés depuis `keybinds.conf`, conflits signalés |
+| **Conteneurs** | launcher `:conteneurs` | Podman / Docker : démarrer, arrêter, journaux, shell |
+| **Terminal déroulant** | `Super+`` ` | Alacritty persistant (workspace spécial `term`) |
 
 Les panneaux développeur existants (IA, VM, Scripts, Chat, Bots, Ops, Paquets,
 BlackArch, Omarchy, Presse-papiers, Raccourcis) sont conservés tels quels et
@@ -85,6 +90,12 @@ lit `Theme` (couleurs, polices), `Tokens` (tailles, rayons) et `Motion`
 | Extinction programmée | systemd-logind (`shutdown +N`, propriété `ScheduledShutdown`) |
 | Métriques | `/proc` + hwmon (k10temp), aucun processus |
 | Enregistrement | `wf-recorder`, processus possédé par le shell |
+| Vie privée | types de nœuds PipeWire (capture audio / vidéo, portail xdph) |
+| Micro traité | `pactl set-default-source easyeffects_source`, EasyEffects lancé en `--service-mode` à la demande |
+| GPU | `nvidia-smi -lms` (un seul processus, seulement quand affiché) |
+| IP / VPN / débit | `ip -j addr` (10 s, 2 s panneau ouvert), `/proc/net/dev` |
+| Conteneurs | `podman ps` / `docker ps` (3 s, panneau ouvert) |
+| Mode jeu | événements Hyprland + `gamemoded -r<pid>` |
 | OCR / pipette | `tesseract`, `hyprpicker` — local uniquement |
 
 ---
@@ -188,6 +199,8 @@ Sauvegardes : commit `95e295e` (shell avant v3), `backups/pre-v3-*.tar.gz`
 | `brightness` | `up`, `down`, `set <pct>` |
 | `record` | `toggle region|screen`, `stop` |
 | `display` | `truetone on|off`, `night on|off`, `status` |
+| `audio` | `mic`, `processed on|off`, `call [on|off]`, `status` |
+| `game` | `toggle`, `status` |
 | `eq` | `status`, `on`, `off`, `gain <i> <dB>`, `curve <id>`, `load <preset>` |
 | `diag` | `net`, `sys`, `wm` — état réel des services (JSON) |
 
@@ -214,6 +227,23 @@ l'ouverture.
 
 ---
 
+## Barre : indicateurs contextuels
+
+N'apparaissent que lorsqu'ils ont quelque chose à dire : enregistrement
+d'écran, extinction programmée, **vie privée** (micro ambre, caméra verte,
+écran partagé rose, pastilles « visio » / « jeu »), **pentest** (IP du VPN =
+LHOST, cible — clic pour copier).
+
+## Raccourcis ajoutés
+
+| Touche | Action |
+|---|---|
+| `Super+Ctrl+M` | couper / rétablir le micro (OSD) |
+| `Super+Alt+V` | mode visio |
+| `Super+`` ` | terminal déroulant |
+| `Super+Ctrl+O` | panneau Ops (était en conflit avec la vue d'ensemble sur `Super+Maj+O`) |
+| `Super+X` | presse-papiers |
+
 ## Limites connues
 
 - **hyprlock** n'a pas été testé visuellement pendant la refonte (le tester
@@ -224,6 +254,11 @@ l'ouverture.
   fond global).
 - L'historique des notifications est en mémoire : conservé lors d'un
   rechargement du shell, perdu à son redémarrage.
+- Après la **suppression** d'un fichier QML, le rechargement à chaud peut
+  garder l'ancienne version : `Super+Alt+R` (relance complète).
+- Docker n'est géré que si l'utilisateur a accès au socket (groupe `docker`).
+- Une application qui ouvre `/dev/videoN` sans passer par PipeWire n'est pas
+  vue par l'indicateur caméra.
 - La luminosité DDC/CI applique la même valeur aux deux écrans (script existant).
 - Les panneaux dev hérités ont l'habillage v3 mais leur mise en page interne
   d'origine.
