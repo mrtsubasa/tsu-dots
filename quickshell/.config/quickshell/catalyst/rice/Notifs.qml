@@ -226,6 +226,16 @@ Singleton {
         leftMs.splice(i, 1);
     }
 
+    function forget(n) {
+        const i = items.indexOf(n);
+        if (i < 0)
+            return;
+        dropAt(i);
+        held = held.filter(x => x !== n);
+        items = items.filter(x => x !== n);
+        popupGen++;
+    }
+
     function dismiss(n) {
         if (!n)
             return;
@@ -279,6 +289,10 @@ Singleton {
 
         onNotification: n => {
             n.tracked = true;
+            // fermée par l'application (ou expirée côté serveur) : l'objet va
+            // être détruit — on le retire tout de suite de toutes les listes,
+            // sinon une vue qui se reconstruit lirait un objet détruit (crash)
+            n.closed.connect(() => root.forget(n));
             n.popup = !root.dnd;
             const ms = root.lifeFor(n);
             root.times = root.times.concat([Date.now()]);

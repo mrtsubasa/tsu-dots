@@ -326,7 +326,8 @@ Item {
 
                     Repeater {
                         // les plus récentes d'abord, 40 max
-                        model: Notifs.items.slice(-40).reverse()
+                        // construit seulement quand le centre est ouvert
+                        model: root.open ? Notifs.items.slice(-40).reverse() : []
                         NotifCard {
                             required property var modelData
                             Layout.fillWidth: true

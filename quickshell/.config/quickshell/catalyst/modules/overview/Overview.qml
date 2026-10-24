@@ -126,7 +126,8 @@ Scope {
                     }
 
                     Repeater {
-                        model: win.monitors
+                        // rien n'est construit tant que la vue est fermée
+                        model: win.visible ? win.monitors : []
 
                         ColumnLayout {
                             id: monRow

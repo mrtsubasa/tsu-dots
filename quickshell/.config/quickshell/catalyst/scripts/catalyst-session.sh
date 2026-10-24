@@ -32,9 +32,15 @@ if timeout 1 qs ipc -p "$QS_PATH" call panels ping >/dev/null 2>&1; then
 fi
 
 if [[ "${1:-}" == "restart" || "$alive" -eq 0 ]]; then
+    # après un crash, Quickshell se relance sous le nom « quickshell »
     pkill -x qs >/dev/null 2>&1 || true
+    pkill -f "^/usr/bin/quickshell$" >/dev/null 2>&1 || true
     sleep 0.25
     pkill -9 -x qs >/dev/null 2>&1 || true
+    pkill -9 -f "^/usr/bin/quickshell$" >/dev/null 2>&1 || true
+    # processus enfants orphelins d'une instance plantée
+    pkill -f "^/usr/bin/pactl subscribe$" >/dev/null 2>&1 || true
+    pkill -x hyprsunset >/dev/null 2>&1 || true
     sleep 0.15
     qs -p "$QS_PATH" -n -d >/dev/null 2>&1 &
     sleep 0.35

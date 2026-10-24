@@ -38,7 +38,9 @@ Item {
             Behavior on opacity { NumberAnimation { duration: Motion.dur(Motion.fast) } }
 
             Repeater {
-                model: root.items
+                // icônes construites seulement tiroir ouvert : certaines applis
+                // changent d'icône en boucle (D-Bus), inutile de suivre replié
+                model: root.expanded ? root.items : []
 
                 BarItem {
                     id: ti

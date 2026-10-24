@@ -12,7 +12,8 @@ import qs.kit
 // jamais les clics destinés aux fenêtres.
 Scope {
     Variants {
-        model: Quickshell.screens
+        // désactivé = rien d'instancié (aucune fenêtre, aucune icône)
+        model: DockCfg.enabled ? Quickshell.screens : []
 
         PanelWindow {
             id: win

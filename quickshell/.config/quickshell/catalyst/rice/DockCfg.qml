@@ -192,7 +192,11 @@ Singleton {
     }
 
     // applications ouvertes qui ne sont pas épinglées : [{ appId, wins }]
-    readonly property var unpinned: {
+    // ne change (et ne reconstruit le dock) que si l'ensemble des applis change
+    property var unpinned: []
+    readonly property string _unpinnedKey: _unpinnedNow.map(x => x.id).join("|")
+    on_UnpinnedKeyChanged: unpinned = _unpinnedNow
+    readonly property var _unpinnedNow: {
         const all = Niri.windows;
         const seen = {};
         const out = [];
