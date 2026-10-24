@@ -229,6 +229,16 @@ Item {
                 }
                 Tile {
                     Layout.fillWidth: true
+                    icon: "sports_esports"
+                    title: "Mode jeu"
+                    subtitle: GameMode.active ? (GameMode.manual ? "Actif (manuel)" : GameMode.game) : (ShellCfg.autoGameMode ? "Auto en plein écran" : "Désactivé")
+                    active: GameMode.active
+                    accent: Theme.accent2
+                    onClicked: GameMode.toggle()
+                }
+                Tile {
+                    Layout.fillWidth: true
+                    Layout.columnSpan: 2
                     icon: "coffee"
                     title: "Rester éveillé"
                     subtitle: Caffeine.on ? "Veille suspendue" : "Désactivé"

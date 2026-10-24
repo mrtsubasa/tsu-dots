@@ -85,6 +85,7 @@ Singleton {
             { id: "sched60", title: "Éteindre dans 1 h", subtitle: "Extinction programmée (annulable)", icon: "timer", kw: "shutdown timer minuterie extinction programmee heure", action: () => { SessionCtl.schedule(60); PanelService.hide(); } },
             { id: "schedcancel", title: SessionCtl.scheduled ? "Annuler l'extinction programmée" : "Aucune extinction programmée", subtitle: SessionCtl.scheduled ? "Dans " + SessionCtl.remainingText : "", icon: "timer_off", kw: "annuler cancel shutdown extinction", action: () => SessionCtl.cancelSchedule() },
             { id: "updates", title: "Mettre à jour le système", subtitle: SessionCtl.updates > 0 ? SessionCtl.updates + " mises à jour" : "cachyos-update", icon: "system_update_alt", kw: "update mise a jour pacman paru cachyos", action: () => SessionCtl.update(false) },
+            { id: "game", title: GameMode.active ? "Quitter le mode jeu" : "Mode jeu", subtitle: "NPD, éveillé, profil Performance", icon: "sports_esports", kw: "game jeu gaming gamemode performance", action: () => GameMode.toggle() },
             { id: "lock", title: "Verrouiller", subtitle: "hyprlock", icon: "lock", kw: "lock verrouiller", action: sh("loginctl lock-session") },
             { id: "power", title: "Session", subtitle: "Veille, redémarrer, éteindre", icon: "power_settings_new", kw: "power shutdown reboot logout eteindre", action: panel("power") },
             { id: "terminal", title: "Terminal", subtitle: "alacritty", icon: "terminal", kw: "terminal shell console", action: sh("alacritty") },

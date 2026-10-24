@@ -179,6 +179,19 @@ ShellRoot {
     }
 
     IpcHandler {
+        target: "game"
+
+        function toggle(): string {
+            GameMode.toggle();
+            return GameMode.active ? "on" : "off";
+        }
+
+        function status(): string {
+            return JSON.stringify({ active: GameMode.active, manual: GameMode.manual, game: GameMode.game, dnd: Notifs.dnd, caffeine: Caffeine.on, profile: Power.current.key, auto: ShellCfg.autoGameMode });
+        }
+    }
+
+    IpcHandler {
         target: "record"
 
         function toggle(mode: string): string {

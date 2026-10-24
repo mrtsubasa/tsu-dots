@@ -117,6 +117,16 @@ ColumnLayout {
         }
         SettingRow {
             Layout.fillWidth: true
+            icon: "sports_esports"
+            title: "Mode jeu automatique"
+            subtitle: "Jeu en plein écran : Ne pas déranger, pas de veille, profil Performance" + (GameMode.active ? " · actif : " + GameMode.game : "")
+            Toggle {
+                checked: ShellCfg.autoGameMode
+                onToggled: v => ShellCfg.set("autoGameMode", v)
+            }
+        }
+        SettingRow {
+            Layout.fillWidth: true
             icon: "code"
             title: "Éditeur des projets"
             subtitle: "Commande lancée depuis le launcher pour ouvrir un projet git (actuel : " + ShellCfg.editor + ")"

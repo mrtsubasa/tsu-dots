@@ -47,3 +47,4 @@ singleton Gpu Gpu.qml
 singleton Clip Clip.qml
 singleton Keybinds Keybinds.qml
 singleton Containers Containers.qml
+singleton GameMode GameMode.qml
