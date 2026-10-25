@@ -4,6 +4,8 @@
 # ton mot de passe (sudo). Réversible : voir « remove » et la sauvegarde.
 #
 #   add-archstrike.sh            ajoute la clé, le dépôt, et synchronise
+#   add-archstrike.sh all        idem, puis installe TOUT le groupe archstrike
+#                                (--needed : saute ce qui est déjà installé)
 #   add-archstrike.sh remove     retire le dépôt (laisse les paquets installés)
 #
 # Sécurité : la clé de signature est téléchargée en HTTPS depuis le domaine
@@ -33,6 +35,9 @@ remove() {
 }
 
 [ "${1:-}" = "remove" ] && remove "$@"
+
+INSTALL_ALL=0
+[ "${1:-}" = "all" ] && INSTALL_ALL=1
 
 need_root "$@"
 
@@ -73,6 +78,21 @@ if pacman -Si archstrike-mirrorlist >/dev/null 2>&1; then
         sed -i "s#^Server = https://mirror.archstrike.org.*#Include = /etc/pacman.d/archstrike-mirrorlist#" "$CONF"
         pacman -Sy
     fi
+fi
+
+if [ "$INSTALL_ALL" -eq 1 ]; then
+    echo "== 4. Installation de TOUT le groupe archstrike =="
+    mapfile -t PKGS < <(pacman -Sg archstrike 2>/dev/null | awk '{print $2}' | sort -u)
+    echo "${#PKGS[@]} paquets dans le groupe (ceux déjà installés seront sautés)."
+    echo "En cas de conflit, pacman te demandera quoi garder — réponds au choix proposé."
+    # --needed : ne réinstalle rien ; on n'utilise PAS --noconfirm pour que tu
+    # gardes la main sur les éventuels conflits avec BlackArch.
+    pacman -S --needed archstrike || {
+        echo
+        echo "Certains paquets ont échoué (souvent un conflit avec un équivalent"
+        echo "BlackArch déjà installé). Ce n'est pas bloquant : le reste est installé."
+    }
+    echo "Rouvre l'Arsenal : le catalogue se reconstruit automatiquement."
 fi
 
 cat <<'EOF'
