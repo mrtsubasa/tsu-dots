@@ -227,6 +227,12 @@ ShellRoot {
             return JSON.stringify(n.filter(x => x.isStream).map(x => ({ name: x.name, desc: x.description, sink: x.isSink, type: String(x.type), props: x.properties ? Object.keys(x.properties).length : -1, mc: x.properties ? x.properties["media.class"] : null, app: x.properties ? x.properties["application.name"] : null })));
         }
 
+        function arsenal(q: string): string {
+            Arsenal.includeAvailable = true;
+            Arsenal.query = q;
+            return JSON.stringify({ inc: Arsenal.includeAvailable, query: Arsenal.query, remoteQuery: Arsenal.remoteQuery, remote: Arsenal.remote.length, searching: Arsenal.searching });
+        }
+
         function search(q: string): string {
             Search.refreshDev();
             Search.setQuery(q);

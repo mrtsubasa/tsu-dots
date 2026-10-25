@@ -114,7 +114,17 @@ FocusScope {
                     for (let i = 0; i < Arsenal.tools.length; i++) map[Arsenal.tools[i].n] = Arsenal.tools[i];
                     return Arsenal.recents.map(n => map[n]).filter(x => x);
                 }
-                return Arsenal.results;
+                const local = Arsenal.results;
+                // outils disponibles (non installés) depuis dépôts + AUR
+                if (Arsenal.includeAvailable && Arsenal.remote.length) {
+                    const have = {};
+                    for (let i = 0; i < Arsenal.tools.length; i++) have[Arsenal.tools[i].n] = true;
+                    const avail = Arsenal.remote
+                        .filter(x => !have[x.n])
+                        .map(x => ({ n: x.n, d: x.desc, c: [x.repo], gui: false, r: x.repo, avail: true, ver: x.ver }));
+                    return local.concat(avail);
+                }
+                return local;
             }
 
             ColumnLayout {
@@ -131,8 +141,24 @@ FocusScope {
                               : (Arsenal.category.length ? (Arsenal.categories.find(c => c.id === Arsenal.category) || {}).label : "Tous les outils")
                     }
                     Txt { role: "caption"; text: parent.parent.parent.shown.length + (root.view === "all" && !Arsenal.query.length && !Arsenal.category.length ? " / " + Arsenal.resultCount + " affichés" : "") + " outils" }
+                    Spinner { visible: Arsenal.searching; size: 16 }
+                    Button {
+                        variant: Arsenal.includeAvailable ? "primary" : "secondary"
+                        height_: 30
+                        icon: "cloud_download"
+                        text: "Non installés"
+                        onClicked: Arsenal.includeAvailable = !Arsenal.includeAvailable
+                    }
                     IconButton { icon: "refresh"; size: 30; iconSize: 16; tooltip: "Reconstruire le catalogue"; onClicked: Arsenal.refresh() }
                     IconButton { icon: "close"; size: 30; iconSize: 17; tooltip: "Fermer"; onClicked: PanelService.hide() }
+                }
+
+                Txt {
+                    Layout.fillWidth: true
+                    visible: Arsenal.includeAvailable && Arsenal.query.length < 2
+                    role: "caption"
+                    color: Theme.textFaint
+                    text: "Tape au moins 2 lettres pour chercher dans les dépôts et l'AUR les outils que tu n'as pas encore."
                 }
 
                 ListView {
@@ -176,7 +202,7 @@ FocusScope {
                                         Layout.preferredWidth: 32; Layout.preferredHeight: 32
                                         radius: Tokens.rSm
                                         color: Theme.s3
-                                        Icon { anchors.centerIn: parent; name: toolRow.modelData.gui ? "desktop_windows" : "terminal"; size: 17; color: toolRow.modelData.gui ? Theme.accent2 : Theme.textSub }
+                                        Icon { anchors.centerIn: parent; name: toolRow.modelData.avail ? "cloud_download" : (toolRow.modelData.gui ? "desktop_windows" : "terminal"); size: 17; color: toolRow.modelData.avail ? Theme.accent : (toolRow.modelData.gui ? Theme.accent2 : Theme.textSub) }
                                     }
                                     ColumnLayout {
                                         Layout.fillWidth: true
@@ -196,6 +222,7 @@ FocusScope {
                                         readonly property color tone: {
                                             const r = toolRow.modelData.r;
                                             if (r === "blackarch") return Theme.signature;
+                                            if (r === "aur") return Theme.warning;
                                             if (r === "chaotic") return Theme.accent2;
                                             if (r === "cachyos") return Theme.accent;
                                             return Theme.textSub;
@@ -209,15 +236,23 @@ FocusScope {
                                             color: parent.tone
                                         }
                                     }
+                                    Button {
+                                        visible: toolRow.modelData.avail === true
+                                        variant: "primary"
+                                        height_: 30
+                                        icon: "download"
+                                        text: "Installer"
+                                        onClicked: Arsenal.install(toolRow.modelData.n)
+                                    }
                                     IconButton {
-                                        visible: rowHover.hovered || toolRow.expanded
+                                        visible: (rowHover.hovered || toolRow.expanded) && !toolRow.modelData.avail
                                         icon: Arsenal.isFav(toolRow.modelData.n) ? "star" : "star_outline"
                                         size: 30; iconSize: 17
                                         tooltip: "Favori"
                                         onClicked: Arsenal.toggleFav(toolRow.modelData.n)
                                     }
                                     IconButton {
-                                        visible: rowHover.hovered || toolRow.expanded
+                                        visible: (rowHover.hovered || toolRow.expanded) && !toolRow.modelData.avail
                                         icon: toolRow.expanded ? "expand_less" : "expand_more"
                                         size: 30; iconSize: 18
                                         tooltip: "Détails"
@@ -230,6 +265,10 @@ FocusScope {
                                 }
                                 TapHandler {
                                     onTapped: {
+                                        if (toolRow.modelData.avail) {
+                                            Arsenal.install(toolRow.modelData.n);
+                                            return;
+                                        }
                                         toolRow.expanded = !toolRow.expanded;
                                         if (toolRow.expanded)
                                             Arsenal.loadDetail(toolRow.modelData.n);

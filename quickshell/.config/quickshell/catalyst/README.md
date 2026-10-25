@@ -254,6 +254,13 @@ Chaque outil affiche son **dépôt d'origine** (blackarch, chaotic, cachyos, ext
 le domaine officiel, empreinte affichée avant approbation ; `remove` pour
 revenir en arrière). Ses outils apparaissent dans l'Arsenal une fois installés.
 
+**Découvrir et installer** (équivalent du menu Kali/Parrot) : bouton **« Non
+installés »** → en cherchant, l'Arsenal interroge aussi les dépôts et l'AUR
+(`paru`) et liste les outils que tu n'as pas encore (badge `aur`, `blackarch`…),
+avec un bouton **Installer** qui ouvre un terminal (`paru -S`, ton mot de passe).
+C'est la vraie alternative à ArchStrike : l'AUR couvre tout, y compris des
+outils absents de BlackArch.
+
 Données : `scripts/arsenal.py` lit la base pacman locale (aucun réseau, aucun
 sudo) et met en cache `~/.cache/catalyst/arsenal.json`, reconstruit quand tu
 installes ou retires des paquets. Masquable depuis le Studio → Barre.

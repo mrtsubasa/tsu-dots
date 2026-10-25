@@ -294,6 +294,51 @@ def whatis(name):
             "version": version, "bins": ordered[:12]}
 
 
+def search(query):
+    """Recherche dépôts + AUR (paru) : outils DISPONIBLES (installés ou non).
+    Réseau, lent (~1-2 s) : à n'appeler qu'à la demande."""
+    q = (query or "").strip()
+    if len(q) < 2 or not re.fullmatch(r"[\w .+@-]+", q):
+        return {"ok": True, "items": []}
+    try:
+        txt = subprocess.run(["paru", "-Ss", "--color", "never", q],
+                             capture_output=True, text=True, timeout=25).stdout
+    except Exception as e:
+        return {"ok": False, "error": str(e)}
+    items = []
+    lines = txt.splitlines()
+    i = 0
+    prio = {"blackarch": 0, "chaotic": 1, "extra": 2, "core": 2, "multilib": 2, "cachyos": 2, "aur": 3}
+    while i < len(lines):
+        head = lines[i]
+        m = re.match(r"^([a-z0-9-]+)/(\S+)\s+(\S+)(.*)$", head)
+        if not m:
+            i += 1
+            continue
+        repo_full, name, ver, rest = m.group(1), m.group(2), m.group(3), m.group(4)
+        desc = ""
+        if i + 1 < len(lines) and lines[i + 1].startswith((" ", "\t")):
+            desc = lines[i + 1].strip()
+            i += 2
+        else:
+            i += 1
+        installed = "[Install" in rest or "[Installé" in rest
+        repo = {"cachyos-v3": "cachyos", "cachyos-core-v3": "cachyos", "cachyos-extra-v3": "cachyos",
+                "chaotic-aur": "chaotic"}.get(repo_full, repo_full)
+        items.append({"n": name, "repo": repo, "desc": desc, "installed": installed,
+                      "ver": ver, "_p": prio.get(repo, 4)})
+    # pertinence : correspondance du nom, dépôt prioritaire, puis nom
+    ql = q.lower()
+    def rank(x):
+        n = x["n"].lower()
+        hit = 0 if n == ql else (1 if n.startswith(ql) else (2 if ql in n else 3))
+        return (hit, x["_p"], x["n"])
+    items.sort(key=rank)
+    for x in items:
+        del x["_p"]
+    return {"ok": True, "items": items[:80], "query": q}
+
+
 def main(a):
     if len(a) < 2:
         print(__doc__)
@@ -311,6 +356,8 @@ def main(a):
         print(str(CACHE))
     elif cmd == "whatis" and len(a) >= 3:
         print(json.dumps(whatis(a[2]), ensure_ascii=False))
+    elif cmd == "search" and len(a) >= 3:
+        print(json.dumps(search(a[2]), ensure_ascii=False))
     else:
         print(__doc__)
         return 2

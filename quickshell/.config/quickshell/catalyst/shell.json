@@ -11,7 +11,7 @@
   "brand": "catalyst",
   "trueTone": true,
   "trueToneStrength": 0.5608308605341247,
-  "nightLight": true,
+  "nightLight": false,
   "nightTemp": 2500,
   "dndOnShare": true,
   "rawMic": "alsa_input.usb-352f_PD200X_Podcast_Microphone_214b206000000178-00.pro-input-0",

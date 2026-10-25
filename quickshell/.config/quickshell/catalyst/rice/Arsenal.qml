@@ -23,6 +23,12 @@ Singleton {
     property string category: ""      // "" = tous
     property string query: ""
 
+    // recherche dépôts + AUR (outils non installés) — à la demande
+    property bool includeAvailable: false
+    property var remote: []
+    property bool searching: false
+    property string remoteQuery: ""
+
     property var favorites: []
     property var recents: []
     readonly property string statePath: Quickshell.env("HOME") + "/.cache/catalyst/arsenal-state.json"
@@ -83,6 +89,51 @@ Singleton {
                 n++;
         }
         return n;
+    }
+
+    function searchRemote() {
+        const q = query.trim();
+        if (!includeAvailable || q.length < 2) {
+            remote = [];
+            return;
+        }
+        remoteDebounce.restart();
+    }
+    onQueryChanged: searchRemote()
+    onIncludeAvailableChanged: searchRemote()
+
+    Timer {
+        id: remoteDebounce
+        interval: 350
+        onTriggered: {
+            const q = root.query.trim();
+            if (q.length < 2) { root.remote = []; return; }
+            root.searching = true;
+            root.remoteQuery = q;
+            searchProc.buf = "";
+            searchProc.command = ["python3", root.script, "search", q];
+            searchProc.running = true;
+        }
+    }
+    Process {
+        id: searchProc
+        property string buf: ""
+        stdout: SplitParser { onRead: data => searchProc.buf += data }
+        onExited: {
+            root.searching = false;
+            let r = null;
+            try { r = JSON.parse(searchProc.buf); } catch (e) {}
+            // ne garde que les NON installés (les installés sont déjà dans le catalogue)
+            root.remote = (r && r.items) ? r.items.filter(x => !x.installed) : [];
+        }
+    }
+
+    // installation (toujours explicite, dans un terminal, sudo via paru)
+    function install(name) {
+        PanelService.hide();
+        Quickshell.execDetached(["alacritty", "--title", "Installer " + name,
+            "-e", "bash", "-c",
+            "printf '\\033[1;35m== Installation de %s ==\\033[0m\\n' \"$1\"; paru -S -- \"$1\"; echo; read -n1 -rs -p 'Touche pour fermer…'", "_", name]);
     }
 
     function isFav(name) {
