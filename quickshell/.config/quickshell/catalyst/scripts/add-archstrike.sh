@@ -58,19 +58,41 @@ else
     pacman-key --add "$tmp/key.asc"
     pacman-key --lsign-key "$fpr"
 
-    echo "== 2. Ajout du dépôt dans $CONF =="
+    echo "== 2. Vérification d'un miroir joignable =="
+    MIRRORS=(
+        "https://mirror.archstrike.org/\$arch/\$repo"
+        "https://mirrors.dotsrc.org/archstrike/\$arch/\$repo"
+        "https://ftp.halifax.rwth-aachen.de/archstrike/\$arch/\$repo"
+    )
+    GOOD=""
+    for m in "${MIRRORS[@]}"; do
+        test="${m//\$arch/x86_64}"; test="${test//\$repo/archstrike}/archstrike.db"
+        if curl -fsI --connect-timeout 8 -m 15 "$test" >/dev/null 2>&1; then GOOD="$m"; break; fi
+    done
+    if [ -z "$GOOD" ]; then
+        echo "Aucun miroir ArchStrike ne répond : le dépôt est actuellement"
+        echo "indisponible (projet en sommeil). Rien n'a été modifié."
+        exit 1
+    fi
+    echo "Miroir joignable : $GOOD"
+    echo "== 3. Ajout du dépôt dans $CONF =="
     cp "$CONF" "$CONF.catalyst.bak.$(date +%s)"
     cat >>"$CONF" <<EOF
 
 $MARK_BEGIN
 [archstrike]
-Server = https://mirror.archstrike.org/\$arch/\$repo
+Server = $GOOD
 $MARK_END
 EOF
 fi
 
-echo "== 3. Synchronisation =="
-pacman -Sy
+echo "== 4. Synchronisation =="
+if ! pacman -Sy; then
+    echo "La synchronisation a échoué — retrait automatique du dépôt pour ne"
+    echo "pas bloquer pacman."
+    "$0" remove
+    exit 1
+fi
 # bascule sur la mirrorlist officielle si le paquet existe
 if pacman -Si archstrike-mirrorlist >/dev/null 2>&1; then
     pacman -S --noconfirm archstrike-keyring archstrike-mirrorlist || true
@@ -81,7 +103,7 @@ if pacman -Si archstrike-mirrorlist >/dev/null 2>&1; then
 fi
 
 if [ "$INSTALL_ALL" -eq 1 ]; then
-    echo "== 4. Installation de TOUT le groupe archstrike =="
+    echo "== 5. Installation de TOUT le groupe archstrike =="
     mapfile -t PKGS < <(pacman -Sg archstrike 2>/dev/null | awk '{print $2}' | sort -u)
     echo "${#PKGS[@]} paquets dans le groupe (ceux déjà installés seront sautés)."
     echo "En cas de conflit, pacman te demandera quoi garder — réponds au choix proposé."
