@@ -43,5 +43,11 @@ if [[ -z "${_banner_top// /}" ]]; then
     _banner_top="▀█▀ █▀ █ █ " _banner_bot=" █  ▄█ █▄█ "
 fi
 
-printf '\e[1;34m\n  %s\n  %s\n\e[0m\n' "$_banner_top" "$_banner_bot"
-unset _banner_text _banner_font _banner_top _banner_bot _banner_up _i _g
+# couleur : TSU_BANNER_COLOR = blue (défaut) | accent (TSU_BANNER_RGB="r;g;b") | none
+case "${TSU_BANNER_COLOR:-blue}" in
+accent) _banner_c="\e[1;38;2;${TSU_BANNER_RGB:-122;162;247}m" ;;
+none) _banner_c="" ;;
+*) _banner_c="\e[1;34m" ;;
+esac
+printf "${_banner_c}\n  %s\n  %s\n${_banner_c:+\e[0m}\n" "$_banner_top" "$_banner_bot"
+unset _banner_text _banner_font _banner_top _banner_bot _banner_up _i _g _banner_c

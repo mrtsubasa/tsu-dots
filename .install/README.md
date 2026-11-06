@@ -40,10 +40,11 @@
 | 9 | `vm` | libvirt, QEMU, virt-manager (panneau VM) — ajoute l'utilisateur au groupe `libvirt` |
 | 10 | `vpn` | WireGuard, OpenVPN, ProtonVPN (panneau VPN) |
 | 11 | `cam` | v4l2loopback, OpenCV, onnxruntime (caméra virtuelle) — installe les headers du noyau courant |
-| 12 | `security` | dépôt BlackArch via le `strap.sh` officiel (affiche son SHA1 et **demande confirmation**) + nmap, wireshark, tcpdump… |
-| 13 | `nvidia` | variables d'environnement NVIDIA |
+| 12 | `fun` | Pokémon (pokemon-colorscripts), fortune, cowsay, cbonsai, lolcat, cmatrix, pipes.sh — pour l'accueil du terminal (Studio → Terminal) |
+| 13 | `security` | dépôt BlackArch via le `strap.sh` officiel (affiche son SHA1 et **demande confirmation**) + nmap, wireshark, tcpdump… |
+| 14 | `nvidia` | variables d'environnement NVIDIA |
 
-Menu : `a` = 1 à 8 (recommandé), `f` = 1 à 11. `security` et `nvidia` ne sont jamais installées sans les choisir.
+Menu : `a` = 1 à 8 (recommandé), `f` = 1 à 12. `security` et `nvidia` ne sont jamais installées sans les choisir.
 
 ## Fichiers locaux (non suivis par git)
 

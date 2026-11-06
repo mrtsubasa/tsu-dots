@@ -23,6 +23,7 @@ FocusScope {
         { id: "dock", label: "Dock", icon: "dock_to_bottom", desc: "Position, taille, applications" },
         { id: "desk", label: "Bureau", icon: "dashboard_customize", desc: "Widgets et disposition" },
         { id: "panels", label: "Profil & interface", icon: "manage_accounts", desc: "Avatar, nom, densité, animations, OSD" },
+        { id: "terminal", label: "Terminal", icon: "terminal", desc: "Accueil, bannière, Pokémon, police, opacité" },
         { id: "profiles", label: "Profils", icon: "bookmarks", desc: "Sauvegarder et restaurer" },
         { id: "sekaipop", label: "SekaiPop", icon: "tune", desc: "Petite barre, OSD, service" }
     ]
@@ -49,7 +50,7 @@ FocusScope {
         if (event.key === Qt.Key_Escape) {
             PanelService.hide();
             event.accepted = true;
-        } else if ((event.modifiers & Qt.ControlModifier) && event.key >= Qt.Key_1 && event.key <= Qt.Key_8) {
+        } else if ((event.modifiers & Qt.ControlModifier) && event.key >= Qt.Key_1 && event.key <= Qt.Key_9) {
             root.page = root.pages[event.key - Qt.Key_1].id;
             event.accepted = true;
         }
@@ -60,7 +61,7 @@ FocusScope {
     readonly property var groups: [
         { label: "Apparence", ids: ["themes", "wall"] },
         { label: "Espace de travail", ids: ["bar", "dock", "desk"] },
-        { label: "Système", ids: ["panels", "profiles", "sekaipop"] }
+        { label: "Système", ids: ["panels", "terminal", "profiles", "sekaipop"] }
     ]
     readonly property string themeLabel: Themes.active.length ? (Themes.byId(Themes.active) ? Themes.byId(Themes.active).label : Themes.active) : (Theme.mode === "auto" ? "Material You" : "Palette " + Palettes.current)
 
@@ -335,6 +336,7 @@ FocusScope {
                         case "dock": return "DockPage.qml";
                         case "desk": return "DeskPage.qml";
                         case "panels": return "PanelsPage.qml";
+                        case "terminal": return "TerminalPage.qml";
                         case "profiles": return "ProfilesPage.qml";
                         case "sekaipop": return "SekaiPopPage.qml";
                         }

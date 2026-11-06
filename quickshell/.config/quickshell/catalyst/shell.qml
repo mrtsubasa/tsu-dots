@@ -27,7 +27,12 @@ import "./modules/dev/"
 ShellRoot {
     // Instancie le moteur de thèmes dès le démarrage : c'est lui qui restaure
     // le thème complet (identité + palette + accents Hyprland) persisté.
-    Component.onCompleted: Themes.refresh()
+    // TermCfg aussi : il régénère l'accueil du terminal et les réglages des
+    // terminaux même si le Studio n'est jamais ouvert.
+    Component.onCompleted: {
+        Themes.refresh();
+        TermCfg.refreshTools();
+    }
 
     TopBar {}
     Stage {}

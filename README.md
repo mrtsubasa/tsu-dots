@@ -64,6 +64,7 @@ Installés dans `catalyst/wallpapers/sfw/` au premier lancement, à côté de ta
 - **Fonds d'écran** — bibliothèque avec recadrage, fonds animés, et navigateur en ligne (Wallhaven…) intégré au Studio.
 - **Outils intégrés** — VPN (WireGuard/OpenVPN, ProtonVPN), machines virtuelles (libvirt), gestionnaire de paquets et dépôts, Arsenal (navigateur d'outils de sécurité BlackArch), scène caméra virtuelle, micro traité + mode visio, presse-papiers, conteneurs Podman/Docker.
 - **Hyprland 0.57 en Lua** — config modulaire dans `hyprland/.config/hypr/conf.d/*.lua`, workspaces dynamiques.
+- **Terminal** — page dédiée du Studio : bannière (texte, couleur), fastfetch, gadget à l'ouverture (Pokémon, citation, cowsay, bonsaï), police / opacité / marges d'Alacritty, Kitty et Ghostty.
 - **Le reste** — Neovim (lazy.nvim, LSP), Zsh + Powerlevel10k, Tmux, Kitty, Fastfetch.
 
 La doc détaillée du shell (surfaces, architecture, IPC, thèmes, rollback) est dans [`catalyst/README.md`](quickshell/.config/quickshell/catalyst/README.md).
@@ -150,7 +151,7 @@ Chaque dossier à la racine est un paquet Stow lié dans `$HOME`.
 | `quickshell/` | shell Catalyst (`catalyst/`) + scripts Python/Bash |
 | `hyprland/` | Hyprland (Lua), hypridle, hyprlock, UWSM |
 | `nvim/` | Neovim |
-| `zsh/`, `tmux/`, `kitty/`, `fastfetch/` | terminal |
+| `zsh/`, `tmux/`, `kitty/`, `alacritty/`, `ghostty/`, `fastfetch/` | terminal |
 | `theming/`, `kde/` | GTK 3/4, Qt5/6, kdeglobals |
 | `local/` | scripts perso, binaire `tsu` |
 | `niri/` | scripts appelés par les raccourcis (`~/.config/niri/scripts/` : menus rofi, fonds d'écran, captures, audio…) |

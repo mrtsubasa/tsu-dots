@@ -68,6 +68,8 @@ in
       "quickshell".source = link "quickshell/.config/quickshell";
       "niri/scripts".source = link "niri/.config/niri/scripts";
       "kitty".source = link "kitty/.config/kitty";
+      "alacritty".source = link "alacritty/.config/alacritty";
+      "ghostty".source = link "ghostty/.config/ghostty";
       "nvim".source = link "nvim/.config/nvim";
       "fastfetch".source = link "fastfetch/.config/fastfetch";
       "gtk-3.0".source = link "theming/.config/gtk-3.0";

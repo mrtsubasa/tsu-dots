@@ -1,0 +1,7 @@
+# catalyst.toml : police, opacité, marges réglées dans Studio → Terminal (généré, hors git)
+general.import = ["~/.config/alacritty/current-theme.toml", "~/.config/alacritty/catalyst.toml"]
+
+[[keyboard.bindings]]
+key = "Return"
+mods = "Shift"
+chars = "\u001B\r"

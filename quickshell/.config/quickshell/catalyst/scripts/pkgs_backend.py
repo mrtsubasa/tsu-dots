@@ -193,6 +193,16 @@ def helper():
 def spawn(*argv):
     if not argv:
         return
+    # sous Hyprland on lance directement (niri ne tourne pas) ; même logique que bridge.py
+    if os.environ.get("HYPRLAND_INSTANCE_SIGNATURE"):
+        subprocess.Popen(
+            list(argv),
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            start_new_session=True,
+        )
+        return
     subprocess.Popen(
         ["niri", "msg", "action", "spawn", "--", *argv],
         stdin=subprocess.DEVNULL,

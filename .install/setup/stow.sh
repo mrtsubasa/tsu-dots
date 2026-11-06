@@ -34,6 +34,8 @@ STOW_DIRS=(
     "kde"           # KDE globals (terminal, fonts, icons)
     "theming"       # Qt5/Qt6/GTK theme configuration
     "niri"          # Catalyst helper scripts (~/.config/niri/scripts)
+    "alacritty"     # Terminal opened by Catalyst panels
+    "ghostty"       # Terminal
 )
 
 # =============================================================================

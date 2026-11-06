@@ -39,3 +39,8 @@ quickshell/.config/quickshell/catalyst/wallpapers/
 
 # Scripts Catalyst : restes non utilisés
 niri/.config/niri/scripts/screenshot_lock.png
+
+# Réglages terminal générés par Studio → Terminal
+alacritty/.config/alacritty/catalyst.toml
+kitty/.config/kitty/catalyst.conf
+ghostty/.config/ghostty/catalyst.conf

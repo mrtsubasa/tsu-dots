@@ -1,9 +1,8 @@
 # === VISUAL FETCH ===
 # Running before P10k instant prompt to prevent warnings
 # if [[ $(pgrep -cx kitty) -le 1 ]] && command -v fastfetch >/dev/null 2>&1; then
-  # texte réglable dans Studio → Profil & interface → Bannière du terminal
-  command -v tsu >/dev/null 2>&1 && tsu banner
-  fastfetch
+  # bannière, fastfetch et gadget (Pokémon, fortune…) réglables dans Studio → Terminal
+  if command -v tsu >/dev/null 2>&1; then tsu greet; else fastfetch; fi
 # fi
 
 # === POWERLEVEL10K INSTANT PROMPT ===

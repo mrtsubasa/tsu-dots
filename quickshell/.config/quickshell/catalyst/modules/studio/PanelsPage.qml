@@ -59,25 +59,6 @@ ColumnLayout {
         }
         SettingRow {
             Layout.fillWidth: true
-            icon: "terminal"
-            title: "Bannière du terminal"
-            subtitle: "Texte en lettres blocs affiché à l'ouverture d'un terminal (A-Z, 0-9, 16 caractères max). Actuel : « " + ShellCfg.banner + " »"
-            Field {
-                width: 180
-                placeholder: ShellCfg.banner
-                onAccepted: t => { ShellCfg.setBanner(t); text = ""; }
-            }
-            IconButton {
-                icon: "restart_alt"
-                size: 30
-                iconSize: 17
-                tooltip: "Revenir à « tsu »"
-                disabled: ShellCfg.banner === "tsu"
-                onClicked: ShellCfg.setBanner("tsu")
-            }
-        }
-        SettingRow {
-            Layout.fillWidth: true
             icon: "chat_bubble"
             title: "Statut"
             Field {

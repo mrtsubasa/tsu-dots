@@ -19,7 +19,7 @@ PACKAGES_DIR="$DOTFILES_DIR/.install/packages"
 SETUP_DIR="$DOTFILES_DIR/.install/setup"
 
 # Every category, in menu order
-ALL_CATEGORIES=(core catalyst terminal editor apps utils fonts theming vm vpn cam security nvidia)
+ALL_CATEGORIES=(core catalyst terminal editor apps utils fonts theming vm vpn cam fun security nvidia)
 RECOMMENDED_CATEGORIES=(core catalyst terminal editor apps utils fonts theming)
 DRY_RUN=0
 FAILED_PACKAGES=()
@@ -203,11 +203,12 @@ show_menu() {
     echo "   9) vm         - libvirt / QEMU for the VM panel"
     echo "  10) vpn        - WireGuard, OpenVPN, ProtonVPN for the VPN panel"
     echo "  11) cam        - virtual camera, filters, scene compositor"
-    echo "  12) security   - BlackArch repo + base tools for Arsenal/Ops (asks first)"
-    echo "  13) nvidia     - NVIDIA environment (only with an NVIDIA GPU)"
+    echo "  12) fun        - Pokémon, fortune, cowsay, bonsai, lolcat for the terminal greeting"
+    echo "  13) security   - BlackArch repo + base tools for Arsenal/Ops (asks first)"
+    echo "  14) nvidia     - NVIDIA environment (only with an NVIDIA GPU)"
     echo ""
     echo "   a) RECOMMENDED - 1 to 8"
-    echo "   f) FULL        - 1 to 11"
+    echo "   f) FULL        - 1 to 12"
     echo "   q) QUIT"
     echo ""
 }
@@ -230,7 +231,7 @@ get_selection() {
             break
             ;;
         f | F)
-            SELECTED=("${RECOMMENDED_CATEGORIES[@]}" vm vpn cam)
+            SELECTED=("${RECOMMENDED_CATEGORIES[@]}" vm vpn cam fun)
             break
             ;;
         *)

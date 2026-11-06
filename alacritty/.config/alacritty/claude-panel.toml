@@ -1,0 +1,84 @@
+# claude-panel.toml — Thème "Silver Wolf" pour le panel Claude Code (Niri)
+# Palette cyber-hacker : cyan glacé + violet néon + magenta, fond bleu nuit.
+# Utilisé uniquement par le panel via :  alacritty --config-file ce-fichier
+
+[general]
+# Hérite ta config de base (garde le binding Shift+Enter => nouvelle ligne dans Claude)
+import = ["~/.config/alacritty/alacritty.toml"]
+
+[env]
+TERM = "xterm-256color"
+
+[window]
+opacity = 0.95
+blur = true
+dynamic_padding = true
+decorations = "None"
+padding = { x = 18, y = 16 }
+
+[font]
+size = 11.5
+normal = { family = "JetBrainsMono Nerd Font", style = "Regular" }
+bold   = { family = "JetBrainsMono Nerd Font", style = "Bold" }
+italic = { family = "JetBrainsMono Nerd Font", style = "Italic" }
+
+[cursor]
+style = { shape = "Beam", blinking = "On" }
+blink_interval = 600
+
+# ─────────────────────────  SILVER WOLF PALETTE  ─────────────────────────
+[colors.primary]
+background = "#0a0c16"
+foreground = "#cdd6f9"
+dim_foreground = "#8a93b8"
+bright_foreground = "#eaf0ff"
+
+[colors.cursor]
+text   = "#0a0c16"
+cursor = "#00e5d8"
+
+[colors.vi_mode_cursor]
+text   = "#0a0c16"
+cursor = "#7b5cff"
+
+[colors.selection]
+text       = "#0a0c16"
+background = "#7b5cff"
+
+[colors.search.matches]
+foreground = "#0a0c16"
+background = "#00e5d8"
+
+[colors.search.focused_match]
+foreground = "#0a0c16"
+background = "#ff5fd2"
+
+[colors.hints.start]
+foreground = "#0a0c16"
+background = "#00e5d8"
+
+[colors.hints.end]
+foreground = "#0a0c16"
+background = "#7b5cff"
+
+# ANSI normal
+[colors.normal]
+black   = "#11131f"
+red     = "#ff5f8f"
+green   = "#5cf2c4"
+yellow  = "#f7c873"
+blue    = "#00b4d8"
+magenta = "#7b5cff"
+cyan    = "#00e5d8"
+white   = "#cdd6f9"
+
+# ANSI bright
+[colors.bright]
+black   = "#3a3f5c"
+red     = "#ff8fb3"
+green   = "#8efadb"
+yellow  = "#ffe0a3"
+blue    = "#5cc8ff"
+magenta = "#a98bff"
+cyan    = "#6ff3ec"
+white   = "#eaf0ff"
