@@ -4,19 +4,68 @@ import Quickshell
 import Quickshell.Hyprland
 import qs.rice
 import qs.kit
+import "../../components"
 
 // Workspaces de l'écran : la cellule active s'élargit en capsule d'accent
-// (indicateur qui glisse) ; occupé = chiffre plein, vide = chiffre estompé,
-// urgent = point rouge. Molette = workspace suivant/précédent.
-// Un workspace spécial ouvert sur cet écran apparaît en pastille à droite.
+// (indicateur qui glisse) ; occupé = plein, vide = estompé, urgent = point rouge.
+// Molette = workspace suivant/précédent. Un workspace spécial ouvert sur cet
+// écran apparaît en pastille à droite.
+// Styles (Studio → Barre) : chiffres, points, kanji, chiffres romains, icônes d'apps.
 Item {
     id: root
 
     property string outputName: ""
     readonly property var spaces: Niri.workspacesOn(outputName)
-    readonly property int cell: Math.max(20, Tokens.barItem - 4)
-    readonly property int wide: cell + 12
-    readonly property int gap: 2
+    readonly property string style: BarCfg.wsStyle
+    readonly property bool dots: style === "dots"
+    readonly property int cell: dots ? 12 : Math.max(20, Tokens.barItem - 4)
+    readonly property int wide: dots ? 28 : cell + 12
+    readonly property int pill: dots ? 8 : cell
+    readonly property int gap: dots ? 4 : 2
+
+    readonly property var kanji: ["一", "二", "三", "四", "五", "六", "七", "八", "九", "十"]
+
+    function roman(n) {
+        const map = [[10, "X"], [9, "IX"], [5, "V"], [4, "IV"], [1, "I"]];
+        let out = "";
+        for (let i = 0; i < map.length; i++)
+            while (n >= map[i][0]) {
+                out += map[i][1];
+                n -= map[i][0];
+            }
+        return out;
+    }
+
+    function label(n) {
+        if (style === "kanji")
+            return n <= 10 ? kanji[n - 1] : (n < 20 ? "十" + kanji[n - 11] : String(n));
+        if (style === "roman")
+            return roman(n);
+        return String(n);
+    }
+
+    // app affichée par workspace (fenêtre active du workspace, sinon la première)
+    readonly property var appOf: {
+        const map = {};
+        const wins = Niri.windows;
+        for (let i = 0; i < spaces.length; i++) {
+            const s = spaces[i];
+            let pick = null;
+            for (let j = 0; j < wins.length; j++) {
+                if (wins[j].workspace_id !== s.id)
+                    continue;
+                if (wins[j].id === s.active_window_id) {
+                    pick = wins[j];
+                    break;
+                }
+                if (!pick)
+                    pick = wins[j];
+            }
+            if (pick)
+                map[s.id] = String(pick.app_id || "");
+        }
+        return map;
+    }
 
     readonly property var occupiedIds: {
         const ids = {};
@@ -77,7 +126,7 @@ Item {
         readonly property Item target: root.activeIndex >= 0 && rep.count > root.activeIndex ? rep.itemAt(root.activeIndex) : null
         x: target ? row.x + target.x : 0
         width: target ? target.width : root.wide
-        height: root.cell
+        height: root.pill
         anchors.verticalCenter: parent.verticalCenter
         radius: height / 2
         color: Theme.accent
@@ -112,8 +161,11 @@ Item {
                 readonly property bool active: index === root.activeIndex
                 readonly property bool occupied: !!root.occupiedIds[modelData.id]
                 readonly property bool urgent: !!modelData.is_urgent
+                readonly property int num: ws.modelData.idx || ws.index + 1
+                readonly property string app: root.appOf[modelData.id] || ""
+                readonly property bool showIcon: root.style === "icons" && app.length > 0
 
-                width: active ? root.wide : root.cell
+                width: root.dots ? (active ? root.wide : root.cell) : (active ? Math.max(root.wide, txt.implicitWidth + 18) : Math.max(root.cell, txt.implicitWidth + 10))
                 height: root.cell
                 Behavior on width { NumberAnimation { duration: Motion.dur(Motion.slow); easing.type: Easing.BezierSpline; easing.bezierCurve: Motion.curveStd } }
 
@@ -126,13 +178,44 @@ Item {
                 }
 
                 Text {
+                    id: txt
+                    visible: !root.dots && !ws.showIcon && root.style !== "icons"
                     anchors.centerIn: parent
-                    text: String(ws.modelData.idx || ws.index + 1)
-                    font.family: Theme.monoFont
-                    font.pixelSize: 11
+                    text: root.label(ws.num)
+                    font.family: root.style === "kanji" ? Theme.uiFont : Theme.monoFont
+                    font.pixelSize: root.style === "kanji" ? 12 : (root.style === "roman" ? 10 : 11)
                     font.weight: ws.active ? Font.Bold : Font.DemiBold
                     color: ws.active ? Theme.onAccent : (ws.occupied ? Theme.text : Theme.textFaint)
                     Behavior on color { ColorAnimation { duration: Motion.dur(Motion.fast) } }
+                }
+
+                // style points : rond plein si occupé, anneau si vide (l'actif = pilule d'accent)
+                Rectangle {
+                    visible: root.dots && !ws.active
+                    anchors.centerIn: parent
+                    width: 6
+                    height: 6
+                    radius: 3
+                    color: ws.occupied ? Qt.alpha(Theme.text, 0.75) : "transparent"
+                    border.width: ws.occupied ? 0 : 1
+                    border.color: Theme.textFaint
+                }
+
+                // style icônes : app du workspace, point si vide
+                AppIcon {
+                    visible: ws.showIcon
+                    anchors.centerIn: parent
+                    appId: ws.app
+                    size: 14
+                    plain: true
+                }
+                Rectangle {
+                    visible: root.style === "icons" && !ws.showIcon
+                    anchors.centerIn: parent
+                    width: 5
+                    height: 5
+                    radius: 2.5
+                    color: ws.active ? Theme.onAccent : Theme.textFaint
                 }
 
                 Rectangle {

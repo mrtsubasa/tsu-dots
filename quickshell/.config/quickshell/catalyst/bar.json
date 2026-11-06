@@ -47,5 +47,6 @@
     "metrics": true,
     "status": true,
     "tools": false
-  }
+  },
+  "wsStyle": "numbers"
 }

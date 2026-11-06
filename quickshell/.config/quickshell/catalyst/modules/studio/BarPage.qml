@@ -38,6 +38,18 @@ ColumnLayout {
         }
         SettingRow {
             Layout.fillWidth: true
+            icon: "view_week"
+            title: "Workspaces"
+            subtitle: "Style des numéros de workspace dans la barre"
+            Segmented {
+                compact: true
+                model: [{ id: "numbers", label: "1 2 3" }, { id: "dots", label: "● ●" }, { id: "kanji", label: "一 二" }, { id: "roman", label: "I II" }, { id: "icons", label: "Icônes" }]
+                current: BarCfg.wsStyle
+                onSelected: id => BarCfg.setWsStyle(id)
+            }
+        }
+        SettingRow {
+            Layout.fillWidth: true
             icon: "height"
             title: "Hauteur"
             subtitle: BarCfg.height > 0 ? BarCfg.height + " px" : "Hauteur du thème (" + Tokens.barBase + " px)"

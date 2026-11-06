@@ -16,6 +16,9 @@ Singleton {
     property string style: ""
     // métriques système dans la barre : auto (seulement en alerte) | always | off
     property string metrics: "auto"
+    // style des workspaces : numbers | dots | kanji | roman | icons
+    property string wsStyle: "numbers"
+    readonly property var wsStyles: ["numbers", "dots", "kanji", "roman", "icons"]
     // ordre des éléments de droite (réordonnable depuis le Studio)
     property var rightOrder: ["media", "metrics", "tray", "status", "notif", "power"]
     readonly property var rightDefault: ["media", "metrics", "tray", "status", "notif", "power"]
@@ -87,6 +90,11 @@ Singleton {
         save();
     }
 
+    function setWsStyle(v) {
+        wsStyle = wsStyles.indexOf(v) >= 0 ? v : "numbers";
+        save();
+    }
+
     function setMetrics(v) {
         metrics = v;
         save();
@@ -130,6 +138,7 @@ Singleton {
             opacity: opacity,
             style: style,
             metrics: metrics,
+            wsStyle: wsStyle,
             rightOrder: rightOrder,
             modules: modules
         };
@@ -157,6 +166,7 @@ Singleton {
                 if (o.metrics)
                     root.metrics = o.metrics;
                 root.style = o.style || "";
+                root.wsStyle = root.wsStyles.indexOf(o.wsStyle) >= 0 ? o.wsStyle : "numbers";
                 if (Array.isArray(o.rightOrder)) {
                     // garde les éléments connus + ajoute les nouveaux
                     const known = root.rightDefault;
