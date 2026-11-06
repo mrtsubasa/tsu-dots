@@ -31,8 +31,8 @@ Singleton {
     // GTK/Qt paths
     readonly property string gtkColorsPath3: Quickshell.env("HOME") + "/.config/gtk-3.0/colors.css"
     readonly property string gtkColorsPath4: Quickshell.env("HOME") + "/.config/gtk-4.0/colors.css"
-    readonly property string qtColorSchemePath: Quickshell.env("HOME") + "/.local/share/color-schemes/Lyne.colors"
-    readonly property string matugenConfigPath: Quickshell.env("HOME") + "/.lyne-dots/.data/matugen/config.toml"
+    readonly property string qtColorSchemePath: Quickshell.env("HOME") + "/.local/share/color-schemes/Tsu.colors"
+    readonly property string matugenConfigPath: Quickshell.env("HOME") + "/.tsu-dots/.data/matugen/config.toml"
     readonly property string matugenCachePath: Quickshell.env("HOME") + "/.cache/matugen"
 
     property string currentThemeName: getState("theme.name", "tokyonight")
@@ -286,7 +286,7 @@ Singleton {
     }
 
     function _clearQtColors() {
-        // Remove custom Lyne.colors so Qt falls back to the Breeze scheme
+        // Remove custom Tsu.colors so Qt falls back to the Breeze scheme
         qtProc.command = ["bash", "-c",
             "rm -f " + shellEscape(qtColorSchemePath)];
         qtProc.running = true;
@@ -429,8 +429,8 @@ Singleton {
         }
 
         lines.push("[General]");
-        lines.push("ColorScheme=Lyne");
-        lines.push("Name=Lyne");
+        lines.push("ColorScheme=Tsu");
+        lines.push("Name=Tsu");
         lines.push("");
         lines.push("[WM]");
         lines.push("activeBackground=" + s0);

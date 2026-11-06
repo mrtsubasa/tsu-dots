@@ -27,7 +27,6 @@ TARGET_TXT = HOME / ".config/waybar/target.txt"
 WALL_FILE = HOME / ".cache/matugen/current-wallpaper"
 COLORS = HOME / ".cache/matugen/spell-colors.json"
 RECENT = HOME / ".cache/spell-shell/recent.json"
-VM_DIR = HOME / "VMs"
 SCRIPTS_CUSTOM = HOME / "Scripts"
 CHAT_SH = HOME / ".config/niri/scripts/ai/chat.sh"
 IMAGE_SH = HOME / ".config/niri/scripts/ai/image.sh"
@@ -867,7 +866,7 @@ def dash_cmd(cmd: str):
     }
     if cmd == "logout":
         if os.environ.get("HYPRLAND_INSTANCE_SIGNATURE"):
-            spawn("hyprctl", "dispatch", "exit")
+            spawn("hyprctl", "dispatch", "hl.dsp.exit()")
         else:
             spawn("niri", "msg", "action", "quit", "--skip-confirmation")
         return {"ok": True}
@@ -1020,53 +1019,6 @@ def scripts_new(name: str):
     path.chmod(0o755)
     spawn("alacritty", "-e", "nvim", str(path))
     return {"ok": True, "path": str(path)}
-
-
-# ----- vms -----
-OS_CATALOG = [
-    "kali", "parrotsec", "tails", "archlinux", "ubuntu", "debian", "fedora",
-    "popos", "linuxmint", "opensuse", "nixos", "windows", "macos",
-    "freebsd", "alpine",
-]
-_QGET_LIST_CACHE = {"ts": 0, "lines": []}
-
-
-def vm_running(name: str):
-    return bool(run_capture(["pgrep", "-f", f"{name}.qcow2"]))
-
-
-def vm_list():
-    VM_DIR.mkdir(parents=True, exist_ok=True)
-    vms = []
-    for p in sorted(VM_DIR.glob("*.conf")):
-        name = p.stem
-        vms.append({"name": name, "running": vm_running(name)})
-    return vms
-
-
-def vm_qget_list():
-    now = time.time()
-    if _QGET_LIST_CACHE["lines"] and now - _QGET_LIST_CACHE["ts"] < 600:
-        return _QGET_LIST_CACHE["lines"]
-    outp = run_capture(["quickget", "--list"], timeout=30)
-    lines = [l for l in outp.splitlines() if l.strip()]
-    if lines:
-        _QGET_LIST_CACHE["lines"] = lines
-        _QGET_LIST_CACHE["ts"] = now
-    return lines
-
-
-def vm_releases(os_name: str):
-    seen = []
-    for line in vm_qget_list():
-        parts = line.split()
-        if len(parts) >= 2 and parts[0] == os_name:
-            rel = parts[1]
-            if len(parts) > 2:
-                rel = parts[1] + " " + " ".join(parts[2:])
-            if rel not in seen:
-                seen.append(rel)
-    return seen or ["latest"]
 
 
 # ----- bots -----
@@ -1664,7 +1616,8 @@ def ba_osint_run(kind: str, tool: str, query: str = ""):
 
 def ops_run(tid: str):
     t = ops_target()
-    tgt = t or "127.0.0.1"
+    # la cible est saisie dans le panneau : toujours la quoter avant de la passer à bash
+    tgt = shlex.quote(t or "127.0.0.1")
     home = str(HOME)
     actions = {
         "nmap": lambda: term("nmap", f"nmap -sC -sV {tgt}") or "nmap lancé",
@@ -1703,7 +1656,7 @@ def ops_run(tid: str):
         "osint": lambda: spawn("bash", f"{home}/.config/niri/scripts/osint_menu.sh") or "OSINT",
         "htb": lambda: term("HTB VPN", f"sudo openvpn '{home}/.config/openvpn/htb.ovpn'") or "OpenVPN HTB",
         "term": lambda: spawn("alacritty", "-t", "Ops", "-e", "bash", "-lc",
-                              (f"echo 'cible: {t}'; exec bash" if t else "exec bash")) or "terminal",
+                              (f"echo cible: {shlex.quote(t)}; exec bash" if t else "exec bash")) or "terminal",
     }
     if tid == "notes":
         if not NOTES.exists():
@@ -1859,54 +1812,6 @@ def dispatch(cmd, args):
         return r
     if cmd == "scripts-folder":
         spawn("thunar", str(SCRIPTS_CUSTOM))
-        return {"ok": True}
-    if cmd == "vm-list":
-        return {"ok": True, "items": vm_list(), "osList": OS_CATALOG}
-    if cmd == "vm-releases":
-        return {"ok": True, "releases": vm_releases(args[0] if args else "kali")}
-    if cmd == "vm-start":
-        name = args[0]
-        subprocess.Popen(
-            ["quickemu", "--vm", f"{name}.conf"],
-            cwd=str(VM_DIR),
-            stdin=subprocess.DEVNULL,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            start_new_session=True,
-        )
-        return {"ok": True, "items": vm_list(), "status": f"{name} lancée"}
-    if cmd == "vm-delete":
-        name = args[0]
-        for p in [VM_DIR / f"{name}.conf", VM_DIR / f"{name}.qcow2"]:
-            try:
-                p.unlink()
-            except OSError:
-                pass
-        shutil.rmtree(VM_DIR / name, ignore_errors=True)
-        shutil.rmtree(VM_DIR / f"{name}-vm-disk", ignore_errors=True)
-        return {"ok": True, "items": vm_list(), "status": f"{name} supprimée"}
-    if cmd == "vm-create":
-        os_name = args[0] if args else ""
-        release = args[1] if len(args) > 1 else "latest"
-        if not os_name:
-            fail("OS manquant")
-        VM_DIR.mkdir(parents=True, exist_ok=True)
-        qargs = ["quickget", os_name] + release.split(None, 1)
-        p = subprocess.run(
-            qargs,
-            cwd=str(VM_DIR),
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-            timeout=3600,
-        )
-        if p.returncode != 0:
-            err = (p.stderr or p.stdout or "").strip()
-            lines = [l.strip() for l in err.splitlines() if l.strip() and not l.strip().startswith("#") and "%" not in l]
-            fail(lines[-1] if lines else "échec quickget")
-        return {"ok": True, "items": vm_list(), "status": f"{os_name} {release} téléchargée"}
-    if cmd == "vm-folder":
-        spawn("thunar", str(VM_DIR))
         return {"ok": True}
     if cmd == "bots-list":
         return {"ok": True, "items": bots_list()}

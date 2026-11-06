@@ -21,119 +21,31 @@ ColumnLayout {
     // ---------------- thèmes complets ----------------
     SectionHeader { Layout.fillWidth: true; text: "Thèmes" }
 
-    Flow {
+    GridLayout {
+        id: grid
         Layout.fillWidth: true
-        spacing: 12
+        columns: 3
+        columnSpacing: 12
+        rowSpacing: 12
 
         Repeater {
             model: Themes.presets
 
-            Item {
+            ThemeCard {
                 id: card
                 required property var modelData
-                readonly property var pal: modelData.data.palette || {}
-                readonly property bool on: Themes.active === modelData.id
-                width: 228
-                height: 176
-
-                Rectangle {
-                    anchors.fill: parent
-                    radius: Tokens.rLg
-                    color: Theme.s3
-                    border.width: card.on ? 2 : 1
-                    border.color: card.on ? Theme.accent : Theme.border
-                    scale: hov.pressed ? 0.98 : 1
-                    Behavior on scale { NumberAnimation { duration: Motion.dur(Motion.instant) } }
-
-                    // mini-bureau dans les couleurs du thème
-                    Rectangle {
-                        id: mini
-                        anchors.left: parent.left
-                        anchors.right: parent.right
-                        anchors.top: parent.top
-                        anchors.margins: 8
-                        height: 108
-                        radius: Tokens.rMd
-                        color: card.pal.background || "#000"
-                        clip: true
-
-                        Rectangle {
-                            x: 6; y: 6
-                            width: parent.width - 12
-                            height: 12
-                            radius: card.modelData.identity === "protocol" ? 2 : 6
-                            color: card.pal.surface1 || "#222"
-                            Row {
-                                anchors.verticalCenter: parent.verticalCenter
-                                x: 6
-                                spacing: 3
-                                Rectangle { width: 12; height: 5; radius: 2.5; color: card.pal.accent || "#fff" }
-                                Rectangle { width: 5; height: 5; radius: 2.5; color: card.pal.subtext || "#888" }
-                                Rectangle { width: 5; height: 5; radius: 2.5; color: card.pal.subtext || "#888"; opacity: 0.5 }
-                            }
-                            Rectangle { anchors.centerIn: parent; width: 22; height: 4; radius: 2; color: card.pal.text || "#fff"; opacity: 0.8 }
-                            Rectangle { anchors.right: parent.right; anchors.rightMargin: 6; anchors.verticalCenter: parent.verticalCenter; width: 4; height: 4; radius: 2; color: card.pal.signature || "#f0f" }
-                        }
-                        Rectangle {
-                            x: parent.width - 84; y: 24
-                            width: 78
-                            height: 78
-                            radius: card.modelData.identity === "protocol" ? 3 : 8
-                            color: card.pal.surface2 || "#333"
-                            border.width: 1
-                            border.color: Qt.alpha(card.pal.text || "#fff", 0.08)
-                            Column {
-                                x: 7; y: 8
-                                spacing: 5
-                                Rectangle { width: 64; height: 9; radius: 3; color: card.pal.accent || "#fff" }
-                                Rectangle { width: 46; height: 9; radius: 3; color: card.pal.surface3 || "#444" }
-                                Rectangle { width: 64; height: 4; radius: 2; color: card.pal.electric || "#0ff" }
-                                Rectangle { width: 30; height: 4; radius: 2; color: card.pal.subtext || "#888" }
-                            }
-                        }
-                        Column {
-                            x: 8; y: 30
-                            spacing: 6
-                            Rectangle { width: 70; height: 5; radius: 2; color: card.pal.text || "#fff"; opacity: 0.85 }
-                            Rectangle { width: 52; height: 5; radius: 2; color: card.pal.subtext || "#888" }
-                            Rectangle { width: 60; height: 5; radius: 2; color: card.pal.subtext || "#888"; opacity: 0.6 }
-                        }
-                    }
-
-                    ColumnLayout {
-                        anchors.left: parent.left
-                        anchors.right: parent.right
-                        anchors.bottom: parent.bottom
-                        anchors.margins: 12
-                        spacing: 0
-                        RowLayout {
-                            Layout.fillWidth: true
-                            Txt { role: "label"; text: card.modelData.label; font.weight: Font.DemiBold; Layout.fillWidth: true }
-                            Icon { visible: card.on; name: "check_circle"; size: 16; fill: 1; color: Theme.accent }
-                            Txt { visible: !card.modelData.builtin && !card.on; role: "overline"; text: "perso"; color: Theme.textFaint }
-                        }
-                        Txt {
-                            Layout.fillWidth: true
-                            role: "caption"
-                            text: card.modelData.description
-                        }
-                    }
-
-                    StateLayer {
-                        id: hov
-                        anchors.fill: parent
-                        radius: parent.radius
-                        hoverAlpha: 0.04
-                        onClicked: mouse => {
-                            if (mouse.button === Qt.RightButton)
-                                cardMenu.openAt(card);
-                            else {
-                                Themes.apply(card.modelData.id);
-                                root.dirty = false;
-                            }
-                        }
-                    }
+                Layout.fillWidth: true; Layout.preferredWidth: 100
+                label: modelData.label
+                description: modelData.description
+                pal: modelData.data.palette || {}
+                identity: modelData.identity || ""
+                on: Themes.active === modelData.id
+                custom: !modelData.builtin
+                onClicked: {
+                    Themes.apply(modelData.id);
+                    root.dirty = false;
                 }
+                onMenu: cardMenu.openAt(card)
 
                 Menu {
                     id: cardMenu
@@ -149,58 +61,13 @@ ColumnLayout {
         }
 
         // Material You
-        Item {
-            width: 228
-            height: 176
-            readonly property bool on: Theme.mode === "auto"
-            Rectangle {
-                anchors.fill: parent
-                radius: Tokens.rLg
-                color: Theme.s3
-                border.width: parent.on ? 2 : 1
-                border.color: parent.on ? Theme.accent : Theme.border
-
-                Rectangle {
-                    anchors.left: parent.left
-                    anchors.right: parent.right
-                    anchors.top: parent.top
-                    anchors.margins: 8
-                    height: 108
-                    radius: Tokens.rMd
-                    clip: true
-                    color: Theme.s0
-                    Art {
-                        anchors.fill: parent
-                        source: SysInfo.wallpaper.length ? "file://" + SysInfo.wallpaper : ""
-                        radius: Tokens.rMd
-                        fallbackIcon: "wallpaper"
-                    }
-                    Icon {
-                        anchors.centerIn: parent
-                        name: "auto_awesome"
-                        size: 30
-                        fill: 1
-                        color: "white"
-                        style: Text.Outline
-                        styleColor: Qt.rgba(0, 0, 0, 0.35)
-                    }
-                }
-                ColumnLayout {
-                    anchors.left: parent.left
-                    anchors.right: parent.right
-                    anchors.bottom: parent.bottom
-                    anchors.margins: 12
-                    spacing: 0
-                    Txt { role: "label"; text: "Material You"; font.weight: Font.DemiBold }
-                    Txt { role: "caption"; text: "Palette tirée du fond d'écran (matugen)"; Layout.fillWidth: true }
-                }
-                StateLayer {
-                    anchors.fill: parent
-                    radius: parent.radius
-                    hoverAlpha: 0.04
-                    onClicked: Themes.setAuto()
-                }
-            }
+        ThemeCard {
+            Layout.fillWidth: true; Layout.preferredWidth: 100
+            label: "Material You"
+            description: "Palette tirée du fond d'écran (matugen)"
+            wallpaper: true
+            on: Theme.mode === "auto"
+            onClicked: Themes.setAuto()
         }
     }
 

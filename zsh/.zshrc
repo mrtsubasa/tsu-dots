@@ -78,3 +78,48 @@ all-update() {
 
     echo -e "\e[1;32m:: All updates complete!\e[0m"
 }
+
+# bun completions
+[ -s "/home/tsu/.bun/_bun" ] && source "/home/tsu/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+
+# Added by LM Studio CLI tool (lms)
+export PATH="$PATH:/home/tsu/.lmstudio/bin"
+
+
+# Load Angular CLI autocompletion.
+source <(ng completion script)
+export PATH="$PATH:$(npm config get prefix)/bin"
+
+# opencode
+export PATH=/home/tsu/.opencode/bin:$PATH
+
+# Qwen Code PATH block begin
+export PATH='/home/tsu/.local/bin':$PATH
+# Qwen Code PATH block end
+
+# >>> grok installer >>>
+export PATH="$HOME/.grok/bin:$PATH"
+fpath=(~/.grok/completions/zsh $fpath)
+autoload -Uz compinit && compinit -C
+# <<< grok installer <<<
+
+# Omarchy CLI (Niri)
+export OMARCHY_PATH="$HOME/.local/share/omarchy"
+case ":$PATH:" in
+  *":$OMARCHY_PATH/bin:"*) ;;
+  *) export PATH="$HOME/.local/bin:$OMARCHY_PATH/bin:$PATH" ;;
+esac
+
+. "$HOME/.atuin/bin/env"
+
+eval "$(atuin init zsh)"
+
+# zoxide
+command -v zoxide >/dev/null && eval "$(zoxide init zsh)"
+
+# mise
+[ -x "$HOME/.local/bin/mise" ] && eval "$("$HOME/.local/bin/mise" activate zsh)"

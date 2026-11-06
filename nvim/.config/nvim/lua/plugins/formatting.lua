@@ -38,6 +38,17 @@ return {
           -- Shell
           sh = { "shfmt" },
           bash = { "shfmt" },
+
+          -- C / C++
+          c = { "clang-format" },
+          cpp = { "clang-format" },
+
+          -- Native toolchain formatters (no Mason package needed)
+          rust = { "rustfmt" },
+          go = { "gofmt" },
+
+          -- Anything else: fall back to the LSP formatter if it has one
+          ["_"] = { "trim_whitespace" },
         },
 
         -- Configure Format on Save

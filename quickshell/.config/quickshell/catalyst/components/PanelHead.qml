@@ -19,15 +19,17 @@ RowLayout {
 
     Rectangle {
         visible: root.icon.length > 0
-        Layout.preferredWidth: 32
-        Layout.preferredHeight: 32
+        Layout.preferredWidth: 36
+        Layout.preferredHeight: 36
         radius: Tokens.rMd
-        color: Theme.stateActive
+        color: Qt.alpha(Theme.accent, 0.14)
+        border.width: 1
+        border.color: Qt.alpha(Theme.accent, 0.32)
         Text {
             anchors.centerIn: parent
             text: root.icon
             font.family: Theme.font
-            font.pixelSize: 16
+            font.pixelSize: 17
             color: Theme.accent
         }
     }
@@ -44,10 +46,17 @@ RowLayout {
         Layout.alignment: Qt.AlignVCenter
     }
 
-    IconButton {
+    Rectangle {
         visible: root.closable
-        icon: "close"
-        tooltip: "Fermer"
-        onClicked: root.closed()
+        Layout.preferredWidth: 32
+        Layout.preferredHeight: 32
+        radius: 16
+        color: closeTap.containsMouse ? Qt.alpha(Theme.error, 0.16) : Qt.alpha(Theme.text, 0.05)
+        border.width: 1
+        border.color: closeTap.containsMouse ? Qt.alpha(Theme.error, 0.4) : Theme.border
+        Behavior on color { ColorAnimation { duration: Motion.dur(Motion.fast) } }
+        Icon { anchors.centerIn: parent; name: "close"; size: 16; color: closeTap.containsMouse ? Theme.error : Theme.textSub }
+        StateLayer { id: closeTap; anchors.fill: parent; radius: 16; hoverAlpha: 0; onClicked: root.closed() }
+        Tip { target: closeTap; text: "Fermer (Échap)"; active: closeTap.containsMouse }
     }
 }

@@ -57,13 +57,20 @@ Item {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     Layout.minimumHeight: 44
+
                     Rectangle {
+                        id: tile
                         anchors.fill: parent
                         radius: Tokens.rMd
-                        color: Theme.s3
+                        color: hh.hovered ? Qt.alpha(Theme.accent, 0.14) : Qt.alpha(Theme.s3, 0.85)
                         border.width: 1
-                        border.color: Theme.border
+                        border.color: hh.hovered ? Qt.alpha(Theme.accent, 0.7) : Theme.border
+                        scale: hh.hovered ? 1.03 : 1
+                        Behavior on color { ColorAnimation { duration: Motion.dur(Motion.fast) } }
+                        Behavior on border.color { ColorAnimation { duration: Motion.dur(Motion.fast) } }
+                        Behavior on scale { NumberAnimation { duration: Motion.dur(Motion.fast); easing.type: Easing.OutCubic } }
                     }
+                    HoverHandler { id: hh }
                     StateLayer {
                         anchors.fill: parent
                         radius: Tokens.rMd
@@ -72,7 +79,7 @@ Item {
                     ColumnLayout {
                         anchors.centerIn: parent
                         spacing: 3
-                        Icon { Layout.alignment: Qt.AlignHCenter; name: b.modelData.icon || "bolt"; size: 20; color: Theme.accent }
+                        Icon { Layout.alignment: Qt.AlignHCenter; name: b.modelData.icon || "bolt"; size: 20; color: hh.hovered ? Theme.accent : Theme.accent }
                         Txt { Layout.alignment: Qt.AlignHCenter; role: "caption"; text: b.modelData.label; color: Theme.text }
                     }
                 }

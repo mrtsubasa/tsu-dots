@@ -1,0 +1,6 @@
+-- ==============================================================================
+-- Hyprland Workspace Rules
+-- ==============================================================================
+-- Les workspaces dynamiques (dyn-ws.sh) créent les espaces directement sur le
+-- moniteur actif : aucune règle de correspondance id→moniteur n'est nécessaire.
+-- Tu peux ajouter des règles manuelles ici si besoin (ex: workspace = 5, pinned:true).

@@ -28,40 +28,29 @@ FocusScope {
         anchors.margins: 18
         spacing: 12
 
-        RowLayout {
+        PanelHead {
             Layout.fillWidth: true
-            spacing: 10
-            ColumnLayout {
-                Layout.fillWidth: true
-                spacing: 0
-                Txt { role: "overline"; text: "// " + ShellCfg.brand; color: Theme.accent }
-                Txt { role: "title"; text: "Raccourcis clavier" }
+            icon: "keyboard"
+            overline: Keybinds.binds.length + " raccourcis · keybinds"
+            title: "Raccourcis clavier"
+            Rectangle {
+                visible: Keybinds.conflicts.length > 0
+                implicitHeight: 22
+                implicitWidth: cTxt.implicitWidth + 16
+                radius: 11
+                color: Qt.alpha(Theme.warning, 0.14)
+                border.width: 1
+                border.color: Qt.alpha(Theme.warning, 0.4)
+                Txt { id: cTxt; anchors.centerIn: parent; role: "mono"; font.pixelSize: 10; text: Keybinds.conflicts.length + " conflit" + (Keybinds.conflicts.length > 1 ? "s" : ""); color: Theme.warning }
             }
-            Txt { role: "caption"; text: Keybinds.binds.length + " raccourcis · lus dans keybinds.conf" }
             IconButton { icon: "close"; size: 30; iconSize: 17; tooltip: "Fermer"; onClicked: PanelService.hide() }
         }
 
-        Rectangle {
+        Banner {
             Layout.fillWidth: true
             visible: Keybinds.conflicts.length > 0
-            implicitHeight: confl.implicitHeight + 16
-            radius: Tokens.rMd
-            color: Qt.alpha(Theme.warning, 0.12)
-            RowLayout {
-                id: confl
-                anchors.fill: parent
-                anchors.margins: 8
-                anchors.leftMargin: 12
-                spacing: 8
-                Icon { name: "warning"; size: 16; color: Theme.warning }
-                Txt {
-                    Layout.fillWidth: true
-                    role: "caption"
-                    wrapMode: Text.WordWrap
-                    color: Theme.warning
-                    text: "Combinaison attribuée plusieurs fois (les deux actions se déclenchent) : " + Keybinds.conflicts.join(" · ")
-                }
-            }
+            icon: "warning"
+            text: "Combinaison attribuée plusieurs fois (les deux actions se déclenchent) : " + Keybinds.conflicts.join(" · ")
         }
 
         SearchField {
@@ -97,13 +86,17 @@ FocusScope {
                 required property var modelData
                 readonly property bool conflict: Keybinds.conflicts.indexOf(modelData.combo) >= 0
                 width: list.width
-                height: 36
+                height: 38
 
                 HoverHandler { id: hov }
                 Rectangle {
                     anchors.fill: parent
-                    radius: Tokens.rSm
-                    color: hov.hovered ? Theme.stateHover : "transparent"
+                    anchors.topMargin: 1
+                    anchors.bottomMargin: 1
+                    radius: Tokens.rMd
+                    color: hov.hovered ? Qt.alpha(Theme.text, 0.04) : "transparent"
+                    border.width: hov.hovered ? 1 : 0
+                    border.color: Theme.border
                 }
                 RowLayout {
                     anchors.fill: parent
@@ -118,19 +111,29 @@ FocusScope {
                             model: row.modelData.combo.split(" + ")
                             Rectangle {
                                 required property string modelData
-                                height: 22
-                                width: keyT.implicitWidth + 14
+                                height: 24
+                                width: Math.max(24, keyT.implicitWidth + 14)
                                 radius: 6
-                                color: Theme.s4
+                                color: row.conflict ? Qt.alpha(Theme.warning, 0.10) : (hov.hovered ? Qt.alpha(Theme.accent, 0.12) : Theme.s3)
                                 border.width: 1
-                                border.color: row.conflict ? Theme.warning : Theme.borderStrong
+                                border.color: row.conflict ? Theme.warning : (hov.hovered ? Qt.alpha(Theme.accent, 0.45) : Theme.borderStrong)
+                                // relief de touche
+                                Rectangle {
+                                    anchors.left: parent.left
+                                    anchors.right: parent.right
+                                    anchors.bottom: parent.bottom
+                                    anchors.margins: 1
+                                    height: 2
+                                    radius: 1
+                                    color: Qt.rgba(0, 0, 0, 0.25)
+                                }
                                 Txt {
                                     id: keyT
                                     anchors.centerIn: parent
                                     role: "mono"
                                     font.pixelSize: 11
                                     text: parent.modelData
-                                    color: row.conflict ? Theme.warning : Theme.text
+                                    color: row.conflict ? Theme.warning : (hov.hovered ? Theme.accent : Theme.text)
                                 }
                             }
                         }

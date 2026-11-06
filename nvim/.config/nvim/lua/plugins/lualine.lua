@@ -1,100 +1,106 @@
+-- JetBrains-style status bar:
+--   left  : project › path › file › symbol   (navigation bar / breadcrumbs)
+--   right : diagnostics · LSP · line:col · LF · UTF-8 · 2 spaces · branch
+local sep = "%#JBCrumbSep# \u{eab6} "
+
+local function breadcrumbs()
+	local file = vim.api.nvim_buf_get_name(0)
+	if file == "" or vim.bo.buftype ~= "" then
+		return ""
+	end
+
+	local root = vim.fn.getcwd()
+	local parts = { "%#JBCrumb#" .. vim.fn.fnamemodify(root, ":t") }
+	local rel = vim.fn.fnamemodify(file, ":.")
+	-- File outside the project: show it from ~ instead
+	if rel:sub(1, 1) == "/" then
+		parts = { "%#JBCrumb#" .. "~" }
+		rel = vim.fn.fnamemodify(file, ":~"):gsub("^~/", "")
+	end
+
+	local segments = vim.split(rel, "/", { plain = true })
+	for i, seg in ipairs(segments) do
+		if i == #segments then
+			local icon, icon_hl = "", "JBCrumbFile"
+			local ok, devicons = pcall(require, "nvim-web-devicons")
+			if ok then
+				local ic, ic_hl = devicons.get_icon(seg, vim.fn.fnamemodify(seg, ":e"), { default = true })
+				icon, icon_hl = ic or "", ic_hl or icon_hl
+			end
+			parts[#parts + 1] = "%#" .. icon_hl .. "#" .. icon .. " %#JBCrumbFile#" .. seg
+		else
+			parts[#parts + 1] = "%#JBCrumb#" .. seg
+		end
+	end
+
+	local ok_navic, navic = pcall(require, "nvim-navic")
+	if ok_navic and navic.is_available() then
+		local loc = navic.get_location()
+		if loc ~= "" then
+			parts[#parts + 1] = loc
+		end
+	end
+
+	return table.concat(parts, sep)
+end
+
+local function indent()
+	if vim.bo.buftype ~= "" then
+		return ""
+	end
+	if vim.bo.expandtab then
+		return vim.bo.shiftwidth .. " spaces"
+	end
+	return "Tab " .. vim.bo.tabstop
+end
+
+local function lsp_names()
+	local names = {}
+	for _, client in pairs(vim.lsp.get_clients({ bufnr = 0 })) do
+		names[#names + 1] = client.name
+	end
+	return #names > 0 and ("\u{eb51} " .. table.concat(names, ", ")) or ""
+end
+
 return {
 	"nvim-lualine/lualine.nvim",
 	dependencies = { "nvim-tree/nvim-web-devicons" },
 	config = function()
-		-- 1. Import Tokyo Night colors
-		-- We load the palette to use it in your custom configuration
-		local colors = require("tokyonight.colors").setup()
-
-		-- 2. Map Tokyo Night colors to your 'p' variable
-		local p = {
-			bg = colors.bg,
-			bg_dark = colors.bg_dark,
-			bg_float = colors.bg_highlight, -- Lighter background
-			fg = colors.fg,
-			fg_dim = colors.comment, -- Dimmed text (gray)
-			func = colors.blue,
-			string = colors.green,
-			class = colors.orange,
-			error = colors.red,
-			number = colors.yellow,
-			diag_err = colors.error,
-			diag_warn = colors.warning,
-			diag_info = colors.info,
-		}
-
-		-- 3. Define your Custom Theme using the mapped colors
-		local custom_theme = {
-			normal = {
-				a = { bg = p.func, fg = p.bg, gui = "bold" },
-				b = { bg = p.bg_float, fg = p.fg },
-				c = { bg = p.bg_dark, fg = p.fg_dim },
-			},
-			insert = {
-				a = { bg = p.string, fg = p.bg_dark, gui = "bold" },
-				b = { bg = p.bg_float, fg = p.fg },
-				c = { bg = p.bg_dark, fg = p.fg_dim },
-			},
-			visual = {
-				a = { bg = p.class, fg = p.bg_dark, gui = "bold" },
-				b = { bg = p.bg_float, fg = p.fg },
-				c = { bg = p.bg_dark, fg = p.fg_dim },
-			},
-			replace = {
-				a = { bg = p.error, fg = p.bg, gui = "bold" },
-				b = { bg = p.bg_float, fg = p.fg },
-				c = { bg = p.bg_dark, fg = p.fg_dim },
-			},
-			command = {
-				a = { bg = p.number, fg = p.bg, gui = "bold" },
-				b = { bg = p.bg_float, fg = p.fg },
-				c = { bg = p.bg_dark, fg = p.fg_dim },
-			},
-			inactive = {
-				a = { bg = p.bg_dark, fg = p.fg_dim, gui = "bold" },
-				b = { bg = p.bg_dark, fg = p.fg_dim },
-				c = { bg = p.bg_dark, fg = p.fg_dim },
-			},
-		}
-
-		-- 4. Setup Lualine
 		require("lualine").setup({
 			options = {
-				theme = custom_theme, -- Using your custom theme
-				component_separators = { left = "|", right = "|" },
-				section_separators = { left = "", right = "" },
+				-- The IDE theme when it's active, otherwise derive from the colorscheme
+				theme = vim.g.colors_name == "jetbrains" and "jetbrains" or "auto",
+				component_separators = "",
+				section_separators = "",
 				globalstatus = true,
-				disabled_filetypes = { statusline = { "dashboard", "alpha", "starter" } },
+				disabled_filetypes = { statusline = { "snacks_dashboard" } },
 			},
 			sections = {
 				lualine_a = {
-					{ "mode", separator = { left = "" }, right_padding = 2 },
+					{ "mode", fmt = function(m) return m:sub(1, 1) end, padding = 1 },
 				},
-				lualine_b = {
-					"branch",
-					{ "diff", colored = true },
-				},
+				lualine_b = {},
 				lualine_c = {
-					{ "filename", path = 1 },
+					{ breadcrumbs, padding = { left = 1, right = 0 } },
 				},
 				lualine_x = {
 					{
 						"diagnostics",
 						sources = { "nvim_diagnostic" },
-						symbols = { error = " ", warn = " ", info = " " },
-						diagnostics_color = {
-							error = { fg = p.diag_err },
-							warn = { fg = p.diag_warn },
-							info = { fg = p.diag_info },
-						},
+						symbols = { error = "\u{ea87} ", warn = "\u{ea6c} ", info = "\u{ea74} ", hint = "\u{ea61} " },
 					},
-					"filetype",
+					{ lsp_names },
+					{ function() return vim.fn.line(".") .. ":" .. vim.fn.virtcol(".") end },
+					{ "fileformat", symbols = { unix = "LF", dos = "CRLF", mac = "CR" } },
+					{ "encoding", fmt = string.upper },
+					{ indent },
 				},
-				lualine_y = { "progress" },
-				lualine_z = {
-					{ "location", separator = { right = "" }, left_padding = 2 },
+				lualine_y = {
+					{ "branch", icon = "\u{e725}" },
 				},
+				lualine_z = {},
 			},
+			extensions = { "neo-tree", "lazy", "mason", "trouble" },
 		})
 	end,
 }

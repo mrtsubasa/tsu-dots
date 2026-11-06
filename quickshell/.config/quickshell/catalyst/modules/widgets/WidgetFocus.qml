@@ -66,7 +66,7 @@ Item {
             Ring {
                 anchors.centerIn: parent
                 size: Math.min(parent.width, parent.height)
-                thickness: 6
+                thickness: Math.max(7, size * 0.07)
                 alert: false
                 tone: root.done ? Theme.warning : (root.running ? Theme.accent : Theme.textSub)
                 value: 1 - root.remaining / Math.max(1, root.duration)

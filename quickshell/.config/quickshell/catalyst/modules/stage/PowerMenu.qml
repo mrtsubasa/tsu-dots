@@ -17,8 +17,8 @@ FocusScope {
     id: root
 
     // largeur = contenu le plus large (aucune ligne ne déborde du cadre)
-    implicitWidth: Math.max(row.implicitWidth, schedRow.implicitWidth + 24, updRow.implicitWidth + 24, 560) + 48
-    implicitHeight: col.implicitHeight + 40
+    implicitWidth: Math.max(row.implicitWidth, schedRow.implicitWidth + 24, updRow.implicitWidth + 24, 600) + 48
+    implicitHeight: col.implicitHeight + 48
 
     property int current: 0
     property string armed: ""
@@ -27,7 +27,7 @@ FocusScope {
     readonly property var actions: [
         { id: "lock", key: "L", icon: "lock", label: "Verrouiller", danger: false, pause: true, cmd: ["loginctl", "lock-session"] },
         { id: "suspend", key: "S", icon: "bedtime", label: "Veille", danger: false, pause: true, cmd: ["systemctl", "suspend"] },
-        { id: "logout", key: "D", icon: "logout", label: "Déconnexion", danger: true, cmd: ["hyprctl", "dispatch", "exit"] },
+        { id: "logout", key: "D", icon: "logout", label: "Déconnexion", danger: true, cmd: ["hyprctl", "dispatch", "hl.dsp.exit()"] },
         { id: "reboot", key: "R", icon: "restart_alt", label: "Redémarrer", danger: true, cmd: ["systemctl", "reboot"] },
         { id: "poweroff", key: "E", icon: "power_settings_new", label: "Éteindre", danger: true, cmd: ["systemctl", "poweroff"] }
     ]
@@ -95,143 +95,278 @@ FocusScope {
 
     readonly property bool destructiveArmed: ["logout", "reboot", "poweroff", "update-reboot", "uefi"].indexOf(armed) >= 0
 
+    SystemClock {
+        id: clock
+        precision: SystemClock.Minutes
+    }
+
+    readonly property var utils: [
+        { id: "screens", icon: "desktop_access_disabled", label: "Écrans off", key: "O", run: () => SessionCtl.screensOff() },
+        { id: "uefi", icon: "memory", label: "Vers l'UEFI", key: "U", run: () => root.guarded("uefi", SessionCtl.rebootFirmware) },
+        { id: "shell", icon: "refresh", label: "Relancer le shell", key: "", run: () => SessionCtl.restartShell() }
+    ]
+
     ColumnLayout {
         id: col
         anchors.centerIn: parent
         width: root.implicitWidth - 48
-        spacing: 16
+        spacing: 18
 
         // ---------------- identité ----------------
-        ColumnLayout {
-            Layout.alignment: Qt.AlignHCenter
-            spacing: 3
-            Art {
-                Layout.alignment: Qt.AlignHCenter
-                Layout.bottomMargin: 10
-                Layout.preferredWidth: 72
-                Layout.preferredHeight: 72
-                source: Identity.hasAvatar ? Identity.avatar : ""
-                radius: Identity.avatarShape === "square" ? Tokens.rMd : (Identity.avatarShape === "soft" ? Tokens.rLg : 36)
-                fallbackIcon: "person"
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 16
 
+            Item {
+                implicitWidth: 70
+                implicitHeight: 70
+                readonly property real r: Identity.avatarShape === "square" ? Tokens.rMd : (Identity.avatarShape === "soft" ? Tokens.rLg : 35)
                 Rectangle {
                     anchors.fill: parent
-                    anchors.margins: -3
-                    radius: parent.radius + 3
+                    radius: parent.r + 4
                     color: "transparent"
                     border.width: 2
                     border.color: root.destructiveArmed ? Theme.error : Theme.accent
                     Behavior on border.color { ColorAnimation { duration: Motion.dur(Motion.fast) } }
                 }
+                Art {
+                    anchors.fill: parent
+                    anchors.margins: 5
+                    source: Identity.hasAvatar ? Identity.avatar : ""
+                    radius: Math.max(0, parent.r - 1)
+                    fallbackIcon: "person"
+                }
+                // pastille d'état
+                Rectangle {
+                    anchors.right: parent.right
+                    anchors.bottom: parent.bottom
+                    anchors.margins: 3
+                    width: 14
+                    height: 14
+                    radius: 7
+                    color: root.destructiveArmed ? Theme.error : Theme.success
+                    border.width: 3
+                    border.color: Theme.s1
+                }
             }
-            Txt {
-                Layout.alignment: Qt.AlignHCenter
-                role: "overline"
-                text: "// session · " + Identity.userLogin + "@" + Identity.hostName
-                color: Theme.accent
+
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 3
+                Txt {
+                    role: "overline"
+                    text: "// session · " + Identity.userLogin + "@" + Identity.hostName
+                    color: root.destructiveArmed ? Theme.error : Theme.accent
+                }
+                Txt {
+                    Layout.fillWidth: true
+                    role: "hero"
+                    text: root.destructiveArmed ? "Confirmer ?" : "À bientôt, " + Identity.userName
+                }
+                Row {
+                    Layout.topMargin: 4
+                    spacing: 6
+                    Repeater {
+                        model: [
+                            { icon: "schedule", text: SysInfo.uptime.replace("min", "") },
+                            { icon: "memory_alt", text: Identity.kernelText.length ? Identity.kernelText.split("-")[0] : "" },
+                            { icon: "select_window", text: root.windows + " fenêtre" + (root.windows > 1 ? "s" : "") }
+                        ].filter(c => c.text.length)
+                        Rectangle {
+                            required property var modelData
+                            height: 22
+                            width: chip.implicitWidth + 16
+                            radius: 11
+                            color: Qt.alpha(Theme.text, 0.05)
+                            border.width: 1
+                            border.color: Theme.border
+                            Row {
+                                id: chip
+                                anchors.centerIn: parent
+                                spacing: 5
+                                Icon { anchors.verticalCenter: parent.verticalCenter; name: parent.parent.modelData.icon; size: 13; color: Theme.textSub }
+                                Txt { anchors.verticalCenter: parent.verticalCenter; role: "mono"; font.pixelSize: 10; text: parent.parent.modelData.text; color: Theme.textSub }
+                            }
+                        }
+                    }
+                }
             }
-            Txt {
-                Layout.alignment: Qt.AlignHCenter
-                role: "hero"
-                text: root.destructiveArmed ? "Confirmer ?" : "À bientôt, " + Identity.userName
-            }
-            Txt {
-                Layout.alignment: Qt.AlignHCenter
-                role: "mono"
-                font.pixelSize: 11
-                color: Theme.textFaint
-                text: "actif depuis " + SysInfo.uptime.replace("min", "") + "  ·  " + (Identity.kernelText.length ? "noyau " + Identity.kernelText.split("-")[0] + "  ·  " : "") + root.windows + " fenêtre" + (root.windows > 1 ? "s" : "") + " ouverte" + (root.windows > 1 ? "s" : "")
+
+            ColumnLayout {
+                Layout.alignment: Qt.AlignTop
+                spacing: 0
+                Txt {
+                    Layout.alignment: Qt.AlignRight
+                    role: "display"
+                    text: Qt.formatTime(clock.date, "HH:mm")
+                    font.pixelSize: 34
+                }
+                Txt {
+                    Layout.alignment: Qt.AlignRight
+                    role: "overline"
+                    text: ["dim", "lun", "mar", "mer", "jeu", "ven", "sam"][clock.date.getDay()] + " " + clock.date.getDate() + " " + ["janv", "févr", "mars", "avr", "mai", "juin", "juil", "août", "sept", "oct", "nov", "déc"][clock.date.getMonth()]
+                    color: Theme.textFaint
+                }
             }
         }
 
         // ---------------- actions principales ----------------
-        Row {
+        RowLayout {
             id: row
-            Layout.alignment: Qt.AlignHCenter
+            Layout.fillWidth: true
+            Layout.bottomMargin: 6
             spacing: 10
 
             Repeater {
                 model: root.actions
-
-                Item {
-                    id: act
+                PowerTile {
                     required property var modelData
                     required property int index
-                    readonly property bool isArmed: root.armed === modelData.id
-                    readonly property bool focused: root.current === index
-                    width: 108
-                    height: 112
+                    Layout.fillWidth: true
+                    icon: modelData.icon
+                    label: modelData.label
+                    key: modelData.key
+                    danger: modelData.danger
+                    focused: root.current === index
+                    armed: root.armed === modelData.id
+                    onClicked: root.trigger(index)
+                    onHovered: root.current = index
+                }
+            }
+        }
 
-                    Rectangle {
-                        anchors.fill: parent
-                        radius: Tokens.rLg
-                        color: act.isArmed ? Qt.alpha(Theme.error, 0.18) : (act.focused ? Theme.s4 : Theme.s3)
-                        border.width: 1
-                        border.color: act.isArmed ? Theme.error : (act.focused ? Qt.alpha(Theme.accent, 0.6) : Theme.border)
-                        Behavior on color { ColorAnimation { duration: Motion.dur(Motion.fast) } }
-                        scale: area.pressed ? 0.96 : 1
-                        Behavior on scale { NumberAnimation { duration: Motion.dur(Motion.instant) } }
+        // avertissement / aide
+        Item {
+            Layout.fillWidth: true
+            implicitHeight: 22
 
-                        StateLayer {
-                            id: area
+            Rectangle {
+                visible: root.destructiveArmed
+                anchors.centerIn: parent
+                height: 26
+                width: warn.implicitWidth + 24
+                radius: 13
+                color: Qt.alpha(Theme.error, 0.12)
+                border.width: 1
+                border.color: Qt.alpha(Theme.error, 0.35)
+                Row {
+                    id: warn
+                    anchors.centerIn: parent
+                    spacing: 6
+                    Icon { anchors.verticalCenter: parent.verticalCenter; name: "warning"; size: 14; fill: 1; color: Theme.error }
+                    Txt {
+                        anchors.verticalCenter: parent.verticalCenter
+                        role: "caption"
+                        color: Theme.error
+                        text: {
+                            if (root.armed === "uefi")
+                                return "Redémarrer vers le BIOS/UEFI — " + root.windows + " fenêtre(s) seront fermées. Clique encore pour confirmer.";
+                            if (root.armed === "update-reboot")
+                                return "Mise à jour puis redémarrage automatique. Clique encore pour confirmer.";
+                            return root.windows > 0 ? root.windows + " fenêtre" + (root.windows > 1 ? "s ouvertes seront fermées" : " ouverte sera fermée") + " — clique encore pour confirmer." : "Clique encore pour confirmer.";
+                        }
+                    }
+                }
+            }
+
+            Row {
+                visible: !root.destructiveArmed
+                anchors.centerIn: parent
+                spacing: 14
+                Repeater {
+                    model: [
+                        { keys: ["←", "→"], text: "choisir" },
+                        { keys: ["↵"], text: "valider" },
+                        { keys: ["Échap"], text: "fermer" },
+                        { keys: [], text: "musique en pause avant verrouillage et veille" }
+                    ]
+                    Row {
+                        id: hint
+                        required property var modelData
+                        spacing: 4
+                        Repeater {
+                            model: hint.modelData.keys
+                            Rectangle {
+                                required property string modelData
+                                anchors.verticalCenter: parent.verticalCenter
+                                height: 16
+                                width: Math.max(16, k.implicitWidth + 8)
+                                radius: 4
+                                color: Theme.s3
+                                border.width: 1
+                                border.color: Theme.borderStrong
+                                Txt { id: k; anchors.centerIn: parent; role: "mono"; font.pixelSize: 9; text: parent.modelData; color: Theme.textSub }
+                            }
+                        }
+                        Icon { visible: hint.modelData.keys.length === 0; anchors.verticalCenter: parent.verticalCenter; name: "music_note"; size: 12; color: Theme.textFaint }
+                        Txt { anchors.verticalCenter: parent.verticalCenter; role: "caption"; font.pixelSize: 10; text: hint.modelData.text; color: Theme.textFaint }
+                    }
+                }
+            }
+        }
+
+        // ---------------- actions avancées : capsule ----------------
+        Rectangle {
+            Layout.fillWidth: true
+            implicitHeight: 40
+            radius: 20
+            color: Theme.s2
+            border.width: 1
+            border.color: Theme.border
+
+            RowLayout {
+                anchors.fill: parent
+                anchors.margins: 3
+                spacing: 0
+                Repeater {
+                    model: root.utils
+                    Item {
+                        id: ut
+                        required property var modelData
+                        required property int index
+                        readonly property bool isArmed: root.armed === modelData.id
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+
+                        Rectangle {
                             anchors.fill: parent
-                            radius: parent.radius
-                            onClicked: root.trigger(act.index)
-                            onContainsMouseChanged: if (containsMouse) root.current = act.index
+                            radius: height / 2
+                            color: ut.isArmed ? Qt.alpha(Theme.error, 0.16) : "transparent"
                         }
-
-                        // touche
+                        StateLayer {
+                            anchors.fill: parent
+                            radius: height / 2
+                            tone: ut.isArmed ? Theme.error : Theme.text
+                            onClicked: ut.modelData.run()
+                        }
                         Rectangle {
-                            anchors.top: parent.top
-                            anchors.right: parent.right
-                            anchors.margins: 7
-                            width: 18
-                            height: 18
-                            radius: 5
-                            color: "transparent"
-                            border.width: 1
-                            border.color: Theme.border
-                            opacity: act.focused ? 1 : 0.55
-                            Txt {
-                                anchors.centerIn: parent
-                                role: "mono"
-                                font.pixelSize: 10
-                                text: act.modelData.key
-                                color: Theme.textSub
-                            }
-                        }
-
-                        ColumnLayout {
-                            anchors.centerIn: parent
-                            spacing: 10
-                            Icon {
-                                Layout.alignment: Qt.AlignHCenter
-                                name: act.modelData.icon
-                                size: 30
-                                fill: act.focused ? 1 : 0
-                                color: act.isArmed || (act.modelData.danger && act.focused) ? Theme.error : (act.focused ? Theme.accent : Theme.text)
-                            }
-                            Txt {
-                                Layout.alignment: Qt.AlignHCenter
-                                role: "label"
-                                text: act.isArmed ? "Confirmer" : act.modelData.label
-                                color: act.isArmed ? Theme.error : Theme.text
-                            }
-                        }
-
-                        Rectangle {
-                            visible: act.isArmed
-                            anchors.bottom: parent.bottom
+                            visible: ut.index > 0
                             anchors.left: parent.left
-                            anchors.margins: 10
-                            height: 2
-                            radius: 1
-                            color: Theme.error
-                            NumberAnimation on width {
-                                running: act.isArmed
-                                from: 88
-                                to: 0
-                                duration: 4000
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: 1
+                            height: 16
+                            color: Theme.divider
+                        }
+                        Row {
+                            anchors.centerIn: parent
+                            spacing: 7
+                            Icon { anchors.verticalCenter: parent.verticalCenter; name: ut.modelData.icon; size: 16; color: ut.isArmed ? Theme.error : Theme.textSub }
+                            Txt {
+                                anchors.verticalCenter: parent.verticalCenter
+                                role: "label"
+                                text: ut.isArmed ? "Confirmer l'UEFI" : ut.modelData.label
+                                color: ut.isArmed ? Theme.error : Theme.text
+                            }
+                            Rectangle {
+                                visible: ut.modelData.key.length > 0
+                                anchors.verticalCenter: parent.verticalCenter
+                                width: 16
+                                height: 16
+                                radius: 4
+                                color: "transparent"
+                                border.width: 1
+                                border.color: Theme.borderStrong
+                                Txt { anchors.centerIn: parent; role: "mono"; font.pixelSize: 9; text: ut.modelData.key; color: Theme.textFaint }
                             }
                         }
                     }
@@ -239,80 +374,60 @@ FocusScope {
             }
         }
 
-        // avertissement / aide
-        Txt {
-            Layout.alignment: Qt.AlignHCenter
-            role: "caption"
-            color: root.destructiveArmed ? Theme.error : Theme.textFaint
-            text: {
-                if (root.armed === "uefi")
-                    return "Redémarrer vers le BIOS/UEFI — " + root.windows + " fenêtre(s) seront fermées. Clique encore pour confirmer.";
-                if (root.armed === "update-reboot")
-                    return "Mise à jour puis redémarrage automatique. Clique encore pour confirmer.";
-                if (root.destructiveArmed)
-                    return root.windows > 0 ? root.windows + " fenêtre" + (root.windows > 1 ? "s ouvertes seront fermées" : " ouverte sera fermée") + " — clique encore pour confirmer." : "Clique encore pour confirmer.";
-                return "Lettres ou ← → puis Entrée  ·  la musique est mise en pause avant verrouillage et veille";
-            }
-        }
-
-        Divider { Layout.fillWidth: true }
-
-        // ---------------- actions avancées ----------------
-        Flow {
-            Layout.alignment: Qt.AlignHCenter
-            spacing: 8
-
-            Button {
-                variant: "secondary"
-                icon: "desktop_access_disabled"
-                text: "Éteindre les écrans  ·  O"
-                onClicked: SessionCtl.screensOff()
-            }
-            Button {
-                variant: root.armed === "uefi" ? "danger" : "secondary"
-                icon: "memory"
-                text: root.armed === "uefi" ? "Confirmer l'UEFI" : "Redémarrer vers l'UEFI  ·  U"
-                onClicked: root.guarded("uefi", SessionCtl.rebootFirmware)
-            }
-            Button {
-                variant: "secondary"
-                icon: "refresh"
-                text: "Relancer le shell"
-                onClicked: SessionCtl.restartShell()
-            }
-        }
-
         // ---------------- extinction programmée ----------------
         Pane {
             Layout.fillWidth: true
-            implicitHeight: 52
-            level: 3
+            implicitHeight: 58
+            level: 2
             glass: false
             radius: Tokens.rLg
             tint: SessionCtl.scheduled ? Qt.alpha(Theme.warning, 0.08) : "transparent"
+            borderColor: SessionCtl.scheduled ? Qt.alpha(Theme.warning, 0.35) : Theme.border
 
             RowLayout {
                 id: schedRow
                 anchors.fill: parent
-                anchors.leftMargin: 14
-                anchors.rightMargin: 8
-                spacing: 10
+                anchors.leftMargin: 12
+                anchors.rightMargin: 10
+                spacing: 12
 
-                Icon { name: "timer"; size: 20; color: SessionCtl.scheduled ? Theme.warning : Theme.textSub }
+                Rectangle {
+                    Layout.preferredWidth: 34
+                    Layout.preferredHeight: 34
+                    radius: Tokens.rMd
+                    color: SessionCtl.scheduled ? Qt.alpha(Theme.warning, 0.18) : Qt.alpha(Theme.text, 0.05)
+                    Icon { anchors.centerIn: parent; name: "timer"; size: 18; fill: SessionCtl.scheduled ? 1 : 0; color: SessionCtl.scheduled ? Theme.warning : Theme.textSub }
+                }
                 ColumnLayout {
                     Layout.fillWidth: true
                     spacing: 0
-                    Txt { role: "label"; text: SessionCtl.scheduled ? (SessionCtl.shutdownKind === "reboot" ? "Redémarrage dans " : "Extinction dans ") + SessionCtl.remainingText : "Extinction programmée"; font.weight: Font.DemiBold }
+                    Txt { role: "label"; text: SessionCtl.scheduled ? (SessionCtl.shutdownKind === "reboot" ? "Redémarrage dans " : "Extinction dans ") + SessionCtl.remainingText : "Extinction programmée"; font.weight: Font.DemiBold; color: SessionCtl.scheduled ? Theme.warning : Theme.text }
                     Txt { role: "caption"; text: SessionCtl.scheduled ? "Prévue à " + Qt.formatTime(new Date(SessionCtl.shutdownAt), "HH:mm") + " · géré par systemd" : "Idéal pour s'endormir devant un film" }
                 }
-                Repeater {
-                    model: SessionCtl.scheduled ? [] : [15, 30, 60, 90]
-                    Button {
-                        required property int modelData
-                        variant: "ghost"
-                        height_: 30
-                        text: modelData + " min"
-                        onClicked: SessionCtl.schedule(modelData)
+                Row {
+                    visible: !SessionCtl.scheduled
+                    spacing: 4
+                    Repeater {
+                        model: [15, 30, 60, 90]
+                        Rectangle {
+                            id: pill
+                            required property int modelData
+                            width: 52
+                            height: 28
+                            radius: 14
+                            color: pt.containsMouse ? Qt.alpha(Theme.warning, 0.14) : Qt.alpha(Theme.text, 0.04)
+                            border.width: 1
+                            border.color: pt.containsMouse ? Qt.alpha(Theme.warning, 0.45) : Theme.border
+                            Behavior on color { ColorAnimation { duration: Motion.dur(Motion.fast) } }
+                            StateLayer { id: pt; anchors.fill: parent; radius: 14; hoverAlpha: 0; onClicked: SessionCtl.schedule(pill.modelData) }
+                            Txt {
+                                anchors.centerIn: parent
+                                role: "mono"
+                                font.pixelSize: 11
+                                text: pill.modelData + "m"
+                                color: pt.containsMouse ? Theme.warning : Theme.textSub
+                            }
+                        }
                     }
                 }
                 Button {
@@ -329,27 +444,32 @@ FocusScope {
         // ---------------- mises à jour ----------------
         Pane {
             Layout.fillWidth: true
-            implicitHeight: 52
-            level: 3
+            Layout.topMargin: -8
+            implicitHeight: 58
+            level: 2
             glass: false
             radius: Tokens.rLg
+            tint: SessionCtl.updates > 0 ? Qt.alpha(Theme.accent2, 0.06) : "transparent"
 
             RowLayout {
                 id: updRow
                 anchors.fill: parent
-                anchors.leftMargin: 14
-                anchors.rightMargin: 8
-                spacing: 8
+                anchors.leftMargin: 12
+                anchors.rightMargin: 10
+                spacing: 10
 
-                Item {
-                    implicitWidth: 20
-                    implicitHeight: 20
+                Rectangle {
+                    Layout.preferredWidth: 34
+                    Layout.preferredHeight: 34
+                    radius: Tokens.rMd
+                    color: SessionCtl.updates > 0 ? Qt.alpha(Theme.accent2, 0.16) : Qt.alpha(Theme.success, 0.12)
                     Spinner { anchors.centerIn: parent; visible: SessionCtl.checking; size: 18 }
                     Icon {
                         anchors.centerIn: parent
                         visible: !SessionCtl.checking
                         name: SessionCtl.updates > 0 ? "system_update_alt" : "verified"
-                        size: 20
+                        size: 18
+                        fill: 1
                         color: SessionCtl.updates > 0 ? Theme.accent2 : Theme.success
                     }
                 }
@@ -376,8 +496,9 @@ FocusScope {
                 }
                 Button {
                     visible: SessionCtl.updates > 0
-                    variant: "ghost"
+                    variant: "primary"
                     height_: 30
+                    icon: "download"
                     text: "Mettre à jour"
                     onClicked: SessionCtl.update(false)
                 }

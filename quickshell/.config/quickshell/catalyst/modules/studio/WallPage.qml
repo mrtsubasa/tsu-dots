@@ -13,11 +13,15 @@ ColumnLayout {
 
     property string target: ""     // "" = tous les écrans
     property string filter: ""
+    property string rating: "sfw"   // sfw | nsfw | all — SFW à chaque ouverture
+    property string kind: "all"     // image | live | all
 
     readonly property var shown: {
         const f = filter.trim().toLowerCase();
-        const all = Walls.files;
-        return f.length ? all.filter(p => p.toLowerCase().indexOf(f) >= 0) : all;
+        const r = rating, k = kind;
+        return Walls.files.filter(p => (r === "all" || Walls.isNsfw(p) === (r === "nsfw"))
+            && (k === "all" || Walls.isVideo(p) === (k === "live"))
+            && (!f.length || p.toLowerCase().indexOf(f) >= 0));
     }
 
     Component.onCompleted: Walls.scan()
@@ -101,10 +105,43 @@ ColumnLayout {
 
     SectionHeader {
         Layout.fillWidth: true
+        text: "Applications"
+    }
+    DiscordBg {
+        Layout.fillWidth: true
+    }
+
+    SectionHeader {
+        Layout.fillWidth: true
         text: "Bibliothèque  " + root.shown.length
         actionText: "Ouvrir le dossier"
         actionIcon: "folder_open"
         onAction: Quickshell.execDetached(["xdg-open", Walls.dir])
+    }
+
+    // filtres de la bibliothèque (rangée à part : la barre du haut est déjà pleine)
+    RowLayout {
+        spacing: 10
+        Segmented {
+            compact: true
+            model: [
+                { id: "sfw", label: "SFW", icon: "verified_user" },
+                { id: "nsfw", label: "NSFW", icon: "visibility_off" },
+                { id: "all", label: "Tous", icon: "apps" }
+            ]
+            current: root.rating
+            onSelected: id => root.rating = id
+        }
+        Segmented {
+            compact: true
+            model: [
+                { id: "image", label: "Images", icon: "image" },
+                { id: "live", label: "Animés", icon: "movie" },
+                { id: "all", label: "Tout", icon: "apps" }
+            ]
+            current: root.kind
+            onSelected: id => root.kind = id
+        }
     }
 
     Spinner { visible: Walls.scanning; Layout.alignment: Qt.AlignHCenter }
@@ -203,7 +240,19 @@ ColumnLayout {
                     anchors.fill: parent
                     radius: Tokens.rMd
                     hoverAlpha: 0.0
-                    onClicked: Walls.set(tile.modelData, root.target)
+                    onClicked: Walls.frame(tile.modelData, root.target)
+                }
+                // reclassement sfw ⇄ nsfw (au survol de la vignette)
+                HoverHandler { id: tileHover }
+                IconButton {
+                    anchors.left: parent.left
+                    anchors.top: parent.top
+                    anchors.margins: 6
+                    visible: tileHover.hovered
+                    icon: Walls.isNsfw(tile.modelData) ? "verified_user" : "visibility_off"
+                    variant: "tonal"
+                    tooltip: Walls.isNsfw(tile.modelData) ? "Déplacer vers SFW" : "Déplacer vers NSFW"
+                    onClicked: Walls.reclassify(tile.modelData, !Walls.isNsfw(tile.modelData))
                 }
             }
         }
@@ -223,36 +272,28 @@ ColumnLayout {
         }
     }
 
-    SectionHeader { Layout.fillWidth: true; text: "Sources en ligne" }
+    SectionHeader {
+        Layout.fillWidth: true
+        text: "Sources en ligne"
+        actionText: "Rofi (ancien)"
+        actionIcon: "terminal"
+        onAction: {
+            const s = Quickshell.env("HOME") + "/.config/niri/scripts/";
+            Quickshell.execDetached(["bash", s + "here.sh", "--", s + "wallhaven_wallpaper.sh"]);
+            PanelService.hide();
+        }
+    }
     Txt {
         Layout.fillWidth: true
         role: "caption"
         color: Theme.textFaint
         wrapMode: Text.WordWrap
-        text: "Ouvre tes scripts de téléchargement existants ; rien n'est récupéré tant que tu ne lances pas une source."
+        text: "Parcours Wallhaven et des sources anime directement ici — clic sur une miniature pour l'appliquer sur « "
+              + (root.target.length ? root.target : "tous les écrans") + " ». Tout est filtré SFW."
     }
-    Flow {
+
+    WallBrowser {
         Layout.fillWidth: true
-        spacing: 8
-        Repeater {
-            model: [
-                { label: "Wallhaven", cmd: "wallhaven_wallpaper.sh" },
-                { label: "Konachan", cmd: "konachan_wallpaper.sh" },
-                { label: "Yande.re", cmd: "yandere_wallpaper.sh" },
-                { label: "Gelbooru", cmd: "gelbooru_wallpaper.sh" },
-                { label: "Unsplash", cmd: "unsplash_wallpaper.sh" }
-            ]
-            Button {
-                required property var modelData
-                variant: "secondary"
-                icon: "travel_explore"
-                text: modelData.label
-                onClicked: {
-                    const s = Quickshell.env("HOME") + "/.config/niri/scripts/";
-                    Quickshell.execDetached(["bash", s + "here.sh", "--", s + modelData.cmd]);
-                    PanelService.hide();
-                }
-            }
-        }
+        target: root.target
     }
 }

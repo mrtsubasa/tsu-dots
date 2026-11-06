@@ -20,6 +20,8 @@ ColumnLayout {
     Component.onDestruction: Ifaces.fastUsers = Math.max(0, Ifaces.fastUsers - 1)
 
     PageHeader {
+        icon: "lan"
+        tone: Theme.accent2
         Layout.fillWidth: true
         title: "Réseau"
         subtitle: Net.online ? (Net.limited ? "Connectivité limitée" : "Connecté à Internet") : "Hors ligne"

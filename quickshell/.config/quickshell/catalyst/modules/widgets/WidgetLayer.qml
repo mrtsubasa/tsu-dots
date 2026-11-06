@@ -36,12 +36,17 @@ Item {
         clock: "WidgetClock.qml",
         calendar: "WidgetCalendar.qml",
         sys: "WidgetSys.qml",
+        rings: "WidgetRings.qml",
         media: "WidgetMedia.qml",
+        mediaOrbit: "WidgetMediaOrbit.qml",
         focus: "WidgetFocus.qml",
         notes: "WidgetNotes.qml",
         weather: "WidgetWeather.qml",
         launch: "WidgetLaunch.qml",
-        image: "WidgetImage.qml"
+        image: "WidgetImage.qml",
+        cava: "WidgetCava.qml",
+        net: "WidgetNet.qml",
+        gpu: "WidgetGpu.qml"
     })
 
     Repeater {

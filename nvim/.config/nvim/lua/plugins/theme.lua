@@ -9,7 +9,7 @@ local function get_colorscheme()
 			return vim.trim(name)
 		end
 	end
-	return "tokyonight"
+	return "jetbrains"
 end
 
 -- ============================================================================
@@ -222,7 +222,7 @@ return {
 			local scheme = get_colorscheme()
 			local ok, _ = pcall(vim.cmd.colorscheme, scheme)
 			if not ok then
-				vim.cmd.colorscheme("tokyonight")
+				vim.cmd.colorscheme("jetbrains")
 			end
 		end,
 	},

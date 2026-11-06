@@ -188,7 +188,8 @@ HEADER
         local mon="${monitor_array[$idx]}"
         local ws="${workspace_list[$idx]}"
         log_info "  Moving $mon → workspace $ws"
-        hyprctl --batch "dispatch focusmonitor $mon; dispatch workspace $ws" 2>/dev/null || true
+        hyprctl dispatch "hl.dsp.focus({ monitor = \"$mon\" })" 2>/dev/null || true
+        hyprctl dispatch "hl.dsp.focus({ workspace = $ws })" 2>/dev/null || true
         sleep 0.1
     done
 
@@ -219,7 +220,7 @@ switch_workspace() {
     local base_offset=$(calculate_offset "$monitor_index")
     local target_ws=$((base_offset + target))
 
-    hyprctl dispatch workspace "$target_ws"
+    hyprctl dispatch "hl.dsp.focus({ workspace = $target_ws })"
 }
 
 move_to_workspace() {
@@ -234,7 +235,7 @@ move_to_workspace() {
     local base_offset=$(calculate_offset "$monitor_index")
     local target_ws=$((base_offset + target))
 
-    hyprctl dispatch movetoworkspace "$target_ws"
+    hyprctl dispatch "hl.dsp.window.move({ workspace = $target_ws })"
 }
 
 move_to_workspace_silent() {
@@ -249,7 +250,7 @@ move_to_workspace_silent() {
     local base_offset=$(calculate_offset "$monitor_index")
     local target_ws=$((base_offset + target))
 
-    hyprctl dispatch movetoworkspacesilent "$target_ws"
+    hyprctl dispatch "hl.dsp.window.move({ workspace = $target_ws, follow = false })"
 }
 
 navigate() {
@@ -274,7 +275,7 @@ navigate() {
     fi
 
     local target_ws=$((base_offset + new_relative))
-    hyprctl dispatch workspace "$target_ws"
+    hyprctl dispatch "hl.dsp.focus({ workspace = $target_ws })"
 }
 
 move_and_navigate() {
@@ -299,7 +300,7 @@ move_and_navigate() {
     fi
 
     local target_ws=$((base_offset + new_relative))
-    hyprctl dispatch movetoworkspace "$target_ws"
+    hyprctl dispatch "hl.dsp.window.move({ workspace = $target_ws })"
 }
 
 status() {

@@ -43,6 +43,6 @@ setup_theming() {
     mkdir -p "$HOME/.cache/matugen"
     mkdir -p "$HOME/.local/share/color-schemes"
     mkdir -p "$HOME/.config/matugen"
-    ln -sf "$HOME/.lyne-dots/.data/matugen/config.toml" "$HOME/.config/matugen/config.toml"
+    ln -sf "$HOME/.tsu-dots/.data/matugen/config.toml" "$HOME/.config/matugen/config.toml"
     echo "[OK] Matugen configured!"
 }

@@ -74,7 +74,7 @@ Scope {
             function focusWin(t) {
                 PanelService.hide();
                 if (t)
-                    Hyprland.dispatch("focuswindow address:0x" + t.address.replace(/^0x/, ""));
+                    Hyprland.dispatch("hl.dsp.focus({ window = \"address:0x" + t.address.replace(/^0x/, "") + "\" })");
             }
 
             // fond
@@ -195,7 +195,7 @@ Scope {
                                                 anchors.fill: parent
                                                 onClicked: {
                                                     PanelService.hide();
-                                                    Hyprland.dispatch(wsCard.special ? "togglespecialworkspace " + wsCard.ws.name.replace("special:", "") : "workspace " + wsCard.ws.id);
+                                                    Hyprland.dispatch(wsCard.special ? "hl.dsp.workspace.toggle_special(\"" + wsCard.ws.name.replace("special:", "") + "\")" : "hl.dsp.focus({ workspace = " + wsCard.ws.id + " })");
                                                 }
                                             }
 
@@ -205,7 +205,7 @@ Scope {
                                                 onDropped: {
                                                     const t = win.dragging;
                                                     if (t)
-                                                        Hyprland.dispatch("movetoworkspacesilent " + (wsCard.special ? wsCard.ws.name : wsCard.ws.id) + ",address:0x" + t.address.replace(/^0x/, ""));
+                                                        Hyprland.dispatch("hl.dsp.window.move({ workspace = " + (wsCard.special ? "\"" + wsCard.ws.name + "\"" : wsCard.ws.id) + ", follow = false, window = \"address:0x" + t.address.replace(/^0x/, "") + "\" })");
                                                     win.dragging = null;
                                                     Qt.callLater(Hyprland.refreshToplevels);
                                                 }

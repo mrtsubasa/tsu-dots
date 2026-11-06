@@ -19,6 +19,8 @@ ColumnLayout {
     }
 
     PageHeader {
+        icon: "videocam"
+        tone: Theme.signature
         Layout.fillWidth: true
         title: "Micro & visio"
         subtitle: Audio.sourceReady ? Audio.inputName : "Aucun micro"

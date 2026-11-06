@@ -38,11 +38,16 @@ Singleton {
         { type: "clock", label: "Horloge", glyph: "󰥔", icon: "schedule", w: 380, h: 200 },
         { type: "calendar", label: "Calendrier", glyph: "󰃭", icon: "calendar_month", w: 300, h: 300 },
         { type: "sys", label: "Système", glyph: "󰒳", icon: "monitoring", w: 340, h: 220 },
+        { type: "rings", label: "Ressources (anneaux)", glyph: "󰓅", icon: "data_usage", w: 360, h: 220 },
         { type: "media", label: "Lecteur", glyph: "󰝚", icon: "music_note", w: 400, h: 190 },
+        { type: "mediaOrbit", label: "Lecteur (disque)", glyph: "󰋼", icon: "album", w: 420, h: 200 },
         { type: "focus", label: "Minuteur", glyph: "󰔛", icon: "timer", w: 300, h: 240 },
         { type: "notes", label: "Notes", glyph: "󰎚", icon: "sticky_note_2", w: 320, h: 240 },
         { type: "weather", label: "Météo", glyph: "󰖐", icon: "partly_cloudy_day", w: 300, h: 150 },
         { type: "launch", label: "Raccourcis dev", glyph: "󰘔", icon: "rocket_launch", w: 320, h: 170 },
+        { type: "cava", label: "Visualiseur audio", glyph: "󰝚", icon: "graphic_eq", w: 360, h: 180 },
+        { type: "net", label: "Réseau", glyph: "󰤨", icon: "network_check", w: 320, h: 180 },
+        { type: "gpu", label: "GPU", glyph: "󰢮", icon: "developer_board", w: 360, h: 200 },
         { type: "image", label: "Image", glyph: "󰋩", icon: "image", w: 300, h: 300 }
     ]
 

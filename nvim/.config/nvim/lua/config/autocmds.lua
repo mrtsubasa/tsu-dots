@@ -39,9 +39,33 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 	desc = "Flash text on yank",
 	group = vim.api.nvim_create_augroup("highlight_yank", { clear = true }),
 	callback = function()
-		vim.highlight.on_yank({
+		vim.hl.on_yank({
 			higroup = "IncSearch", -- Highlight color (IncSearch inverts colors for high contrast)
 			timeout = 150, -- Effect duration in milliseconds
 		})
+	end,
+})
+
+-- LANGUAGE INDENT DEFAULTS
+-- Go fmt requires tabs. Rust/TS stay on the global expandtab=true / shiftwidth=4.
+vim.api.nvim_create_autocmd("FileType", {
+	pattern = "go",
+	group = vim.api.nvim_create_augroup("go_indent", { clear = true }),
+	callback = function()
+		vim.bo.expandtab = false
+		vim.bo.tabstop = 4
+		vim.bo.shiftwidth = 4
+		vim.bo.softtabstop = 4
+	end,
+})
+
+vim.api.nvim_create_autocmd("FileType", {
+	pattern = { "javascript", "typescript", "javascriptreact", "typescriptreact", "json", "jsonc", "yaml", "html", "css" },
+	group = vim.api.nvim_create_augroup("web_indent", { clear = true }),
+	callback = function()
+		vim.bo.expandtab = true
+		vim.bo.tabstop = 2
+		vim.bo.shiftwidth = 2
+		vim.bo.softtabstop = 2
 	end,
 })

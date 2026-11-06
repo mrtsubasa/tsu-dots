@@ -11,6 +11,8 @@
   vpn.py set <uuid> neverdefault|autoconnect on|off
   vpn.py rename <uuid> <nom>
   vpn.py replace <uuid> <fichier>     répare : réimporte le fichier sous le même nom
+  vpn.py creds <uuid> <identifiant>   OpenVPN : enregistre login (arg) + mot de passe (stdin)
+  vpn.py clearcreds <uuid>            OpenVPN : oublie le mot de passe enregistré
   vpn.py delete <uuid>
 
 Une copie de chaque configuration importée est gardée dans
@@ -36,6 +38,7 @@ SHORT = {
     "org.freedesktop.NetworkManager.strongswan": "strongswan",
     "org.freedesktop.NetworkManager.fortisslvpn": "fortisslvpn",
     "org.freedesktop.NetworkManager.sstp": "sstp",
+    "org.freedesktop.NetworkManager.protun": "protonvpn",
 }
 
 
@@ -91,17 +94,37 @@ def cmd_list():
         nd = nm("-g", "ipv4.never-default", "connection", "show", uuid, check=False).strip()
         # fichiers (certificats, clés) référencés mais disparus → VPN inutilisable
         missing = []
+        need_login = False
+        has_login = False
         if ctype == "vpn":
             data = nm("-g", "vpn.data", "connection", "show", uuid, check=False)
             for m in re.finditer(r"(?:^|,\s*)(?:ca|cert|key|ta|tls-crypt)\s*=\s*(/[^,]+)", data):
                 if not Path(m.group(1).strip()).is_file():
                     missing.append(m.group(1).strip())
-        external = ctype == "wireguard" and (dev in ext or name in ext)
+            # OpenVPN à mot de passe (ProtonVPN, PIA…) : login/mot de passe requis
+            if kind == "openvpn":
+                mct = re.search(r"connection-type\s*=\s*([a-z-]+)", data)
+                need_login = (mct.group(1) if mct else "") in ("password", "password-tls")
+                has_login = bool(re.search(r"(?:^|,)\s*username\s*=\s*\S", data))
+        # ProtonVPN *de l'app officielle* : plugin NM « protun » → lecture seule
+        # (l'app gère le serveur). La WireGuard « ProtonVPN » que le hub génère
+        # lui-même reste une connexion normale, toggleable (pas marquée proton ici).
+        is_proton = (kind == "protonvpn") or dev == "protun"
+        wg_external = ctype == "wireguard" and (dev in ext or name in ext)
+        external = wg_external or is_proton
+        if is_proton:
+            label = "ProtonVPN"
+        elif wg_external and name.startswith("wt"):
+            label = "NetBird"
+        elif wg_external and name.startswith("tailscale"):
+            label = "Tailscale"
+        else:
+            label = name
         items.append({
             "name": name, "uuid": uuid, "type": kind, "active": active == "yes",
             "autoconnect": auto == "yes", "neverDefault": nd in ("yes", "oui"),
-            "external": external, "device": dev, "missing": missing,
-            "label": "NetBird" if external and name.startswith("wt") else ("Tailscale" if external and name.startswith("tailscale") else name),
+            "external": external, "proton": is_proton, "device": dev, "missing": missing,
+            "needLogin": need_login, "hasLogin": has_login, "label": label,
         })
     items.sort(key=lambda x: (x["external"], not x["active"], x["name"].lower()))
     out(items)
@@ -299,6 +322,25 @@ def cmd_export(uuid, dest_dir):
     out({"ok": True, "path": str(target), "missing": MISSING})
 
 
+def cmd_creds(uuid, username):
+    """Enregistre les identifiants d'un OpenVPN à mot de passe (ProtonVPN, PIA…).
+    Login en argument, mot de passe lu sur stdin (jamais en argv du shell).
+    password-flags=0 : NetworkManager garde le secret, la connexion devient silencieuse.
+    """
+    pwd = sys.stdin.readline().rstrip("\n")
+    nm("connection", "modify", uuid, "+vpn.data", f"username={username}")
+    nm("connection", "modify", uuid, "+vpn.data", "password-flags=0")
+    nm("connection", "modify", uuid, "vpn.secrets", f"password={pwd}")
+    out({"ok": True})
+
+
+def cmd_clearcreds(uuid):
+    nm("connection", "modify", uuid, "-vpn.data", "username", check=False)
+    nm("connection", "modify", uuid, "+vpn.data", "password-flags=1", check=False)
+    nm("connection", "modify", uuid, "vpn.secrets", "", check=False)
+    out({"ok": True})
+
+
 def main(a):
     try:
         if len(a) < 2:
@@ -326,6 +368,10 @@ def main(a):
                 args += [p, "yes" if a[4] == "on" else "no"]
             nm("connection", "modify", a[2], *args)
             out({"ok": True})
+        elif c == "creds" and len(a) >= 4:
+            cmd_creds(a[2], a[3])
+        elif c == "clearcreds" and len(a) >= 3:
+            cmd_clearcreds(a[2])
         elif c == "replace" and len(a) >= 4:
             name = nm("-g", "connection.id", "connection", "show", a[2]).strip()
             nm("connection", "delete", a[2])
@@ -350,4 +396,6 @@ def main(a):
 
 
 if __name__ == "__main__":
+    # les fichiers écrits ici contiennent des clés privées : jamais lisibles par les autres
+    os.umask(0o077)
     sys.exit(main(sys.argv))

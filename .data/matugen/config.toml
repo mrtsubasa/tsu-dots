@@ -1,30 +1,43 @@
-# Matugen configuration for Lyne Dots
-# Generates Material You color schemes from wallpapers
+# Matugen — palette Material You générée depuis le wallpaper
+# Éditer les templates dans ~/.config/matugen/templates/ puis relancer:
+#   wallpaper.sh set <image>  (ou)  matugen image <image> -t scheme-content --prefer saturation
 
 [config]
-# Dark mode by default (matches the dotfiles dark theme)
-type = "scheme-tonal-spot"
+type = "scheme-content"
 
-[templates.gtk-colors]
-input_path = "~/.lyne-dots/.data/matugen/templates/gtk-colors.css"
-output_path = "~/.config/gtk-4.0/colors.css"
+[templates.waybar]
+input_path = '~/.config/matugen/templates/waybar.css'
+output_path = '~/.config/waybar/colors.css'
+
+[templates.swaync]
+input_path = '~/.config/matugen/templates/swaync.css'
+output_path = '~/.config/swaync/style.css'
+
+[templates.spell]
+input_path = '~/.config/matugen/templates/spell-colors.json'
+output_path = '~/.cache/matugen/spell-colors.json'
+
+[templates.hyprlock]
+input_path = '~/.config/matugen/templates/hyprlock-colors.conf'
+output_path = '~/.cache/matugen/hyprlock-colors.conf'
 
 [templates.gtk3-colors]
-input_path = "~/.lyne-dots/.data/matugen/templates/gtk-colors.css"
-output_path = "~/.config/gtk-3.0/colors.css"
+input_path = '~/.config/matugen/templates/gtk-colors.css'
+output_path = '~/.config/gtk-3.0/colors.css'
 
-[templates.kitty-theme]
-input_path = "~/.lyne-dots/.data/matugen/templates/kitty-theme.conf"
-output_path = "~/.config/kitty/current-theme.conf"
+[templates.gtk4-colors]
+input_path = '~/.config/matugen/templates/gtk-colors.css'
+output_path = '~/.config/gtk-4.0/colors.css'
 
-[templates.qt-colors]
-input_path = "~/.lyne-dots/.data/matugen/templates/qt-colors.colors"
-output_path = "~/.local/share/color-schemes/Lyne.colors"
+[templates.rofi]
+input_path = '~/.config/matugen/templates/rofi-colors.rasi'
+output_path = '~/.cache/matugen/rofi-colors.rasi'
 
-[templates.quickshell-palette]
-input_path = "~/.lyne-dots/.data/matugen/templates/quickshell-palette.json"
-output_path = "~/.cache/matugen/quickshell-palette.json"
+[templates.hypr]
+input_path = '~/.config/matugen/templates/hypr-colors.conf'
+output_path = '~/.cache/matugen/hypr-colors.conf'
 
-[templates.hyprland-colors]
-input_path = "~/.lyne-dots/.data/matugen/templates/hyprland-colors.json"
-output_path = "~/.cache/matugen/hyprland-colors.json"
+[templates.qt]
+input_path = '~/.config/matugen/templates/qt-colors.colors'
+output_path = '~/.local/share/color-schemes/Catalyst.colors'
+post_hook = 'python3 ~/.config/quickshell/catalyst/scripts/theme-sync.py --qt'

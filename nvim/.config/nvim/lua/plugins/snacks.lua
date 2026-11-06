@@ -15,7 +15,18 @@ return {
 		words = { enabled = true },
 		lazygit = { enabled = true },
 		scratch = { enabled = true },
-		terminal = { enabled = true },
+		-- Bottom "Terminal" tool window, like the IDE
+		terminal = {
+			enabled = true,
+			win = {
+				position = "bottom",
+				height = 0.3,
+				wo = {
+					winbar = "%#JBTerminalTitle#  Terminal  %#JBTerminalTab# Local %#JBTerminalBar#",
+					winhighlight = "Normal:JBTerminal,NormalNC:JBTerminal,WinBar:JBTerminalBar,WinBarNC:JBTerminalBar",
+				},
+			},
+		},
 
 		-- DASHBOARD CONFIGURATION
 		dashboard = {
@@ -184,7 +195,23 @@ return {
 			function()
 				Snacks.terminal()
 			end,
+			mode = { "n", "t" },
 			desc = "Toggle Terminal",
+		},
+		{
+			"<A-F12>",
+			function()
+				Snacks.terminal()
+			end,
+			mode = { "n", "t" },
+			desc = "Terminal Tool Window",
+		},
+		{
+			"<A-9>",
+			function()
+				Snacks.lazygit()
+			end,
+			desc = "Git Tool Window (Lazygit)",
 		},
 	},
 }

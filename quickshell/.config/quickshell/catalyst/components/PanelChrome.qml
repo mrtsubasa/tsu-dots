@@ -41,4 +41,32 @@ Rectangle {
             GradientStop { position: 0.3; color: Qt.rgba(1, 1, 1, 0) }
         }
     }
+
+    // halo d'accent discret dans le coin haut + fil de lumière
+    Rectangle {
+        x: -parent.width * 0.3
+        y: -parent.width * 0.55
+        width: parent.width * 0.9
+        height: width
+        radius: width / 2
+        enabled: false
+        opacity: 0.10
+        gradient: Gradient {
+            GradientStop { position: 0.0; color: Theme.accent }
+            GradientStop { position: 1.0; color: "transparent" }
+        }
+    }
+    Rectangle {
+        anchors.top: parent.top
+        anchors.horizontalCenter: parent.horizontalCenter
+        width: parent.width * 0.5
+        height: 1
+        enabled: false
+        gradient: Gradient {
+            orientation: Gradient.Horizontal
+            GradientStop { position: 0; color: "transparent" }
+            GradientStop { position: 0.5; color: Qt.alpha(Theme.accent, 0.55) }
+            GradientStop { position: 1; color: "transparent" }
+        }
+    }
 }

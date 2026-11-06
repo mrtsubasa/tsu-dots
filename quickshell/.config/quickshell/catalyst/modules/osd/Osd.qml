@@ -74,8 +74,8 @@ Scope {
             visible: progress > 0.001 && !SessionLock.locked
             exclusiveZone: 0
             exclusionMode: ExclusionMode.Ignore
-            implicitWidth: 340
-            implicitHeight: 80
+            implicitWidth: 360
+            implicitHeight: 82
             color: "transparent"
             WlrLayershell.namespace: "catalyst-osd"
             WlrLayershell.layer: WlrLayer.Overlay
@@ -84,8 +84,8 @@ Scope {
 
             Pane {
                 id: pill
-                width: 320
-                height: 56
+                width: 340
+                height: 58
                 anchors.horizontalCenter: parent.horizontalCenter
                 y: 12 + (1 - win.progress) * Motion.dy(14)
                 opacity: win.progress
@@ -94,26 +94,49 @@ Scope {
                 shadow: true
                 glow: true
 
+                readonly property color tone: root.muted ? Theme.textFaint : (root.mode === "volume" && root.value > 1.001 ? Theme.warning : (root.mode === "bright" ? Theme.warning : (root.mode === "mic" ? Theme.signature : Theme.accent)))
+
                 RowLayout {
                     anchors.fill: parent
-                    anchors.leftMargin: 18
+                    anchors.leftMargin: 9
                     anchors.rightMargin: 20
-                    spacing: 14
+                    spacing: 12
 
-                    Icon {
-                        name: root.icon
-                        size: 22
-                        fill: 1
-                        color: root.muted ? Theme.textFaint : (root.mode === "volume" && root.value > 1 ? Theme.warning : Theme.accent)
+                    // médaillon
+                    Rectangle {
+                        Layout.preferredWidth: 40
+                        Layout.preferredHeight: 40
+                        radius: 20
+                        color: root.muted ? Qt.alpha(Theme.text, 0.06) : pill.tone
+                        Behavior on color { ColorAnimation { duration: Motion.dur(Motion.fast) } }
+                        Icon {
+                            anchors.centerIn: parent
+                            name: root.icon
+                            size: 20
+                            fill: 1
+                            color: root.muted ? Theme.textFaint : Theme.onAccent
+                        }
                     }
 
                     ColumnLayout {
                         Layout.fillWidth: true
-                        spacing: 5
-                        Txt {
+                        spacing: 6
+                        RowLayout {
                             Layout.fillWidth: true
-                            role: "caption"
-                            text: root.muted ? root.label + " · muet" : root.label
+                            spacing: 6
+                            Txt {
+                                role: "overline"
+                                font.pixelSize: 9
+                                text: root.mode === "bright" ? "Luminosité" : (root.mode === "mic" ? "Micro" : "Volume")
+                                color: pill.tone
+                            }
+                            Txt {
+                                Layout.fillWidth: true
+                                role: "caption"
+                                font.pixelSize: 10
+                                color: Theme.textFaint
+                                text: root.mode === "bright" ? "" : (root.muted ? root.label + " · muet" : root.label)
+                            }
                         }
                         Item {
                             Layout.fillWidth: true
@@ -121,34 +144,53 @@ Scope {
                             Rectangle {
                                 anchors.fill: parent
                                 radius: 3
-                                color: Theme.s4
+                                color: Qt.alpha(Theme.text, 0.09)
                             }
                             // repère 100 % quand l'amplification est possible
                             Rectangle {
                                 visible: root.maximum > 1
                                 x: parent.width / root.maximum - 1
                                 width: 2
-                                height: parent.height + 4
-                                y: -2
+                                height: parent.height + 6
+                                y: -3
                                 radius: 1
                                 color: Theme.borderStrong
                             }
                             Rectangle {
+                                id: fill
                                 height: parent.height
                                 radius: 3
-                                width: parent.width * Math.max(0, Math.min(1, root.value / root.maximum))
-                                color: root.muted ? Theme.textFaint : (root.value > 1 ? Theme.warning : Theme.accent)
+                                width: Math.max(height, parent.width * Math.max(0, Math.min(1, root.value / root.maximum)))
+                                opacity: root.muted ? 0.4 : 1
                                 Behavior on width { NumberAnimation { duration: Motion.dur(Motion.fast) } }
+                                gradient: Gradient {
+                                    orientation: Gradient.Horizontal
+                                    GradientStop { position: 0; color: Qt.alpha(pill.tone, 0.5) }
+                                    GradientStop { position: 1; color: pill.tone }
+                                }
+                            }
+                            // tête lumineuse
+                            Rectangle {
+                                visible: !root.muted
+                                x: fill.width - width / 2 - 1
+                                anchors.verticalCenter: parent.verticalCenter
+                                width: 10
+                                height: 10
+                                radius: 5
+                                color: Theme.text
+                                border.width: 2
+                                border.color: pill.tone
                             }
                         }
                     }
 
                     Txt {
                         role: "mono"
-                        text: Math.round(root.value * 100) + "%"
-                        font.pixelSize: 13
+                        text: root.muted ? "—" : Math.round(root.value * 100) + "%"
+                        font.pixelSize: 15
                         font.weight: Font.DemiBold
-                        Layout.preferredWidth: 42
+                        color: root.mode === "volume" && root.value > 1.001 ? Theme.warning : Theme.text
+                        Layout.preferredWidth: 46
                         horizontalAlignment: Text.AlignRight
                     }
                 }

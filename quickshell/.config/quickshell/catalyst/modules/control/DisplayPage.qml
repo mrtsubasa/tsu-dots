@@ -14,6 +14,8 @@ ColumnLayout {
     Component.onCompleted: Night.refresh()
 
     PageHeader {
+        icon: "wb_sunny"
+        tone: Theme.warning
         Layout.fillWidth: true
         title: "Écran"
         subtitle: Night.active ? "Blanc appliqué : " + Night.currentK + " K" : "Couleurs neutres (6500 K)"

@@ -46,7 +46,7 @@ Item {
         const n = o && o.specialWorkspace ? String(o.specialWorkspace.name || "") : "";
         return n.replace(/^special:?/, "");
     }
-    readonly property bool hasSpecial: hyprMon !== null && hyprMon.lastIpcObject && hyprMon.lastIpcObject.specialWorkspace && hyprMon.lastIpcObject.specialWorkspace.id !== 0
+    readonly property bool hasSpecial: !!(hyprMon && hyprMon.lastIpcObject && hyprMon.lastIpcObject.specialWorkspace && hyprMon.lastIpcObject.specialWorkspace.name)
 
     Connections {
         target: Hyprland
@@ -201,7 +201,7 @@ Item {
         MouseArea {
             anchors.fill: parent
             cursorShape: Qt.PointingHandCursor
-            onClicked: Hyprland.dispatch("togglespecialworkspace " + root.special)
+            onClicked: Hyprland.dispatch("hl.dsp.workspace.toggle_special(\"" + root.special + "\")")
         }
     }
 }

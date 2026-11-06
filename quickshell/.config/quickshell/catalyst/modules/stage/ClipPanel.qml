@@ -38,15 +38,12 @@ FocusScope {
         anchors.margins: 16
         spacing: 12
 
-        RowLayout {
+        PanelHead {
             Layout.fillWidth: true
-            spacing: 10
-            ColumnLayout {
-                Layout.fillWidth: true
-                spacing: 0
-                Txt { role: "overline"; text: "// " + ShellCfg.brand; color: Theme.accent }
-                Txt { role: "title"; text: "Presse-papiers" }
-            }
+            icon: "content_paste"
+            overline: Clip.paused ? "en pause" : Clip.count + " entrée" + (Clip.count > 1 ? "s" : "")
+            title: "Presse-papiers"
+            tone: Clip.paused ? Theme.warning : Theme.accent
             Button {
                 variant: Clip.paused ? "primary" : "secondary"
                 icon: Clip.paused ? "play_arrow" : "pause"
@@ -133,7 +130,9 @@ FocusScope {
                 required property int index
                 width: list.width
                 rowHeight: 44
-                icon: modelData.image ? "image" : (/^https?:\/\//.test(modelData.text) ? "link" : "notes")
+                readonly property bool isLink: /^https?:\/\//.test(modelData.text)
+                icon: modelData.image ? "image" : (isLink ? "link" : "notes")
+                tone: modelData.image ? Theme.signature : (isLink ? Theme.accent2 : Theme.accent)
                 title: modelData.text.replace(/\s+/g, " ").slice(0, 160)
                 current: index === root.sel
                 onClicked: root.activate(index)
@@ -156,12 +155,20 @@ FocusScope {
             title: Clip.count === 0 ? "Historique vide" : "Aucun résultat"
         }
 
-        Txt {
+        Rectangle {
             Layout.fillWidth: true
-            role: "caption"
-            color: Theme.textFaint
-            text: "↑↓ choisir · Entrée copier · Suppr retirer · les mots de passe des gestionnaires (KeePassXC, Bitwarden…) ne sont jamais enregistrés"
-            wrapMode: Text.WordWrap
+            implicitHeight: 1
+            color: Theme.divider
+        }
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 10
+            KeyHints {
+                hints: [{ keys: ["↑", "↓"], text: "choisir" }, { keys: ["↵"], text: "copier" }, { keys: ["Suppr"], text: "retirer" }]
+            }
+            Item { Layout.fillWidth: true }
+            Icon { name: "shield_lock"; size: 13; color: Theme.textFaint }
+            Txt { role: "caption"; font.pixelSize: 10; text: "mots de passe jamais enregistrés"; color: Theme.textFaint }
         }
     }
 }

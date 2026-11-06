@@ -7,7 +7,7 @@ un moteur de thèmes ; chaque réglage est persistant et modifiable depuis le
 
 - Quickshell 0.3.2 · Hyprland 0.56 · Qt 6.12 · CachyOS
 - Lancement : `scripts/catalyst-session.sh` (autostart Hyprland), relance `Super+Alt+R`
-- Branche git : `tsubasa-catalyst` dans `~/.lyne-dots`
+- Branche git : `tsubasa-catalyst` dans `~/.tsu-dots`
 
 ---
 
@@ -27,6 +27,7 @@ un moteur de thèmes ; chaque réglage est persistant et modifiable depuis le
 | **Widgets** | Studio → Bureau | 9 types, mode édition avec magnétisme |
 | **OSD / Toasts** | automatique | capsule volume/micro/luminosité ; 3 notifications max à l'écran |
 | **Verrouillage** | `Super+Alt+L`, hypridle | hyprlock (PAM) aux couleurs du thème |
+| **Scène caméra** | item caméra de la barre → onglet Scène | compose webcam, écrans et images sur la caméra virtuelle : disposition à la souris, filtre et réglages par calque, aperçu en direct |
 | **Micro & visio** | tuile Mode visio, `Super+Alt+V` | micro traité (EasyEffects) / brut, vumètre, « m'écouter », mode visio, qui utilise micro / caméra / écran |
 | **Presse-papiers** | `Super+X` | recherche, copie, suppression, tout effacer, pause de l'enregistrement |
 | **Raccourcis** | launcher `:raccourcis` | générés depuis `keybinds.conf`, conflits signalés |
@@ -208,7 +209,7 @@ Noms de panneaux : `launcher control studio calendar media sysmon power
 overview kit ai vm scripts chat bots ops clip wall binds pkgs blackarch
 omarchy` (alias : `dashboard`→`control`, `atelier`→`studio`).
 Pages : `control` → `net bt out in eq power` · `studio` → `themes wall bar
-dock desk panels profiles`.
+dock desk panels profiles sekaipop`.
 
 ---
 
@@ -224,6 +225,64 @@ Aucune animation continue au repos ; la position média, les métriques rapides,
 le scan Wi-Fi et la découverte Bluetooth ne tournent que lorsqu'une surface
 les affiche. Les captures de la vue d'ensemble sont prises une seule fois à
 l'ouverture.
+
+---
+
+## Applis Qt/KDE (Dolphin…)
+
+`scripts/theme-sync.py` applique le thème aux applis Qt/KDE à chaque changement :
+`Catalyst.colors`, `kdeglobals` (dont `[UiSettings] ColorScheme`, la clé que Dolphin
+respecte), palette `qt5ct`/`qt6ct`, police Inter, et le thème d'icônes `Catalyst`
+(Papirus-Dark, dossiers de la couleur la plus proche de l'accent). Les fenêtres déjà
+ouvertes changent à leur réouverture. Anciens fichiers : `~/.cache/catalyst/qt-backup`.
+
+---
+
+## Sono (VoxMix)
+
+Icône enceinte de la barre, launcher « sono », ou Super+Alt+B. Ce panneau pilote
+VoxMix par `$XDG_RUNTIME_DIR/voxmix.sock` (`rice/Sono.qml`) : allumer lance
+`voxmix --headless`, éteindre l'arrête. « Mixeur complet » ouvre la fenêtre, qui
+reprend le moteur. Binaire attendu : `~/.local/bin/voxmix`.
+
+« Tout le son du PC » pointe la sortie par défaut vers « VoxMix Desktop »
+(`scripts/sono-system.sh`) : EasyEffects et les applis la suivent, puis VoxMix sort
+sur le casque. L'extinction remet la sortie d'origine. Ce son reste sur A1 : il ne
+part pas dans le micro B1.
+
+Onglet **Sono** : mixage voix / son du PC, baisse automatique du son quand tu parles,
+TAP, remise à zéro de la table. Onglet **Micro** : choix du micro, niveau, réglage
+automatique (silence puis voix), test de voix (`scripts/sono-mictest.sh`, ce que
+reçoivent les applis, fichier supprimé après réécoute), type de voix, effets, et applis
+qui écoutent un micro.
+
+---
+
+## Machines virtuelles
+
+Panneau `vm` : icône ordinateur de la barre (avec le nombre de VM actives), Super+B, launcher « vm », ou bouton VM des conteneurs. Donne un OS
+(« kali pour du pentest ») ou un fichier (ISO, qcow2, vmdk, vdi, vhdx, ova) :
+l'IA (`claude`, modèle sonnet) propose la config, `scripts/vmctl.py` la borne
+sur ce que la machine a, et la crée sous libvirt (`qemu:///system`). Sans IA,
+des règles locales prennent le relais.
+
+Pour Kali, Arch, Debian, Ubuntu, Alpine et Fedora, « Choisir un pays » liste
+les serveurs de téléchargement et les teste sur la vraie image. Une image
+téléchargée ainsi n'est gardée que si sa somme correspond à la somme officielle.
+
+« Web » cherche une ISO en ligne (`vmctl.py search`, Claude avec WebSearch). Chaque lien
+est vérifié avant affichage : HTTPS, adresse publique, vraie ISO lue sur le serveur. Rien
+ne se télécharge avant « Créer et démarrer ». Avec une somme publiée, elle décide si
+l'image est gardée. Sinon le panneau le signale. Images dans `~/VMs/isos/web`.
+
+« Mes ISO » liste les images trouvées et les téléchargements interrompus, pour les utiliser
+ou les supprimer. Une image attachée à une VM allumée est refusée ; attachée à une VM
+arrêtée, elle en est retirée d'abord.
+
+Fichiers dans `~/VMs` : `disks/` (nocow sur btrfs), `isos/`, `meta/`. Les
+fichiers importés sont copiés, jamais modifiés. Instantanés à l'arrêt, avec
+`qemu-img`. Depuis un terminal :
+`qs ipc -p ~/.config/quickshell/catalyst call diag vm "debian serveur"`.
 
 ---
 

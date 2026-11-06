@@ -1,0 +1,16 @@
+# tsu help - Show available commands
+
+echo "tsu - Dotfiles management CLI"
+echo ""
+echo "Usage: tsu <command> [args...]"
+echo ""
+echo "Commands:"
+echo "  state       Manage state.json"
+echo "  theme       Manage theme mode and presets"
+echo "  migrate     Manage migration scripts"
+echo "  update      Pull latest changes, sync state and run migrations"
+echo "  git         Run git commands in the dotfiles repo"
+echo "  reload      Reload QuickShell"
+echo "  help        Show this help message"
+echo ""
+echo "Run 'tsu <command> --help' for more information on a command."

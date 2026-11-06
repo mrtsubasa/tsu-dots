@@ -5,7 +5,7 @@
 #   █▄▄  █  █ ▀█ ██▄    █▄▀ █▄█  █  ▄█
 #
 #   Installation Script
-#   https://github.com/caioax/lyne-dots
+#   https://github.com/mrtsubasa/tsu-dots
 #
 # =============================================================================
 
@@ -360,10 +360,10 @@ setup_wallpaper() {
 }
 
 setup_migrations() {
-    log_header "Initializing Lyne CLI"
+    log_header "Initializing Tsu CLI"
 
-    local MIGRATIONS_DIR="$DOTFILES_DIR/.data/lyne-cli/migrations"
-    local DONE_FILE="$HOME/.local/share/lyne/migrations-done"
+    local MIGRATIONS_DIR="$DOTFILES_DIR/.data/tsu-cli/migrations"
+    local DONE_FILE="$HOME/.local/share/tsu/migrations-done"
 
     mkdir -p "$(dirname "$DONE_FILE")"
     touch "$DONE_FILE"
@@ -525,7 +525,7 @@ show_banner() {
     ║   █   █▄█ █▄ █ █▀▀ ▄▄ █▀▄ █▀█ ▀█▀ █▀                          ║
     ║   █▄▄  █  █ ▀█ ██▄    █▄▀ █▄█  █  ▄█                          ║
     ║                                                               ║
-    ║   https://github.com/caioax/lyne-dots                         ║
+    ║   https://github.com/mrtsubasa/tsu-dots                       ║
     ║   Installation Script                                         ║
     ║                                                               ║
     ╚═══════════════════════════════════════════════════════════════╝

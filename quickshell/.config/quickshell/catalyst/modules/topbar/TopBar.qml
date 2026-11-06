@@ -110,6 +110,20 @@ Scope {
                         anchors.verticalCenter: parent.verticalCenter
                     }
                     BarArsenal { id: arsenalItem; barWin: win; visible: want; anchors.verticalCenter: parent.verticalCenter }
+                    BarSono { barWin: win; visible: want; anchors.verticalCenter: parent.verticalCenter }
+                    BarVm { barWin: win; visible: want; anchors.verticalCenter: parent.verticalCenter }
+                    Rectangle {
+                        visible: vpnItem.visible && !win.islands
+                        width: 1; height: 14; color: Theme.divider
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                    BarVpn { id: vpnItem; barWin: win; visible: want; anchors.verticalCenter: parent.verticalCenter }
+                    Rectangle {
+                        visible: camItem.visible && !win.islands
+                        width: 1; height: 14; color: Theme.divider
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                    BarCam { id: camItem; barWin: win; visible: want; anchors.verticalCenter: parent.verticalCenter }
                 }
 
                 // ---- centre ----

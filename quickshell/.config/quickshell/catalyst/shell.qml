@@ -11,7 +11,6 @@ import "./modules/stage/"
 import "./modules/notifs/"
 import "./modules/osd/"
 import "./modules/ai/"
-import "./modules/vm/"
 import "./modules/scripts/"
 import "./modules/chat/"
 import "./modules/bots/"
@@ -36,7 +35,6 @@ ShellRoot {
     BarPopover {}
     Osd {}
     AiPanel {}
-    VmPanel {}
     ScriptsPanel {}
     ChatPanel {}
     BotsPanel {}
@@ -227,6 +225,25 @@ ShellRoot {
             return JSON.stringify(n.filter(x => x.isStream).map(x => ({ name: x.name, desc: x.description, sink: x.isSink, type: String(x.type), props: x.properties ? Object.keys(x.properties).length : -1, mc: x.properties ? x.properties["media.class"] : null, app: x.properties ? x.properties["application.name"] : null })));
         }
 
+        function vm(q: string): string {
+            PanelService.show("vm");
+            VmData.selected = "";
+            VmData.ask(q);
+            return "ok";
+        }
+
+        function vmSearch(q: string): string {
+            VmData.selected = "";
+            VmData.searchWeb(q);
+            return "ok";
+        }
+
+        function vmShow(name: string): string {
+            VmData.selected = name;
+            PanelService.show("vm");
+            return "ok";
+        }
+
         function arsenal(q: string): string {
             Arsenal.includeAvailable = true;
             Arsenal.query = q;
@@ -388,4 +405,10 @@ ShellRoot {
 
 
 
+// sync
+// sync
+// sync
+// sync
+// sync
+// sync
 // sync

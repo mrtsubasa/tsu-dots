@@ -16,6 +16,7 @@ Item {
     property bool disabled: false
     property real step: 0.05
     property color accent: Theme.accent
+    property bool wheelAdjusts: true  // false dans une zone qui défile : la molette fait défiler
 
     signal moved(real v)
     signal iconClicked()
@@ -98,6 +99,10 @@ Item {
                     at(mouse.x);
             }
             onWheel: wheel => {
+                if (!root.wheelAdjusts) {
+                    wheel.accepted = false;
+                    return;
+                }
                 root._emit(root.value + (wheel.angleDelta.y > 0 ? root.step : -root.step));
             }
         }

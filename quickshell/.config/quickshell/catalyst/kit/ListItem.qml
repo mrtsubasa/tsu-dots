@@ -20,6 +20,7 @@ Item {
     property real rowHeight: subtitle.length ? 52 : Tokens.rowH
     default property alias trailing: trail.data
     property alias hovered: layer.containsMouse
+    property color tone: Theme.accent
 
     signal clicked(var mouse)
 
@@ -30,7 +31,9 @@ Item {
     Rectangle {
         anchors.fill: parent
         radius: Tokens.rMd
-        color: root.current ? Theme.stateHover : (root.selected ? Qt.alpha(Theme.accent, 0.10) : "transparent")
+        color: root.current ? Qt.alpha(root.tone, 0.10) : (root.selected ? Qt.alpha(root.tone, 0.08) : "transparent")
+        border.width: root.current ? 1 : 0
+        border.color: Qt.alpha(root.tone, 0.28)
         Behavior on color { ColorAnimation { duration: Motion.dur(Motion.fast) } }
 
         StateLayer {
@@ -42,13 +45,13 @@ Item {
         }
 
         Rectangle {
-            visible: root.selected
+            visible: root.selected || root.current
             anchors.left: parent.left
             anchors.verticalCenter: parent.verticalCenter
             width: 3
             height: parent.height * 0.46
             radius: 1.5
-            color: Theme.accent
+            color: root.tone
         }
 
         RowLayout {
@@ -59,16 +62,25 @@ Item {
 
             Item {
                 visible: root.icon.length > 0 || root.image.length > 0
-                Layout.preferredWidth: root.image.length ? 32 : Tokens.iconMd
+                Layout.preferredWidth: root.rowHeight >= 40 ? 30 : 24
                 Layout.preferredHeight: Layout.preferredWidth
 
-                Icon {
+                // médaillon d'icône : s'allume sur l'élément courant
+                Rectangle {
                     visible: root.image.length === 0
-                    anchors.centerIn: parent
-                    name: root.icon
-                    size: Tokens.iconMd
-                    fill: root.selected ? 1 : 0
-                    color: root.selected ? Theme.accent : Theme.textSub
+                    anchors.fill: parent
+                    radius: Tokens.rSm + 2
+                    color: root.selected || root.current ? Qt.alpha(root.tone, 0.18) : Qt.alpha(Theme.text, 0.05)
+                    border.width: 1
+                    border.color: root.selected || root.current ? Qt.alpha(root.tone, 0.35) : Theme.border
+                    Behavior on color { ColorAnimation { duration: Motion.dur(Motion.fast) } }
+                    Icon {
+                        anchors.centerIn: parent
+                        name: root.icon
+                        size: parent.width * 0.56
+                        fill: root.selected || root.current ? 1 : 0
+                        color: root.selected || root.current ? root.tone : Theme.textSub
+                    }
                 }
                 Art {
                     visible: root.image.length > 0
@@ -113,7 +125,7 @@ Item {
                 visible: root.checked
                 name: "check"
                 size: Tokens.iconSm + 2
-                color: Theme.accent
+                color: root.tone
             }
         }
     }

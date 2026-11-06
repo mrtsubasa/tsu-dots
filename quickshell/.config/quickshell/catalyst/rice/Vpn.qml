@@ -18,6 +18,8 @@ Singleton {
     property var items: []
     property var types: ["openvpn", "wireguard"]
     property int users: 0
+    // re-vérifie si l'app Proton vient d'être installée dès qu'un panneau s'ouvre
+    onUsersChanged: if (users > 0) protonCheck.running = true
     property string busyUuid: ""
     property string note: ""
     property bool noteError: false
@@ -26,6 +28,23 @@ Singleton {
     readonly property string exportDir: Quickshell.env("HOME") + "/Documents/VPN"
     readonly property var userVpns: items.filter(v => !v.external)
     readonly property var activeVpn: items.find(v => v.active && !v.external) || null
+
+    // ProtonVPN : piloté par l'app officielle (proton-vpn-gtk-app). On ne fait que
+    // refléter son état et offrir un lancement rapide.
+    property bool protonInstalled: false
+    readonly property var protonVpn: items.find(v => v.proton) || null
+    function openProton() {
+        Quickshell.execDetached(["protonvpn-app"]);
+    }
+    function installProton() {
+        Quickshell.execDetached(["alacritty", "--title", "Installer ProtonVPN", "-e", "bash", "-c",
+            "printf '\\033[1;35m== Installation de ProtonVPN (app officielle) ==\\033[0m\\n'; paru -S --needed proton-vpn-gtk-app; echo; read -n1 -rs -p 'Touche pour fermer…'"]);
+    }
+    Process {
+        id: protonCheck
+        command: ["bash", "-lc", "command -v protonvpn-app >/dev/null 2>&1 && echo 1 || echo 0"]
+        stdout: SplitParser { onRead: d => root.protonInstalled = d.trim() === "1" }
+    }
 
     function say(text, err) {
         note = text;
@@ -180,6 +199,15 @@ Singleton {
     function replace(v, path) {
         run(["replace", v.uuid, path], done("« " + v.label + " » réparé."));
     }
+    // OpenVPN à mot de passe (ProtonVPN, PIA…) : login + mot de passe gardés par NM.
+    // Le mot de passe part sur stdin, jamais dans la ligne de commande.
+    function setCreds(v, user, pass) {
+        needSecrets = "";
+        run(["creds", v.uuid, user], done("Identifiants enregistrés pour " + v.label + "."), pass);
+    }
+    function clearCreds(v) {
+        run(["clearcreds", v.uuid], done("Mot de passe oublié pour " + v.label + "."));
+    }
 
     // sélecteurs de fichiers (KDE / GTK)
     function pickFile(cb) {
@@ -215,5 +243,6 @@ Singleton {
     Component.onCompleted: {
         loadTypes();
         refresh();
+        protonCheck.running = true;
     }
 }

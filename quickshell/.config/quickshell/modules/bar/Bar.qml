@@ -25,16 +25,12 @@ Scope {
 
             property bool enableAutoHide: StateService.get("bar.autoHide", false)
 
-            // NameSpace
             WlrLayershell.namespace: "qs_modules"
 
-            // --- BAR CONFIGURATION ---
             implicitHeight: StateService.get("bar.height", 30)
             color: "transparent"
             screen: modelData
 
-            // Overlay ensures it stays above games/fullscreen
-            // WlrLayershell.layer: WlrLayer.Overlay
 
             // Set the exclusion mode
             exclusionMode: enableAutoHide ? ExclusionMode.Ignore : ExclusionMode.Normal

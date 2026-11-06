@@ -5,6 +5,7 @@ import qs.rice
 Rectangle {
     id: root
     property alias text: input.text
+    property alias echoMode: input.echoMode
     property string placeholder: ""
     property bool mono: false
     property var validator: null

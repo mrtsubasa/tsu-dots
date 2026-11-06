@@ -27,8 +27,35 @@ Item {
     readonly property string summary: notif ? (notif.summary || "") : ""
     readonly property string body: notif ? String(notif.body || "").replace(/<img[^>]*>/g, "") : ""
     readonly property string iconSrc: Notifs.toUrl(Notifs.iconName(notif))
-    readonly property string imageSrc: Notifs.imageUrl(notif)
+    // image://icon//chemin = fichier local : lu directement (vraies proportions)
+    readonly property string imageSrc: {
+        const u = Notifs.imageUrl(notif);
+        return u.startsWith("image://icon//") ? "file://" + u.slice(13) : u;
+    }
     readonly property var actions: Notifs.visibleActions(notif).filter(a => (a.text || "").length > 0 && (a.identifier || "").toLowerCase() !== "default")
+
+    // teinte stable par application (repli : accent), rouge si critique
+    readonly property var tones: [Theme.accent, Theme.accent2, Theme.signature, Theme.success, Theme.warning, "#67E8F9", "#C084FC"]
+    readonly property color tone: {
+        if (critical)
+            return Theme.error;
+        let h = 0;
+        for (let i = 0; i < appName.length; i++)
+            h = (h * 31 + appName.charCodeAt(i)) >>> 0;
+        return tones[h % tones.length];
+    }
+    // image large (capture, pochette paysage) = aperçu ; carrée = avatar
+    readonly property bool hasImage: imageSrc.length > 0 && probe.status === Image.Ready
+    readonly property bool wide: hasImage && probe.implicitWidth > probe.implicitHeight * 1.25
+    readonly property string bodyShown: body.replace(new RegExp(Quickshell.env("HOME"), "g"), "~")
+
+    Image {
+        id: probe
+        visible: false
+        source: root.imageSrc
+        asynchronous: true
+        sourceSize.width: 64
+    }
 
     implicitHeight: card.implicitHeight
     implicitWidth: 380
@@ -49,17 +76,18 @@ Item {
         id: card
         anchors.left: parent.left
         anchors.right: parent.right
-        implicitHeight: col.implicitHeight + 24
+        implicitHeight: col.implicitHeight + 26
         level: root.popup ? 2 : 3
         glass: root.popup
         radius: Tokens.rLg
         shadow: root.popup
-        borderColor: root.critical ? Qt.alpha(Theme.error, 0.45) : Theme.border
+        tint: root.critical ? Qt.alpha(Theme.error, 0.07) : "transparent"
+        borderColor: root.critical ? Qt.alpha(Theme.error, 0.45) : (hover.hovered ? Theme.borderStrong : Theme.border)
 
         StateLayer {
             anchors.fill: parent
             radius: card.radius
-            hoverAlpha: 0.03
+            hoverAlpha: 0.025
             pressAlpha: 0.06
             onClicked: mouse => {
                 if (mouse.button === Qt.MiddleButton)
@@ -69,127 +97,193 @@ Item {
             }
         }
 
-        // barre d'urgence
+        // filet de teinte à gauche
         Rectangle {
-            visible: root.critical
             x: 0
-            y: 14
-            width: 3
-            height: parent.height - 28
-            radius: 1.5
-            color: Theme.error
+            y: 16
+            width: 2
+            height: Math.min(28, parent.height - 32)
+            radius: 1
+            color: root.tone
+            opacity: root.critical ? 1 : 0.85
         }
 
-        RowLayout {
+        ColumnLayout {
             id: col
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.top: parent.top
-            anchors.margins: 12
-            spacing: 12
+            anchors.margins: 13
+            anchors.leftMargin: 15
+            spacing: 10
 
-            // icône d'app (repli : initiale)
-            Rectangle {
-                Layout.alignment: Qt.AlignTop
-                Layout.preferredWidth: 34
-                Layout.preferredHeight: 34
-                radius: Tokens.rMd
-                color: Theme.s4
-
-                IconImage {
-                    id: appIcon
-                    anchors.centerIn: parent
-                    implicitSize: 22
-                    source: root.iconSrc
-                    visible: root.iconSrc.length > 0 && status === Image.Ready
-                }
-                Txt {
-                    anchors.centerIn: parent
-                    visible: !appIcon.visible
-                    role: "heading"
-                    text: root.appName.charAt(0).toUpperCase()
-                    color: Theme.accent
-                }
-            }
-
-            ColumnLayout {
+            RowLayout {
                 Layout.fillWidth: true
-                spacing: 3
+                spacing: 12
 
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: 6
-                    Txt {
-                        role: "caption"
-                        text: root.appName
-                        font.weight: Font.DemiBold
-                        Layout.maximumWidth: 180
-                    }
-                    Txt {
-                        role: "caption"
-                        text: "· " + Notifs.ago(root.idx)
-                        color: Theme.textFaint
-                    }
-                    Item { Layout.fillWidth: true }
-                    IconButton {
-                        icon: "close"
-                        size: 22
-                        iconSize: 15
-                        tooltip: "Supprimer"
-                        opacity: hover.hovered ? 1 : 0.45
-                        onClicked: Notifs.dismiss(root.notif)
-                    }
-                }
+                // médaillon : avatar (image carrée) ou icône d'app ou initiale
+                Item {
+                    Layout.alignment: Qt.AlignTop
+                    implicitWidth: 40
+                    implicitHeight: 40
 
-                Txt {
-                    Layout.fillWidth: true
-                    visible: root.summary.length > 0
-                    role: "heading"
-                    text: root.summary
-                    wrapMode: Text.Wrap
-                    maximumLineCount: 2
-                }
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: Tokens.rMd
+                        color: Qt.alpha(root.tone, 0.14)
+                        border.width: 1
+                        border.color: Qt.alpha(root.tone, 0.30)
+                        visible: !avatar.visible
 
-                Text {
-                    Layout.fillWidth: true
-                    visible: root.body.length > 0
-                    text: root.body
-                    textFormat: Text.StyledText
-                    wrapMode: Text.Wrap
-                    maximumLineCount: root.compact ? 2 : 4
-                    elide: Text.ElideRight
-                    color: Theme.textSub
-                    linkColor: Theme.accent2
-                    font.family: Theme.uiFont
-                    font.pixelSize: Tokens.fLabel
-                    lineHeight: 1.15
-                    onLinkActivated: link => Qt.openUrlExternally(link)
-                }
-
-                Row {
-                    visible: root.actions.length > 0
-                    Layout.topMargin: 6
-                    spacing: 6
-                    Repeater {
-                        model: root.actions
-                        Button {
-                            required property var modelData
-                            height_: 28
-                            variant: "secondary"
-                            text: Notifs.actionLabel(modelData)
-                            onClicked: Notifs.invokeAction(root.notif, modelData)
+                        IconImage {
+                            id: appIcon
+                            anchors.centerIn: parent
+                            implicitSize: 24
+                            source: root.iconSrc
+                            visible: root.iconSrc.length > 0 && status === Image.Ready
+                        }
+                        Txt {
+                            anchors.centerIn: parent
+                            visible: !appIcon.visible
+                            role: "heading"
+                            text: root.critical ? "!" : root.appName.charAt(0).toUpperCase()
+                            color: root.tone
                         }
                     }
+                    Art {
+                        id: avatar
+                        anchors.fill: parent
+                        visible: root.hasImage && !root.wide
+                        source: visible ? root.imageSrc : ""
+                        radius: Tokens.rMd
+                    }
+                    // petite icône d'app en badge sur l'avatar
+                    Rectangle {
+                        visible: avatar.visible && appIcon.status === Image.Ready
+                        anchors.right: parent.right
+                        anchors.bottom: parent.bottom
+                        anchors.margins: -3
+                        width: 18
+                        height: 18
+                        radius: 6
+                        color: Theme.s2
+                        border.width: 1
+                        border.color: Theme.border
+                        IconImage { anchors.centerIn: parent; implicitSize: 12; source: root.iconSrc }
+                    }
+                }
+
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    spacing: 2
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 6
+                        Txt {
+                            role: "overline"
+                            text: root.appName
+                            color: root.tone
+                            Layout.maximumWidth: 190
+                        }
+                        Rectangle { width: 3; height: 3; radius: 1.5; color: Theme.textFaint }
+                        Txt {
+                            role: "mono"
+                            font.pixelSize: 10
+                            text: Notifs.ago(root.idx)
+                            color: Theme.textFaint
+                        }
+                        Item { Layout.fillWidth: true }
+                        Rectangle {
+                            Layout.preferredWidth: 22
+                            Layout.preferredHeight: 22
+                            radius: 11
+                            color: closeTap.containsMouse ? Qt.alpha(Theme.error, 0.16) : Qt.alpha(Theme.text, 0.05)
+                            opacity: hover.hovered ? 1 : 0
+                            Behavior on opacity { NumberAnimation { duration: Motion.dur(Motion.fast) } }
+                            Icon {
+                                anchors.centerIn: parent
+                                name: "close"
+                                size: 13
+                                color: closeTap.containsMouse ? Theme.error : Theme.textSub
+                            }
+                            StateLayer {
+                                id: closeTap
+                                anchors.fill: parent
+                                radius: 11
+                                hoverAlpha: 0
+                                onClicked: Notifs.dismiss(root.notif)
+                            }
+                            Tip { target: closeTap; text: "Supprimer"; active: closeTap.containsMouse }
+                        }
+                    }
+
+                    Txt {
+                        Layout.fillWidth: true
+                        visible: root.summary.length > 0
+                        role: "heading"
+                        text: root.summary
+                        wrapMode: Text.Wrap
+                        maximumLineCount: 2
+                    }
+
+                    Text {
+                        Layout.fillWidth: true
+                        visible: root.bodyShown.length > 0
+                        text: root.bodyShown
+                        textFormat: Text.StyledText
+                        wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                        maximumLineCount: root.compact ? 2 : 4
+                        elide: Text.ElideRight
+                        color: Theme.textSub
+                        linkColor: Theme.accent2
+                        font.family: Theme.uiFont
+                        font.pixelSize: Tokens.fLabel
+                        lineHeight: 1.15
+                        onLinkActivated: link => Qt.openUrlExternally(link)
+                    }
                 }
             }
 
+            // aperçu large (captures d'écran, images paysage)
             Art {
-                visible: root.imageSrc.length > 0 && ready
-                Layout.alignment: Qt.AlignTop
-                Layout.preferredWidth: 52
-                Layout.preferredHeight: 52
-                source: root.imageSrc
+                visible: root.wide
+                Layout.fillWidth: true
+                Layout.leftMargin: 52
+                Layout.preferredHeight: visible ? Math.min(150, Math.round(width * probe.implicitHeight / Math.max(1, probe.implicitWidth))) : 0
+                source: visible ? root.imageSrc : ""
                 radius: Tokens.rMd
+
+                Rectangle {
+                    anchors.fill: parent
+                    radius: Tokens.rMd
+                    color: "transparent"
+                    border.width: 1
+                    border.color: Qt.alpha(Theme.text, 0.10)
+                }
+            }
+
+            Flow {
+                visible: root.actions.length > 0
+                Layout.fillWidth: true
+                Layout.leftMargin: 52
+                spacing: 6
+                Repeater {
+                    model: root.actions
+                    Rectangle {
+                        id: act
+                        required property var modelData
+                        height: 28
+                        width: actTxt.implicitWidth + 24
+                        radius: 14
+                        color: actTap.containsMouse ? Qt.alpha(root.tone, 0.20) : Qt.alpha(root.tone, 0.10)
+                        border.width: 1
+                        border.color: Qt.alpha(root.tone, actTap.containsMouse ? 0.55 : 0.28)
+                        Behavior on color { ColorAnimation { duration: Motion.dur(Motion.fast) } }
+                        StateLayer { id: actTap; anchors.fill: parent; radius: 14; hoverAlpha: 0; onClicked: Notifs.invokeAction(root.notif, act.modelData) }
+                        Txt { id: actTxt; anchors.centerIn: parent; role: "label"; text: Notifs.actionLabel(act.modelData); color: Theme.text }
+                    }
+                }
             }
         }
 
@@ -203,8 +297,8 @@ Item {
             height: 2
             radius: 1
             width: (parent.width - card.radius * 2) * Notifs.remain(root.notif)
-            color: root.critical ? Theme.error : Theme.accent
-            opacity: 0.55
+            color: root.tone
+            opacity: hover.hovered ? 0.25 : 0.6
         }
     }
 }

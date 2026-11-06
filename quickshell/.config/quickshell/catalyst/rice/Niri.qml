@@ -281,7 +281,7 @@ Singleton {
         if (hyprland) {
             const w = winById(wid);
             if (w && w.address)
-                Quickshell.execDetached(["bash", "-c", "hyprctl dispatch focuswindow address:" + w.address + " && hyprctl dispatch killactive"]);
+                Quickshell.execDetached(["bash", "-c", "hyprctl dispatch 'hl.dsp.window.close({ window = \"address:" + w.address + "\" })'"]);
             return;
         }
         Quickshell.execDetached(["niri", "msg", "action", "close-window", "--id", String(wid)]);
@@ -297,7 +297,7 @@ Singleton {
         if (hyprland) {
             const w = winById(wid);
             if (w && w.address)
-                Quickshell.execDetached(["hyprctl", "dispatch", "focuswindow", "address:" + w.address]);
+                Quickshell.execDetached(["hyprctl", "dispatch", "hl.dsp.focus({ window = \"address:" + w.address + "\" })"]);
             return;
         }
         Quickshell.execDetached(["niri", "msg", "action", "focus-window", "--id", String(wid)]);
@@ -431,7 +431,7 @@ Singleton {
                 address: c.address,
                 title: c.title || "",
                 app_id: c.class || "",
-                workspace_id: c.workspace ? c.workspace.id : 0,
+                workspace_id: (c.workspace && c.workspace.id) || 0,
                 is_focused: c.address === _hyprActiveAddr,
                 is_floating: !!c.floating,
                 pid: c.pid || 0

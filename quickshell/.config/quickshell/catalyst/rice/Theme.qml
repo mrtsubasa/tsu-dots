@@ -10,7 +10,7 @@ import Quickshell.Io
  *
  * Deux couches :
  *   1. rôles « matériaux » (primary, surfaceContainer*, ink…) : remplis par la
- *      palette active — preset complet (Themes), palette lyne (Palettes) ou
+ *      palette active — preset complet (Themes), palette tsu (Palettes) ou
  *      Material You (matugen, mode "auto"). Les anciens modules les lisent.
  *   2. tokens sémantiques (accent, text*, s0..s4, border, glass…) : dérivés de
  *      la couche 1. Tout nouveau composant (kit/) ne lit QUE ceux-là.

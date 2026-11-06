@@ -33,3 +33,6 @@ quickshell/.config/quickshell/sekaipop/
 quickshell/.config/quickshell/backups/
 quickshell/.config/quickshell/catalyst/logs/
 __pycache__/
+
+# Fonds d'écran du rice (2 Go, rangés sfw/ nsfw/) : jamais suivis par git
+quickshell/.config/quickshell/catalyst/wallpapers/

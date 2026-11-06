@@ -34,8 +34,7 @@ def park_clients():
     parks = [s for s in spaces if s.get("name") == "special:park"]
     if not parks:
         return [], None
-    wid = parks[0].get("id")
-    return [c for c in load("clients") if c.get("workspaceID") == wid], wid
+    return [c for c in load("clients") if c.get("workspace", {}).get("name") == "special:park"], None
 
 def run(*args):
     hypr("dispatch", *args)
@@ -48,21 +47,20 @@ if cmd == "restore":
         sys.exit(0)
     addr = cs[0].get("address")
     act_ws = act.get("workspace", {}).get("id")
-    run("focuswindow", f"address:{addr}")
+    run(f'hl.dsp.focus({{ window = "address:{addr}" }})')
     if act_ws is not None:
-        run("movetoworkspace", str(act_ws))
+        run(f"hl.dsp.window.move({{ workspace = {act_ws} }})")
     # Si la vue speciale est encore ouverte, on la referme
     act2 = active()
     if act2.get("workspace", {}).get("name") == "special:park":
-        run("togglespecialworkspace", "park")
+        run('hl.dsp.workspace.toggle_special("park")')
     sys.exit(0)
 
 # park : mettre la fenêtre active de côté
 addr = act.get("address")
 if not addr:
     sys.exit(0)
-run("focuswindow", f"address:{addr}")
-run("movetoworkspacesilent", "special:park")
+run(f'hl.dsp.window.move({{ workspace = "special:park", follow = false, window = "address:{addr}" }})')
 HYP
 fi
 

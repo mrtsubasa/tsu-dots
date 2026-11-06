@@ -69,12 +69,22 @@ FocusScope {
                 input.onTextChanged: Search.setQuery(field.text)
                 input.Keys.onPressed: event => root.keyNav(event)
 
-                Txt {
+                Rectangle {
                     visible: Search.mode !== "app"
-                    role: "overline"
-                    text: Search.mode === "calc" ? "calcul" : (Search.mode === "shell" ? "terminal" : "commandes")
-                    color: Theme.accent
                     anchors.verticalCenter: parent ? parent.verticalCenter : undefined
+                    height: 22
+                    width: modeTxt.implicitWidth + 16
+                    radius: 11
+                    color: Qt.alpha(Theme.accent, 0.14)
+                    border.width: 1
+                    border.color: Qt.alpha(Theme.accent, 0.4)
+                    Txt {
+                        id: modeTxt
+                        anchors.centerIn: parent
+                        role: "overline"
+                        text: Search.mode === "calc" ? "calcul" : (Search.mode === "shell" ? "terminal" : "commandes")
+                        color: Theme.accent
+                    }
                 }
             }
 
@@ -107,10 +117,10 @@ FocusScope {
             onCurrentIndexChanged: positionViewAtIndex(currentIndex, ListView.Contain)
 
             highlight: Rectangle {
-                radius: Tokens.rMd
-                color: Theme.stateActive
+                radius: Tokens.rLg
+                color: Qt.alpha(Theme.accent, 0.10)
                 border.width: 1
-                border.color: Qt.alpha(Theme.accent, 0.35)
+                border.color: Qt.alpha(Theme.accent, 0.32)
                 Rectangle {
                     x: 0
                     anchors.verticalCenter: parent.verticalCenter
@@ -159,7 +169,9 @@ FocusScope {
                             visible: row.modelData.kind !== "app"
                             anchors.fill: parent
                             radius: Tokens.rMd
-                            color: row.current ? Theme.accent : Theme.s4
+                            color: row.current ? Theme.accent : Qt.alpha(Theme.text, 0.06)
+                            border.width: row.current ? 0 : 1
+                            border.color: Theme.border
                             Behavior on color { ColorAnimation { duration: Motion.dur(Motion.fast) } }
                             Icon {
                                 anchors.centerIn: parent
@@ -189,35 +201,22 @@ FocusScope {
                         }
                     }
 
-                    Txt {
-                        visible: row.modelData.kind === "app" && row.modelData.terminal
-                        role: "overline"
-                        text: "tty"
-                        color: Theme.textFaint
-                    }
-                    Txt {
-                        visible: ["cmd", "project", "ssh"].indexOf(row.modelData.kind) >= 0
-                        role: "overline"
-                        text: row.modelData.kind === "project" ? "projet" : (row.modelData.kind === "ssh" ? "ssh" : ShellCfg.brand)
-                        color: row.current ? Theme.accent : Theme.textFaint
-                    }
                     Rectangle {
-                        visible: row.index < 9
-                        Layout.preferredWidth: hint.implicitWidth + 10
+                        readonly property string tag: row.modelData.kind === "app" ? (row.modelData.terminal ? "tty" : "") : (row.modelData.kind === "project" ? "projet" : (row.modelData.kind === "ssh" ? "ssh" : (row.modelData.kind === "cmd" ? ShellCfg.brand : "")))
+                        visible: tag.length > 0
                         Layout.preferredHeight: 20
-                        radius: 5
-                        color: "transparent"
+                        Layout.preferredWidth: tagTxt.implicitWidth + 14
+                        radius: 10
+                        color: row.current ? Qt.alpha(Theme.accent, 0.14) : Qt.alpha(Theme.text, 0.04)
                         border.width: 1
-                        border.color: Theme.border
-                        opacity: row.current ? 1 : 0.5
-                        Txt {
-                            id: hint
-                            anchors.centerIn: parent
-                            role: "mono"
-                            font.pixelSize: 10
-                            text: "^" + (row.index + 1)
-                            color: Theme.textSub
-                        }
+                        border.color: row.current ? Qt.alpha(Theme.accent, 0.4) : Theme.border
+                        Txt { id: tagTxt; anchors.centerIn: parent; role: "overline"; font.pixelSize: 9; text: parent.tag; color: row.current ? Theme.accent : Theme.textFaint }
+                    }
+                    Kbd {
+                        visible: row.current || row.index < 9
+                        text: row.current ? "↵" : "^" + (row.index + 1)
+                        lit: row.current
+                        opacity: row.current ? 1 : 0.55
                     }
                 }
             }
@@ -249,11 +248,11 @@ FocusScope {
                 anchors.rightMargin: 16
                 spacing: 16
                 Mark { size: 13 }
-                Txt { role: "caption"; text: Search.results.length + " résultat" + (Search.results.length > 1 ? "s" : ""); color: Theme.textFaint }
+                Txt { role: "mono"; font.pixelSize: 10; text: Search.results.length + " résultat" + (Search.results.length > 1 ? "s" : ""); color: Theme.textFaint }
                 Item { Layout.fillWidth: true }
-                Txt { role: "caption"; text: "↑↓ naviguer"; color: Theme.textFaint }
-                Txt { role: "caption"; text: "↵ ouvrir"; color: Theme.textFaint }
-                Txt { role: "caption"; text: "échap fermer"; color: Theme.textFaint }
+                KeyHints {
+                    hints: [{ keys: ["="], text: "calcul" }, { keys: [">"], text: "terminal" }, { keys: [":"], text: "commandes" }, { keys: ["↑", "↓"], text: "naviguer" }, { keys: ["Échap"], text: "fermer" }]
+                }
             }
         }
     }

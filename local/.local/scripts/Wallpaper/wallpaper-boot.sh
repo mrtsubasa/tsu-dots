@@ -20,7 +20,12 @@ if [[ -z "$WALLPAPER" || ! -f "$WALLPAPER" ]]; then
 fi
 
 if [[ -n "$WALLPAPER" && -f "$WALLPAPER" ]]; then
-    swww img "$WALLPAPER" \
+    if command -v swww >/dev/null; then
+        WALL=swww
+    else
+        WALL=awww
+    fi
+    $WALL img "$WALLPAPER" \
         --transition-type grow \
         --transition-duration 1 \
         --transition-fps 60 \

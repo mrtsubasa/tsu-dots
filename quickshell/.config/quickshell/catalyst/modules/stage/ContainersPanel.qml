@@ -27,16 +27,12 @@ FocusScope {
         anchors.margins: 18
         spacing: 12
 
-        RowLayout {
+        PanelHead {
             Layout.fillWidth: true
-            spacing: 10
-            ColumnLayout {
-                Layout.fillWidth: true
-                spacing: 0
-                Txt { role: "overline"; text: "// " + ShellCfg.brand; color: Theme.accent }
-                Txt { role: "title"; text: "Conteneurs" }
-            }
-            Txt { role: "caption"; text: Containers.running + " actif(s) · " + Containers.items.length + " au total" }
+            icon: "deployed_code"
+            overline: Containers.running + " actif" + (Containers.running > 1 ? "s" : "") + " · " + Containers.items.length + " au total"
+            title: "Conteneurs"
+            tone: Theme.accent2
             Button {
                 variant: "ghost"
                 icon: "deployed_code"
@@ -57,99 +53,136 @@ FocusScope {
             IconButton { icon: "close"; size: 30; iconSize: 17; tooltip: "Fermer"; onClicked: PanelService.hide() }
         }
 
-        Rectangle {
+        Banner {
             Layout.fillWidth: true
             visible: Containers.dockerDenied
-            implicitHeight: dn.implicitHeight + 16
-            radius: Tokens.rMd
-            color: Qt.alpha(Theme.warning, 0.12)
-            RowLayout {
-                id: dn
-                anchors.fill: parent
-                anchors.margins: 8
-                anchors.leftMargin: 12
-                spacing: 8
-                Icon { name: "lock"; size: 16; color: Theme.warning }
-                Txt {
-                    Layout.fillWidth: true
-                    role: "caption"
-                    wrapMode: Text.WordWrap
-                    color: Theme.warning
-                    text: "Docker : accès au socket refusé. Pour gérer Docker ici : sudo usermod -aG docker $USER (puis reconnexion). Podman est géré normalement."
-                }
-            }
+            icon: "lock"
+            text: "Docker : accès au socket refusé. Pour gérer Docker ici : sudo usermod -aG docker $USER (puis reconnexion). Podman est géré normalement."
         }
 
         Repeater {
             model: Containers.items
 
-            Pane {
+            Rectangle {
                 id: card
                 required property var modelData
+                readonly property bool on: modelData.running
+                readonly property color tone: modelData.engine === "podman" ? Theme.accent2 : Theme.accent
                 Layout.fillWidth: true
-                implicitHeight: 62
-                level: 3
-                glass: false
+                implicitHeight: 64
                 radius: Tokens.rLg
+                color: on ? Qt.alpha(Theme.success, 0.05) : Theme.s2
+                border.width: 1
+                border.color: on ? Qt.alpha(Theme.success, 0.25) : Theme.border
+
+                Rectangle {
+                    visible: card.on
+                    x: 0
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: 2
+                    height: 28
+                    radius: 1
+                    color: Theme.success
+                }
 
                 RowLayout {
                     anchors.fill: parent
-                    anchors.leftMargin: 14
-                    anchors.rightMargin: 8
+                    anchors.leftMargin: 12
+                    anchors.rightMargin: 10
                     spacing: 12
 
-                    Rectangle {
-                        width: 10
-                        height: 10
-                        radius: 5
-                        color: card.modelData.running ? Theme.success : Theme.textFaint
+                    // médaillon moteur + pastille d'état
+                    Item {
+                        implicitWidth: 38
+                        implicitHeight: 38
+                        Rectangle {
+                            anchors.fill: parent
+                            radius: Tokens.rMd
+                            color: Qt.alpha(card.tone, card.on ? 0.16 : 0.07)
+                            border.width: 1
+                            border.color: Qt.alpha(card.tone, card.on ? 0.35 : 0.15)
+                            Icon { anchors.centerIn: parent; name: "deployed_code"; size: 19; fill: card.on ? 1 : 0; color: card.on ? card.tone : Theme.textFaint }
+                        }
+                        Rectangle {
+                            anchors.right: parent.right
+                            anchors.bottom: parent.bottom
+                            anchors.margins: -2
+                            width: 11
+                            height: 11
+                            radius: 5.5
+                            color: card.on ? Theme.success : Theme.textFaint
+                            border.width: 2
+                            border.color: Theme.s2
+                        }
                     }
                     ColumnLayout {
                         Layout.fillWidth: true
-                        spacing: 1
+                        spacing: 2
                         RowLayout {
                             spacing: 8
-                            Txt { role: "heading"; text: card.modelData.name; Layout.maximumWidth: 220 }
-                            Badge { label: card.modelData.engine; tone: card.modelData.engine === "podman" ? Theme.accent2 : Theme.accent; ink: Theme.onAccent }
+                            Txt { role: "heading"; text: card.modelData.name; Layout.maximumWidth: 240 }
+                            Rectangle {
+                                implicitHeight: 18
+                                implicitWidth: engTxt.implicitWidth + 12
+                                radius: 9
+                                color: Qt.alpha(card.tone, 0.12)
+                                border.width: 1
+                                border.color: Qt.alpha(card.tone, 0.35)
+                                Txt { id: engTxt; anchors.centerIn: parent; role: "overline"; font.pixelSize: 9; text: card.modelData.engine; color: card.tone }
+                            }
                         }
                         Txt {
                             Layout.fillWidth: true
                             role: "mono"
-                            font.pixelSize: 11
+                            font.pixelSize: 10
                             color: Theme.textSub
                             text: card.modelData.image + "  ·  " + card.modelData.status + (card.modelData.ports.length ? "  ·  " + card.modelData.ports : "")
                         }
                     }
-                    IconButton {
-                        icon: card.modelData.running ? "stop" : "play_arrow"
-                        variant: card.modelData.running ? "danger" : "tonal"
-                        size: 32
-                        iconSize: 18
-                        tooltip: card.modelData.running ? "Arrêter" : "Démarrer"
-                        onClicked: Containers.act(card.modelData, card.modelData.running ? "stop" : "start")
-                    }
-                    IconButton {
-                        visible: card.modelData.running
-                        icon: "restart_alt"
-                        size: 32
-                        iconSize: 18
-                        tooltip: "Redémarrer"
-                        onClicked: Containers.act(card.modelData, "restart")
-                    }
-                    IconButton {
-                        icon: "article"
-                        size: 32
-                        iconSize: 18
-                        tooltip: "Journaux (terminal)"
-                        onClicked: Containers.logs(card.modelData)
-                    }
-                    IconButton {
-                        visible: card.modelData.running
-                        icon: "terminal"
-                        size: 32
-                        iconSize: 18
-                        tooltip: "Shell dans le conteneur"
-                        onClicked: Containers.shell(card.modelData)
+
+                    // actions groupées
+                    Rectangle {
+                        implicitHeight: 34
+                        implicitWidth: acts.implicitWidth + 6
+                        radius: 17
+                        color: Qt.alpha(Theme.text, 0.04)
+                        border.width: 1
+                        border.color: Theme.border
+                        Row {
+                            id: acts
+                            anchors.centerIn: parent
+                            IconButton {
+                                icon: card.on ? "stop" : "play_arrow"
+                                size: 30
+                                iconSize: 17
+                                iconColor: card.on ? Theme.error : Theme.success
+                                tooltip: card.on ? "Arrêter" : "Démarrer"
+                                onClicked: Containers.act(card.modelData, card.on ? "stop" : "start")
+                            }
+                            IconButton {
+                                visible: card.on
+                                icon: "restart_alt"
+                                size: 30
+                                iconSize: 17
+                                tooltip: "Redémarrer"
+                                onClicked: Containers.act(card.modelData, "restart")
+                            }
+                            IconButton {
+                                icon: "article"
+                                size: 30
+                                iconSize: 17
+                                tooltip: "Journaux (terminal)"
+                                onClicked: Containers.logs(card.modelData)
+                            }
+                            IconButton {
+                                visible: card.on
+                                icon: "terminal"
+                                size: 30
+                                iconSize: 17
+                                tooltip: "Shell dans le conteneur"
+                                onClicked: Containers.shell(card.modelData)
+                            }
+                        }
                     }
                 }
             }

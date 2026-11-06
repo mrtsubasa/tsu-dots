@@ -33,6 +33,8 @@ ColumnLayout {
     }
 
     PageHeader {
+        icon: "bluetooth"
+        tone: Theme.accent2
         Layout.fillWidth: true
         title: "Bluetooth"
         subtitle: !root.adapter ? "Aucun adaptateur" : (root.adapter.enabled ? (root.adapter.discovering ? "Recherche en cours…" : "Activé") : "Désactivé")

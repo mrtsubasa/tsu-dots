@@ -24,13 +24,13 @@ Scope {
             readonly property bool here: PanelService.onScreen(modelData)
             readonly property string want: here ? PanelService.active : ""
 
-            readonly property bool anyShown: cc.shown || cal.shown || media.shown || power.shown || sysmon.shown || launcher.shown || studio.shown || clip.shown || binds.shown || containers.shown || arsenal.shown
+            readonly property bool anyShown: cc.shown || cal.shown || media.shown || power.shown || sysmon.shown || launcher.shown || studio.shown || clip.shown || binds.shown || containers.shown || arsenal.shown || sono.shown || vmSurface.shown || proton.shown || cam.shown || dash.shown
             visible: anyShown
             color: "transparent"
             exclusionMode: ExclusionMode.Ignore
             WlrLayershell.namespace: "catalyst-stage"
             WlrLayershell.layer: WlrLayer.Overlay
-            WlrLayershell.keyboardFocus: want.length && (cc.open || cal.open || media.open || power.open || sysmon.open || launcher.open || studio.open || clip.open || binds.open || containers.open || arsenal.open) ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+            WlrLayershell.keyboardFocus: want.length && (cc.open || cal.open || media.open || power.open || sysmon.open || launcher.open || studio.open || clip.open || binds.open || containers.open || arsenal.open || sono.open || vmSurface.open || proton.open || cam.open || dash.open) ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
             anchors { top: true; bottom: true; left: true; right: true }
 
             // abscisse d'ancrage (centre de l'élément de barre cliqué)
@@ -230,6 +230,113 @@ Scope {
                         focus: arsenal.open
                         sourceComponent: ArsenalPanel {
                             maxHeight: stage.height - Tokens.belowBar - 40
+                            focus: true
+                        }
+                    }
+                }
+
+                // ---- Sono de VoxMix (centré) ----
+                Popout {
+                    id: sono
+                    open: stage.want === "sono"
+                    from: "center"
+                    width: sonoLoader.item ? sonoLoader.item.implicitWidth : 0
+                    height: sonoLoader.item ? sonoLoader.item.implicitHeight : 0
+                    anchors.centerIn: parent
+                    anchors.verticalCenterOffset: Tokens.exclusive / 2
+                    Loader {
+                        id: sonoLoader
+                        anchors.fill: parent
+                        active: sono.open || sono.shown
+                        focus: sono.open
+                        sourceComponent: SonoPanel {
+                            maxHeight: stage.height - Tokens.belowBar - 40
+                            focus: true
+                        }
+                    }
+                }
+
+                // ---- Machines virtuelles (centré) ----
+                Popout {
+                    id: vmSurface
+                    open: stage.want === "vm"
+                    from: "center"
+                    width: vmLoader.item ? vmLoader.item.implicitWidth : 0
+                    height: vmLoader.item ? vmLoader.item.implicitHeight : 0
+                    anchors.centerIn: parent
+                    anchors.verticalCenterOffset: Tokens.exclusive / 2
+                    Loader {
+                        id: vmLoader
+                        anchors.fill: parent
+                        active: vmSurface.open || vmSurface.shown
+                        focus: vmSurface.open
+                        sourceComponent: VmPanel {
+                            maxHeight: stage.height - Tokens.belowBar - 40
+                            focus: true
+                        }
+                    }
+                }
+
+                // ---- ProtonVPN (centré) ----
+                Popout {
+                    id: proton
+                    open: stage.want === "proton"
+                    from: "center"
+                    width: protonLoader.item ? protonLoader.item.implicitWidth : 0
+                    height: protonLoader.item ? protonLoader.item.implicitHeight : 0
+                    anchors.centerIn: parent
+                    anchors.verticalCenterOffset: Tokens.exclusive / 2
+                    Loader {
+                        id: protonLoader
+                        anchors.fill: parent
+                        active: proton.open || proton.shown
+                        focus: proton.open
+                        sourceComponent: ProtonPanel {
+                            maxHeight: stage.height - Tokens.belowBar - 40
+                            focus: true
+                        }
+                    }
+                }
+
+                // ---- Caméra (dropdown sous l'item de barre) ----
+                Popout {
+                    id: cam
+                    open: stage.want === "cam"
+                    from: "top"
+                    distance: 14
+                    width: camLoader.item ? camLoader.item.implicitWidth : 0
+                    height: camLoader.item ? camLoader.item.implicitHeight : 0
+                    x: stage.placeX(width)
+                    y: Tokens.belowBar
+                    Loader {
+                        id: camLoader
+                        anchors.fill: parent
+                        active: cam.open || cam.shown
+                        focus: cam.open
+                        sourceComponent: CamPanel {
+                            maxHeight: stage.height - Tokens.belowBar - 40
+                            focus: true
+                        }
+                    }
+                }
+
+                // ---- Dashboard (déroulé depuis le haut) ----
+                Popout {
+                    id: dash
+                    open: stage.want === "glance"
+                    from: "top"
+                    distance: 16
+                    width: dashLoader.item ? dashLoader.item.implicitWidth : 0
+                    height: dashLoader.item ? dashLoader.item.implicitHeight : 0
+                    x: stage.placeX(width)
+                    y: Tokens.belowBar
+                    Loader {
+                        id: dashLoader
+                        anchors.fill: parent
+                        active: dash.open || dash.shown
+                        focus: dash.open
+                        sourceComponent: DashPanel {
+                            maxHeight: stage.height - Tokens.belowBar - 24
                             focus: true
                         }
                     }

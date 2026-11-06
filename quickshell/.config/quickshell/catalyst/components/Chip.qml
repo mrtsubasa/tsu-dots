@@ -19,15 +19,15 @@ Item {
     Rectangle {
         anchors.fill: parent
         radius: height / 2
-        color: root.on ? Theme.accent : Theme.s3
+        color: root.on ? Qt.alpha(Theme.accent, 0.18) : Qt.alpha(Theme.text, 0.04)
         border.width: 1
-        border.color: root.on ? Theme.accent : Theme.border
+        border.color: root.on ? Qt.alpha(Theme.accent, 0.55) : Theme.border
         Behavior on color { ColorAnimation { duration: Motion.dur(Motion.fast) } }
     }
     StateLayer {
         anchors.fill: parent
         radius: height / 2
-        tone: root.on ? Theme.onAccent : Theme.text
+        tone: root.on ? Theme.accent : Theme.text
         onClicked: root.clicked()
     }
     Txt {
@@ -35,6 +35,7 @@ Item {
         anchors.centerIn: parent
         role: "label"
         text: root.label
-        color: root.on ? Theme.onAccent : Theme.text
+        strong: root.on
+        color: root.on ? Qt.lighter(Theme.accent, 1.12) : Theme.textSub
     }
 }

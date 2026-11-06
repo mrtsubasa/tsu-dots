@@ -11,6 +11,8 @@ ColumnLayout {
     spacing: Tokens.sectionGap
 
     PageHeader {
+        icon: "bolt"
+        tone: Theme.warning
         Layout.fillWidth: true
         title: "Énergie"
         subtitle: Power.degraded ? "Performances réduites (température)" : "Profil actuel : " + Power.current.label

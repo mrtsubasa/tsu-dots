@@ -17,14 +17,16 @@ Item {
     Rectangle {
         anchors.fill: parent
         radius: root.radius
-        color: Theme.s3
+        color: layer.containsMouse ? Qt.alpha(Theme.accent, 0.12) : Qt.alpha(Theme.text, 0.04)
         border.width: 1
-        border.color: Theme.border
+        border.color: layer.containsMouse ? Qt.alpha(Theme.accent, 0.4) : Theme.border
+        Behavior on color { ColorAnimation { duration: Motion.dur(Motion.fast) } }
     }
     StateLayer {
         id: layer
         anchors.fill: parent
         radius: root.radius
+        hoverAlpha: 0
         onClicked: root.clicked()
     }
     Text {

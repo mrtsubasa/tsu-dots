@@ -16,20 +16,24 @@ Item {
     property bool glow: true
     default property alias content: surface.content
 
+    // ressort expressif (façon caelestia) ; se replie proprement sans rebond
+    property bool spring: Motion.springPanels
     property real progress: open ? 1 : 0
     readonly property bool shown: progress > 0.001
 
     Behavior on progress {
         NumberAnimation {
-            duration: Motion.dur(root.open ? Motion.slow : Motion.base)
+            duration: Motion.dur(root.open ? (root.spring ? Motion.springIn : Motion.slow) : (root.spring ? Motion.springOut : Motion.base))
             easing.type: Easing.BezierSpline
-            easing.bezierCurve: root.open ? Motion.curveIn : Motion.curveOut
+            easing.bezierCurve: root.open ? (root.spring ? Motion.curveSpring : Motion.curveIn) : Motion.curveOut
         }
     }
 
     visible: shown
     opacity: Math.min(1, progress * 1.4)
-    scale: from === "center" ? 0.97 + 0.03 * progress : 1
+    // base < 1 quand ressort → léger « pop » à l'ouverture (dépassement inclus)
+    readonly property real scaleFrom: from === "center" ? (spring ? 0.92 : 0.97) : (spring ? 0.985 : 1)
+    scale: scaleFrom + (1 - scaleFrom) * progress
     transform: Translate {
         x: root.from === "left" ? -(1 - root.progress) * Motion.dx(root.distance) : (root.from === "right" ? (1 - root.progress) * Motion.dx(root.distance) : 0)
         y: root.from === "top" ? -(1 - root.progress) * Motion.dy(root.distance) : (root.from === "bottom" ? (1 - root.progress) * Motion.dy(root.distance) : 0)

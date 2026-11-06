@@ -22,20 +22,44 @@ Item {
         width: Math.min(parent.width - 24, 300)
         spacing: 6
 
-        Icon {
+        // médaillon : halo doux + anneau, teinte rouge en erreur
+        Item {
             Layout.alignment: Qt.AlignHCenter
-            name: root.icon
-            size: Tokens.iconXl
-            weight: 300
-            color: root.kind === "error" ? Theme.error : Theme.textFaint
+            Layout.bottomMargin: 6
+            implicitWidth: 64
+            implicitHeight: 64
+            readonly property color tone: root.kind === "error" ? Theme.error : Theme.accent
+            Rectangle {
+                anchors.fill: parent
+                radius: 32
+                color: Qt.alpha(parent.tone, 0.07)
+                border.width: 1
+                border.color: Qt.alpha(parent.tone, 0.18)
+            }
+            Rectangle {
+                anchors.centerIn: parent
+                width: 44
+                height: 44
+                radius: 22
+                color: Qt.alpha(parent.tone, 0.10)
+                border.width: 1
+                border.color: Qt.alpha(parent.tone, 0.30)
+                Icon {
+                    anchors.centerIn: parent
+                    name: root.icon
+                    size: 22
+                    color: root.kind === "error" ? Theme.error : Qt.lighter(Theme.accent, 1.1)
+                }
+            }
         }
         Txt {
             Layout.fillWidth: true
             visible: root.title.length > 0
             horizontalAlignment: Text.AlignHCenter
             role: "label"
+            strong: true
             text: root.title
-            color: Theme.textSub
+            color: Theme.text
         }
         Txt {
             Layout.fillWidth: true

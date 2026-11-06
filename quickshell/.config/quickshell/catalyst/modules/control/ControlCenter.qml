@@ -8,8 +8,10 @@ import "../notifs"
 
 // Centre de contrôle Catalyst.
 //   en-tête   : profil, uptime, Studio / verrouiller / session
-//   tuiles    : réseau, Bluetooth, NPD, lumière nocturne, énergie, éveillé
-//   sliders   : volume (amplification 150 %), micro, luminosité (DDC)
+//   connexions: réseau, Bluetooth (cartes larges, chevron = page)
+//   raccourcis: NPD, nuit, True Tone, énergie, visio, jeu, éveillé, VPN
+//               (clic = bascule, ⚙ ou clic droit = réglages)
+//   niveaux   : volume (amplification 150 %), micro, luminosité (DDC)
 //   média     : lecteur MPRIS actif
 //   notifs    : historique groupé, tout effacer
 // Les chevrons ouvrent une sous-page (glissement latéral) ; Échap / ← revient.
@@ -90,62 +92,97 @@ Item {
             width: mainFlick.width
             spacing: Tokens.sectionGap
 
-            // ---- en-tête ----
+            // ---- en-tête : identité + actions de session ----
             RowLayout {
                 Layout.fillWidth: true
                 spacing: 12
 
-                Art {
-                    Layout.preferredWidth: 42
-                    Layout.preferredHeight: 42
-                    source: Identity.hasAvatar ? Identity.avatar : ""
-                    radius: Identity.avatarShape === "square" ? Tokens.rSm : (Identity.avatarShape === "soft" ? Tokens.rMd : 21)
-                    fallbackIcon: "person"
+                Item {
+                    Layout.preferredWidth: 46
+                    Layout.preferredHeight: 46
+                    Art {
+                        anchors.fill: parent
+                        source: Identity.hasAvatar ? Identity.avatar : ""
+                        radius: Identity.avatarShape === "square" ? Tokens.rSm : (Identity.avatarShape === "soft" ? Tokens.rMd : 23)
+                        fallbackIcon: "person"
+                    }
+                    // pastille « en ligne »
+                    Rectangle {
+                        anchors.right: parent.right
+                        anchors.bottom: parent.bottom
+                        width: 12
+                        height: 12
+                        radius: 6
+                        color: Net.online ? Theme.success : Theme.textFaint
+                        border.width: 2
+                        border.color: Theme.s1
+                    }
                 }
                 ColumnLayout {
                     Layout.fillWidth: true
-                    spacing: 1
+                    spacing: 0
+                    Txt { role: "overline"; text: "// " + Identity.hostName; color: Theme.accent; Layout.fillWidth: true }
                     Txt { role: "heading"; text: Identity.userName; Layout.fillWidth: true }
                     Txt {
                         role: "caption"
                         Layout.fillWidth: true
-                        text: "actif depuis " + SysInfo.uptime.replace("min", "") + " · " + Identity.hostName
+                        color: Theme.textFaint
+                        text: "en ligne depuis " + SysInfo.uptime.replace("min", "")
                     }
                 }
-                IconButton {
-                    icon: "palette"
-                    tooltip: "Studio — personnalisation"
-                    onClicked: PanelService.show("studio")
-                }
-                IconButton {
-                    icon: "lock"
-                    tooltip: "Verrouiller"
-                    onClicked: {
-                        PanelService.hide();
-                        Quickshell.execDetached(["loginctl", "lock-session"]);
+                // actions groupées dans une capsule
+                Rectangle {
+                    implicitWidth: actRow.implicitWidth + 8
+                    implicitHeight: 38
+                    radius: 19
+                    color: Theme.s3
+                    border.width: 1
+                    border.color: Theme.border
+                    RowLayout {
+                        id: actRow
+                        anchors.centerIn: parent
+                        spacing: 2
+                        IconButton {
+                            icon: "palette"
+                            size: 30
+                            iconSize: 16
+                            tooltip: "Studio — personnalisation"
+                            onClicked: PanelService.show("studio")
+                        }
+                        IconButton {
+                            icon: "lock"
+                            size: 30
+                            iconSize: 16
+                            tooltip: "Verrouiller"
+                            onClicked: {
+                                PanelService.hide();
+                                Quickshell.execDetached(["loginctl", "lock-session"]);
+                            }
+                        }
+                        IconButton {
+                            icon: "power_settings_new"
+                            size: 30
+                            iconSize: 16
+                            iconColor: Theme.error
+                            tooltip: "Session"
+                            onClicked: PanelService.show("power")
+                        }
                     }
-                }
-                IconButton {
-                    icon: "power_settings_new"
-                    tooltip: "Session"
-                    onClicked: PanelService.show("power")
                 }
             }
 
-            // ---- tuiles ----
-            GridLayout {
+            // ---- connexions ----
+            RowLayout {
                 Layout.fillWidth: true
-                columns: 2
-                columnSpacing: 8
-                rowSpacing: 8
+                spacing: 8
 
-                Tile {
+                CcLink {
                     Layout.fillWidth: true
+                    Layout.preferredWidth: 1
                     icon: Net.wired ? "lan" : (Net.wifiConnected ? "wifi" : (Net.wifiOn ? "wifi_find" : "wifi_off"))
                     title: Net.wired ? "Ethernet" : "Wi-Fi"
-                    subtitle: Net.wired ? (Net.limited ? "Accès limité" : "Connecté") : Net.label
+                    subtitle: Net.wired ? (Net.limited ? "Accès limité" : (Net.linkSpeed > 0 ? Net.linkSpeed + " Mb/s" : "Connecté")) : Net.label
                     active: Net.online
-                    expandable: true
                     onClicked: {
                         if (Net.wired || !Net.hasWifi)
                             root.go("net");
@@ -154,8 +191,9 @@ Item {
                     }
                     onExpand: root.go("net")
                 }
-                Tile {
+                CcLink {
                     Layout.fillWidth: true
+                    Layout.preferredWidth: 1
                     readonly property var connected: {
                         const a = Net.adapter;
                         if (!a || !a.devices)
@@ -170,93 +208,128 @@ Item {
                     title: "Bluetooth"
                     subtitle: !Net.adapter ? "Indisponible" : (Net.btOn ? (connected ? (connected.name || "Connecté") : "Activé") : "Désactivé")
                     active: Net.btOn
+                    accent: Theme.accent2
                     unavailable: !Net.adapter
-                    expandable: true
                     onClicked: Net.toggleBt()
                     onExpand: root.go("bt")
                 }
-                Tile {
+            }
+
+            // ---- raccourcis : 4 colonnes, clic = bascule, ⚙ / clic droit = réglages ----
+            GridLayout {
+                Layout.fillWidth: true
+                columns: 4
+                columnSpacing: 8
+                rowSpacing: 8
+
+                CcToggle {
                     Layout.fillWidth: true
+                    Layout.preferredWidth: 1
                     icon: Notifs.dnd ? "do_not_disturb_on" : "do_not_disturb_off"
-                    title: "Ne pas déranger"
-                    subtitle: Notifs.dnd ? "Notifications silencieuses" : "Désactivé"
+                    label: "Silence"
+                    state_: Notifs.dnd ? "Actif" : "Inactif"
                     active: Notifs.dnd
                     accent: Theme.signature
                     onClicked: Notifs.toggleDnd()
                 }
-                Tile {
+                CcToggle {
                     Layout.fillWidth: true
+                    Layout.preferredWidth: 1
                     icon: "nightlight"
-                    title: "Mode nuit"
-                    subtitle: Night.on ? ShellCfg.nightTemp + " K" : "Désactivé"
+                    label: "Nuit"
+                    state_: Night.on ? ShellCfg.nightTemp + " K" : "Inactif"
                     active: Night.on
                     accent: Theme.warning
                     expandable: true
                     onClicked: Night.toggle()
                     onExpand: root.go("display")
                 }
-                Tile {
+                CcToggle {
                     Layout.fillWidth: true
+                    Layout.preferredWidth: 1
                     icon: "wb_twilight"
-                    title: "True Tone"
-                    subtitle: Night.trueTone ? (Night.on ? "Pause (nuit)" : Night.currentK + " K") : "Désactivé"
+                    label: "True Tone"
+                    state_: Night.trueTone ? (Night.on ? "En pause" : Night.currentK + " K") : "Inactif"
                     active: Night.trueTone
                     accent: Theme.accent2
                     expandable: true
                     onClicked: Night.setTrueTone(!Night.trueTone)
                     onExpand: root.go("display")
                 }
-                Tile {
+                CcToggle {
                     Layout.fillWidth: true
+                    Layout.preferredWidth: 1
                     icon: Power.current.icon
-                    title: "Énergie"
-                    subtitle: Power.current.label
+                    label: "Énergie"
+                    state_: Power.current.label
                     active: Power.current.key !== "balanced"
                     expandable: true
                     onClicked: Power.cycle()
                     onExpand: root.go("power")
                 }
-                Tile {
+                CcToggle {
                     Layout.fillWidth: true
+                    Layout.preferredWidth: 1
                     icon: "video_call"
-                    title: "Mode visio"
-                    subtitle: Mic.callMode ? "Actif" : (Mic.processed ? "Micro traité" : "Micro brut")
+                    label: "Visio"
+                    state_: Mic.callMode ? "Actif" : (Mic.processed ? "Micro traité" : "Micro brut")
                     active: Mic.callMode
                     accent: Theme.success
                     expandable: true
                     onClicked: Mic.setCallMode(!Mic.callMode)
                     onExpand: root.go("call")
                 }
-                Tile {
+                CcToggle {
                     Layout.fillWidth: true
+                    Layout.preferredWidth: 1
                     icon: "sports_esports"
-                    title: "Mode jeu"
-                    subtitle: GameMode.active ? (GameMode.manual ? "Actif (manuel)" : GameMode.game) : (ShellCfg.autoGameMode ? "Auto en plein écran" : "Désactivé")
+                    label: "Jeu"
+                    state_: GameMode.active ? (GameMode.manual ? "Manuel" : GameMode.game) : (ShellCfg.autoGameMode ? "Auto" : "Inactif")
                     active: GameMode.active
                     accent: Theme.accent2
                     onClicked: GameMode.toggle()
                 }
-                Tile {
+                CcToggle {
                     Layout.fillWidth: true
-                    Layout.columnSpan: 2
+                    Layout.preferredWidth: 1
                     icon: "coffee"
-                    title: "Rester éveillé"
-                    subtitle: Caffeine.on ? "Veille suspendue" : "Désactivé"
+                    label: "Éveillé"
+                    state_: Caffeine.on ? "Veille coupée" : "Inactif"
                     active: Caffeine.on
-                    accent: Theme.accent2
+                    accent: Theme.warning
                     onClicked: Caffeine.toggle()
+                }
+                CcToggle {
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: 1
+                    icon: Vpn.activeVpn ? "vpn_lock" : "vpn_key"
+                    label: "VPN"
+                    state_: Vpn.activeVpn ? (Vpn.activeVpn.label || "Connecté") : "Aucun"
+                    active: Vpn.activeVpn !== null
+                    accent: Theme.success
+                    onClicked: root.go("vpn")
                 }
             }
 
-            // ---- sliders ----
-            ColumnLayout {
+            // ---- niveaux ----
+            Rectangle {
                 Layout.fillWidth: true
-                spacing: 8
+                implicitHeight: levels.implicitHeight + 20
+                radius: Tokens.rLg
+                color: Theme.s3
+                border.width: 1
+                border.color: Theme.border
 
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: 6
-                    Slider {
+                ColumnLayout {
+                    id: levels
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.leftMargin: 6
+                    anchors.rightMargin: 6
+                    spacing: 2
+
+                    CcLevel {
                         Layout.fillWidth: true
                         icon: "volume_up"
                         iconOff: "volume_off"
@@ -264,23 +337,13 @@ Item {
                         maximum: Audio.maxVolume
                         value: Audio.volume
                         disabled: !Audio.sinkReady
-                        accent: Audio.volume > 1.0 ? Theme.warning : Theme.accent
+                        expandable: true
+                        expandTip: "Sortie : " + Audio.sinkName
                         onMoved: v => Audio.setVolume(v)
                         onIconClicked: Audio.toggleMute()
+                        onExpand: root.go("out")
                     }
-                    IconButton {
-                        icon: "chevron_right"
-                        variant: "tonal"
-                        size: Tokens.sliderH
-                        radius: Tokens.rMd
-                        tooltip: "Sortie : " + Audio.sinkName
-                        onClicked: root.go("out")
-                    }
-                }
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: 6
-                    Slider {
+                    CcLevel {
                         Layout.fillWidth: true
                         icon: "mic"
                         iconOff: "mic_off"
@@ -288,24 +351,20 @@ Item {
                         maximum: 1
                         value: Math.min(1, Audio.micVolume)
                         disabled: !Audio.sourceReady
+                        accent: Theme.accent2
+                        expandable: true
+                        expandTip: "Micro & visio : " + Audio.inputName
                         onMoved: v => Audio.setMicVolume(v)
                         onIconClicked: Audio.toggleMic()
+                        onExpand: root.go("call")
                     }
-                    IconButton {
-                        icon: "chevron_right"
-                        variant: "tonal"
-                        size: Tokens.sliderH
-                        radius: Tokens.rMd
-                        tooltip: "Micro & visio : " + Audio.inputName
-                        onClicked: root.go("call")
+                    CcLevel {
+                        Layout.fillWidth: true
+                        icon: "brightness_6"
+                        value: Bright.value
+                        accent: Theme.warning
+                        onMoved: v => Bright.set(v)
                     }
-                }
-                Slider {
-                    Layout.fillWidth: true
-                    Layout.rightMargin: Tokens.sliderH + 6
-                    icon: "brightness_6"
-                    value: Bright.value
-                    onMoved: v => Bright.set(v)
                 }
             }
 

@@ -41,6 +41,17 @@ Singleton {
     // accelerate : sortie de surfaces
     readonly property var curveOut: [0.3, 0, 0.8, 0.15, 1, 1]
 
+    // --- Material 3 Expressive : ressort doux pour l'ouverture des panneaux ---
+    // (le « feel » caelestia : dépliage avec léger dépassement élastique)
+    // Désactivé automatiquement en mouvement réduit.
+    property bool springPanels: !reduced
+    readonly property int springIn: 460            // durée d'entrée ressort
+    readonly property int springOut: 320           // sortie (sans rebond)
+    // spatial par défaut (0.38, 1.21, …) : le 1.21 > 1 crée le dépassement
+    readonly property var curveSpring: [0.38, 1.21, 0.22, 1, 1, 1]
+    // spatial rapide, rebond plus marqué (petits éléments)
+    readonly property var curveSpringFast: [0.42, 1.67, 0.21, 0.9, 1, 1]
+
     // Durée effective (reduced motion = quasi instantané, opacité seule)
     function dur(ms) {
         return reduced ? 1 : ms;

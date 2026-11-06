@@ -11,10 +11,12 @@ return {
 			"L3MON4D3/LuaSnip", -- Snippet engine (Required)
 			"saadparwaiz1/cmp_luasnip", -- Connects LuaSnip to CMP
 			"rafamadriz/friendly-snippets", -- Collection of ready-made snippets
+			"onsails/lspkind.nvim", -- VSCode-style icons in the menu
 		},
 		config = function()
 			local cmp = require("cmp")
 			local luasnip = require("luasnip")
+			local lspkind = require("lspkind")
 
 			-- Load VSCode-style snippets
 			require("luasnip.loaders.from_vscode").lazy_load()
@@ -26,8 +28,26 @@ return {
 					end,
 				},
 				window = {
-					completion = cmp.config.window.bordered(),
-					documentation = cmp.config.window.bordered(),
+					completion = cmp.config.window.bordered({
+						winhighlight = "Normal:Pmenu,FloatBorder:FloatBorder,CursorLine:PmenuSel,Search:None",
+					}),
+					documentation = cmp.config.window.bordered({
+						winhighlight = "Normal:NormalFloat,FloatBorder:FloatBorder",
+					}),
+				},
+				formatting = {
+					fields = { "kind", "abbr", "menu" },
+					format = lspkind.cmp_format({
+						mode = "symbol_text", -- icon + text, like VSCode
+						maxwidth = 50,
+						ellipsis_char = "…",
+						menu = {
+							nvim_lsp = "[LSP]",
+							luasnip = "[Snip]",
+							buffer = "[Buf]",
+							path = "[Path]",
+						},
+					}),
 				},
 				mapping = cmp.mapping.preset.insert({
 					["<C-b>"] = cmp.mapping.scroll_docs(-4),

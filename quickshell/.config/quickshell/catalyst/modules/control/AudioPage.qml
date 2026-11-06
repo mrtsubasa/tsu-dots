@@ -32,8 +32,22 @@ ColumnLayout {
         return out;
     }
 
+    // Mise à jour différée : voir rice/Audio.qml
+    property var trackedStreams: []
+    onStreamsChanged: trackTimer.restart()
+
+    Timer {
+        id: trackTimer
+        interval: 150
+        running: true
+        onTriggered: {
+            const live = Pipewire.nodes.values || [];
+            root.trackedStreams = root.streams.filter(n => n && live.indexOf(n) >= 0);
+        }
+    }
+
     PwObjectTracker {
-        objects: root.streams
+        objects: root.trackedStreams
     }
 
     function streamName(n) {
@@ -46,6 +60,8 @@ ColumnLayout {
     }
 
     PageHeader {
+        icon: root.isOut ? "volume_up" : "mic"
+        tone: Theme.accent
         Layout.fillWidth: true
         title: root.isOut ? "Sortie audio" : "Entrée audio"
         subtitle: root.current ? Audio.nodeLabel(root.current) : "Aucun périphérique"
@@ -91,32 +107,47 @@ ColumnLayout {
 
     Repeater {
         model: root.streams
-        ColumnLayout {
+        Rectangle {
             id: st
             required property var modelData
+            readonly property string app: root.streamName(modelData)
             Layout.fillWidth: true
-            spacing: 4
-            Txt {
-                Layout.fillWidth: true
-                Layout.leftMargin: 4
-                role: "caption"
-                text: root.streamName(st.modelData)
-            }
-            Slider {
-                Layout.fillWidth: true
-                implicitHeight: 30
-                icon: root.isOut ? "graphic_eq" : "mic"
-                iconOff: root.isOut ? "volume_off" : "mic_off"
-                muted: st.modelData.audio ? st.modelData.audio.muted : false
-                maximum: 1.5
-                value: st.modelData.audio ? st.modelData.audio.volume : 0
-                onMoved: v => {
-                    if (st.modelData.audio) {
-                        st.modelData.audio.muted = false;
-                        st.modelData.audio.volume = v;
-                    }
+            implicitHeight: stCol.implicitHeight + 16
+            radius: Tokens.rLg
+            color: Theme.s2
+            border.width: 1
+            border.color: Theme.border
+
+            ColumnLayout {
+                id: stCol
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.leftMargin: 12
+                anchors.rightMargin: 6
+                spacing: 2
+                Txt {
+                    Layout.fillWidth: true
+                    Layout.leftMargin: 2
+                    role: "label"
+                    strong: true
+                    text: st.app
                 }
-                onIconClicked: if (st.modelData.audio) st.modelData.audio.muted = !st.modelData.audio.muted
+                CcLevel {
+                    Layout.fillWidth: true
+                    icon: root.isOut ? "graphic_eq" : "mic"
+                    iconOff: root.isOut ? "volume_off" : "mic_off"
+                    muted: st.modelData.audio ? st.modelData.audio.muted : false
+                    maximum: 1.5
+                    value: st.modelData.audio ? st.modelData.audio.volume : 0
+                    onMoved: v => {
+                        if (st.modelData.audio) {
+                            st.modelData.audio.muted = false;
+                            st.modelData.audio.volume = v;
+                        }
+                    }
+                    onIconClicked: if (st.modelData.audio) st.modelData.audio.muted = !st.modelData.audio.muted
+                }
             }
         }
     }

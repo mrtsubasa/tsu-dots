@@ -4,20 +4,21 @@ import qs.rice
 import qs.kit
 
 // Horloge centrale : heure (Space Grotesk, chiffres tabulaires) + date
-// courte. Clic = calendrier ; clic droit = copie date/heure ISO.
+// courte. Clic = dashboard (profil, calendrier, ressources, média, météo) ;
+// clic droit = copie date/heure ISO.
 BarItem {
     id: root
 
     property var barWin: null
     padX: 12
     spacing: 8
-    active: PanelService.active === "calendar" && PanelService.outputName === (barWin ? barWin.outputName : "")
+    active: PanelService.active === "glance" && PanelService.outputName === (barWin ? barWin.outputName : "")
 
     onClicked: mouse => {
         if (mouse.button === Qt.RightButton)
             Quickshell.execDetached(["sh", "-c", "date '+%Y-%m-%d %H:%M:%S' | tr -d '\\n' | wl-copy"]);
         else
-            PanelService.openAt("calendar", root.barWin, root);
+            PanelService.openAt("glance", root.barWin, root);
     }
 
     Text {

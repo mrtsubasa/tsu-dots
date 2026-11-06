@@ -19,11 +19,14 @@ ColumnLayout {
     property string addMode: ""          // "" | file | paste | wg
     property string confirmDel: ""
     property string renaming: ""
+    property string editCreds: ""        // uuid du VPN dont on saisit les identifiants
 
     Component.onCompleted: Vpn.users++
     Component.onDestruction: Vpn.users = Math.max(0, Vpn.users - 1)
 
     PageHeader {
+        icon: "vpn_lock"
+        tone: Theme.success
         Layout.fillWidth: true
         title: "VPN"
         subtitle: Vpn.activeVpn ? "Connecté : " + Vpn.activeVpn.label + (Ifaces.vpn ? " · " + Ifaces.lhost : "") : Vpn.userVpns.length + " configuration(s)"
@@ -113,8 +116,9 @@ ColumnLayout {
                             text: card.v.external ? "Géré par " + card.v.label + " (lecture seule)"
                                 : card.broken ? card.v.missing.length + " fichier(s) de certificat introuvable(s) — à réparer"
                                 : card.busy ? "Connexion…"
+                                : (card.v.needLogin && !card.v.hasLogin) ? "Login requis — enregistre tes identifiants"
                                 : card.v.active ? "Connecté" + (card.v.neverDefault ? " · réseaux du VPN uniquement" : " · tout le trafic")
-                                : (card.v.neverDefault ? "Réseaux du VPN uniquement (Internet via la box)" : "Tout le trafic passe par le VPN") + (card.v.autoconnect ? " · auto" : "")
+                                : (card.v.neverDefault ? "Réseaux du VPN uniquement (Internet via la box)" : "Tout le trafic passe par le VPN") + (card.v.needLogin && card.v.hasLogin ? " · identifiants OK" : "") + (card.v.autoconnect ? " · auto" : "")
                         }
                     }
                     Spinner { visible: card.busy; size: 18 }
@@ -138,6 +142,14 @@ ColumnLayout {
                         icon: "build"
                         text: "Réparer depuis un fichier…"
                         onClicked: Vpn.pickFile(p => Vpn.replace(card.v, p))
+                    }
+                    Button {
+                        visible: card.v.needLogin
+                        variant: card.v.hasLogin ? "ghost" : "primary"
+                        height_: 28
+                        icon: "password"
+                        text: card.v.hasLogin ? "Identifiants" : "Enregistrer les identifiants…"
+                        onClicked: root.editCreds = root.editCreds === card.v.uuid ? "" : card.v.uuid
                     }
                     Button {
                         variant: "secondary"
@@ -180,6 +192,15 @@ ColumnLayout {
                         }
                     }
                 }
+                // connexion gérée par l'app ProtonVPN : lancement rapide
+                Button {
+                    visible: card.v.proton
+                    variant: "secondary"
+                    height_: 28
+                    icon: "open_in_new"
+                    text: "Ouvrir ProtonVPN"
+                    onClicked: Vpn.openProton()
+                }
                 Menu {
                     id: moreMenu
                     side: "bottom"
@@ -201,6 +222,63 @@ ColumnLayout {
                         root.renaming = "";
                     }
                 }
+
+                // identifiants OpenVPN (ProtonVPN, PIA… : login/mot de passe du service)
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    visible: root.editCreds === card.v.uuid
+                    spacing: 6
+                    Txt {
+                        Layout.fillWidth: true
+                        role: "caption"
+                        color: Theme.textFaint
+                        wrapMode: Text.WordWrap
+                        text: "Identifiants OpenVPN du service (ProtonVPN : onglet « OpenVPN / IKEv2 username » du compte — pas le mot de passe de connexion Proton). Gardés par NetworkManager, le mot de passe ne repart jamais dans une commande."
+                    }
+                    Field {
+                        id: credUser
+                        Layout.fillWidth: true
+                        mono: true
+                        placeholder: "Identifiant OpenVPN"
+                    }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 6
+                        Field {
+                            id: credPass
+                            Layout.fillWidth: true
+                            mono: true
+                            echoMode: TextInput.Password
+                            placeholder: "Mot de passe OpenVPN"
+                            onAccepted: saveCreds.clicked()
+                        }
+                        Button {
+                            id: saveCreds
+                            variant: "primary"
+                            height_: Tokens.ctrl
+                            icon: "save"
+                            text: "Enregistrer"
+                            disabled: !credUser.text.trim().length || !credPass.text.length
+                            onClicked: {
+                                Vpn.setCreds(card.v, credUser.text.trim(), credPass.text);
+                                credUser.text = "";
+                                credPass.text = "";
+                                root.editCreds = "";
+                            }
+                        }
+                        Button {
+                            visible: card.v.hasLogin
+                            variant: "ghost"
+                            height_: Tokens.ctrl
+                            icon: "delete"
+                            text: "Oublier"
+                            onClicked: {
+                                Vpn.clearCreds(card.v);
+                                root.editCreds = "";
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -208,6 +286,88 @@ ColumnLayout {
         id: delT
         interval: 4000
         onTriggered: root.confirmDel = ""
+    }
+
+    // ---------------- ProtonVPN (app officielle) ----------------
+    // Proton gère lui-même la liste live, la charge des serveurs et les catégories
+    // (rapide, streaming, P2P, Tor, Secure Core). Ici : état + lancement / install.
+    Pane {
+        id: pane
+        Layout.fillWidth: true
+        level: 3
+        glass: false
+        radius: Tokens.rLg
+        readonly property bool pvActive: Vpn.protonVpn !== null && Vpn.protonVpn.active
+        borderColor: pvActive ? Qt.alpha(Theme.success, 0.5) : Theme.border
+        implicitHeight: pRow.implicitHeight + 24
+        RowLayout {
+            id: pRow
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.leftMargin: 12
+            anchors.rightMargin: 12
+            spacing: 10
+            Rectangle {
+                width: 34
+                height: 34
+                radius: Tokens.rMd
+                color: pane.pvActive ? Theme.success : Theme.s4
+                Icon {
+                    anchors.centerIn: parent
+                    name: "security"
+                    size: 18
+                    fill: pane.pvActive ? 1 : 0
+                    color: pane.pvActive ? Theme.onAccent : Theme.textSub
+                }
+            }
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 1
+                RowLayout {
+                    spacing: 6
+                    Txt { role: "heading"; text: "ProtonVPN" }
+                    Badge {
+                        visible: Vpn.protonVpn !== null
+                        label: (Vpn.protonVpn && Vpn.protonVpn.active) ? "connecté" : "prêt"
+                        tone: (Vpn.protonVpn && Vpn.protonVpn.active) ? Theme.success : Theme.s4
+                        ink: (Vpn.protonVpn && Vpn.protonVpn.active) ? Theme.onAccent : Theme.textSub
+                    }
+                }
+                Txt {
+                    Layout.fillWidth: true
+                    role: "caption"
+                    color: Theme.textSub
+                    wrapMode: Text.WordWrap
+                    text: !Vpn.protonInstalled ? "App non installée — rapide, streaming, P2P, Tor, Secure Core en un clic"
+                        : (Vpn.protonVpn && Vpn.protonVpn.active) ? "Connecté — serveur et catégorie gérés par l'app"
+                        : "Installée — ouvre l'app pour choisir pays, P2P, Tor, Secure Core…"
+                }
+            }
+            IconButton {
+                visible: Proton.ready
+                icon: "travel_explore"
+                variant: "tonal"
+                size: 30
+                tooltip: "Explorer les serveurs"
+                onClicked: PanelService.show("proton")
+            }
+            IconButton {
+                visible: Vpn.protonInstalled
+                icon: "open_in_new"
+                size: 30
+                tooltip: "Ouvrir l'app ProtonVPN"
+                onClicked: Vpn.openProton()
+            }
+            Button {
+                visible: !Vpn.protonInstalled
+                variant: "primary"
+                height_: 30
+                icon: "download"
+                text: "Installer l'app"
+                onClicked: Vpn.installProton()
+            }
+        }
     }
 
     // ---------------- ajout ----------------

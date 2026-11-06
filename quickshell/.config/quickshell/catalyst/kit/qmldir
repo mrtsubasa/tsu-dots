@@ -18,6 +18,7 @@ Divider 1.0 Divider.qml
 EmptyState 1.0 EmptyState.qml
 Spinner 1.0 Spinner.qml
 Ring 1.0 Ring.qml
+RingStack 1.0 RingStack.qml
 Tip 1.0 Tip.qml
 Art 1.0 Art.qml
 Popout 1.0 Popout.qml
@@ -28,3 +29,7 @@ SettingRow 1.0 SettingRow.qml
 Group 1.0 Group.qml
 Swatch 1.0 Swatch.qml
 Field 1.0 Field.qml
+Kbd 1.0 Kbd.qml
+KeyHints 1.0 KeyHints.qml
+PanelHead 1.0 PanelHead.qml
+Banner 1.0 Banner.qml

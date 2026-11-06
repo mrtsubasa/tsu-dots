@@ -47,3 +47,40 @@ map("n", "<leader>yc", function()
 		print(" Contents of '" .. char .. "' sent to Clipboard!")
 	end
 end, opts)
+
+-- --- BUFFERS ---
+-- Cycling ([b / ]b) is provided by bufferline. Here: quick close & scratch.
+map("n", "<leader>bd", function()
+	if _G.Snacks then
+		Snacks.bufdelete() -- closes the buffer but keeps the window layout
+	else
+		vim.cmd("bdelete")
+	end
+end, { desc = "Close Buffer" })
+map("n", "<leader>bn", "<cmd>enew<cr>", { desc = "New Buffer" })
+
+-- --- INDENT IN VISUAL MODE ---
+-- Keep the selection after indenting so you can repeat it
+map("v", "<", "<gv", opts)
+map("v", ">", ">gv", opts)
+
+-- --- UI / TOGGLES ---
+-- Toggle inline diagnostic text (virtual_text), off by default for a clean view
+local diag_virtual = false
+map("n", "<leader>ud", function()
+	diag_virtual = not diag_virtual
+	vim.diagnostic.config({ virtual_text = diag_virtual })
+	print("Inline diagnostics: " .. (diag_virtual and "ON" or "OFF"))
+end, { desc = "Toggle Inline Diagnostics" })
+
+-- Toggle inlay hints (parameter / type hints)
+map("n", "<leader>uh", function()
+	local on = not vim.lsp.inlay_hint.is_enabled()
+	vim.lsp.inlay_hint.enable(on)
+	print("Inlay hints: " .. (on and "ON" or "OFF"))
+end, { desc = "Toggle Inlay Hints" })
+
+-- Toggle line wrap
+map("n", "<leader>uw", function()
+	vim.wo.wrap = not vim.wo.wrap
+end, { desc = "Toggle Line Wrap" })

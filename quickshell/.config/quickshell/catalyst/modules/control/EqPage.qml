@@ -12,6 +12,8 @@ ColumnLayout {
     spacing: Tokens.sectionGap
 
     PageHeader {
+        icon: "equalizer"
+        tone: Theme.accent
         Layout.fillWidth: true
         title: "Égaliseur"
         subtitle: !Equalizer.eeRunning ? "EasyEffects n'est pas lancé" : (Equalizer.enabled ? "Actif · EasyEffects" : "Désactivé")

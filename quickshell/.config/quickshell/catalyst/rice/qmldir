@@ -48,5 +48,11 @@ singleton Clip Clip.qml
 singleton Keybinds Keybinds.qml
 singleton Containers Containers.qml
 singleton GameMode GameMode.qml
+singleton Cava Cava.qml
 singleton Vpn Vpn.qml
+singleton Proton Proton.qml
+singleton WallHub WallHub.qml
+singleton Cam Cam.qml
 singleton Arsenal Arsenal.qml
+singleton SekaiPop SekaiPop.qml
+singleton Sono Sono.qml

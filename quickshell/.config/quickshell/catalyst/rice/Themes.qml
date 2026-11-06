@@ -20,7 +20,7 @@ import Quickshell.Io
  *     "identity": "tsubasa",        // -> tokens/themes/<id>.json (pack d'identité)
  *     "mode": "dark",
  *     "hyprland": { "active": "#..", "active2": "#..", "inactive": "#.." },
- *     "palette": { ... format lyne, cf. Palettes.lyneMapped ... }
+ *     "palette": { ... format tsu, cf. Palettes.tsuMapped ... }
  *   }
  *
  * Le moteur existant est préservé : l'identité (Theme.uiStyle) et la palette
@@ -93,7 +93,7 @@ Singleton {
 
         // 2. palette + effets (halo, opacité du verre)
         Theme.mode = "theme";
-        Theme.applyMapped(Palettes.lyneMapped(data.palette));
+        Theme.applyMapped(Palettes.tsuMapped(data.palette));
         Theme.applyEffects(data.effects || null);
 
         active = id || "";

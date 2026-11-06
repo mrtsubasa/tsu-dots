@@ -71,7 +71,7 @@ Singleton {
     function screensOff() {
         PanelService.hide();
         // laisse le menu disparaître ; toute entrée rallume (misc:mouse_move_enables_dpms)
-        Quickshell.execDetached(["sh", "-c", "sleep 0.6; hyprctl dispatch dpms off"]);
+        Quickshell.execDetached(["sh", "-c", "sleep 0.6; hyprctl dispatch 'hl.dsp.dpms({ action = \"off\" })'"]);
     }
 
     function rebootFirmware() {

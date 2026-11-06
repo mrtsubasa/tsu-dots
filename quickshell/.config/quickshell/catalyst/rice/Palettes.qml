@@ -48,10 +48,10 @@ Singleton {
         loadProc.running = true;
     }
 
-    // Cartographie d'une palette « lyne » vers les rôles M3 du shell.
+    // Cartographie d'une palette « tsu » vers les rôles M3 du shell.
     // Les clés optionnelles (signature / electric / info) sont ignorées par les
     // palettes existantes : comportement inchangé pour l'utilisateur actuel.
-    function lyneMapped(p) {
+    function tsuMapped(p) {
         return {
             primary: p.accent,
             on_primary: p.textReverse,
@@ -85,11 +85,11 @@ Singleton {
         };
     }
 
-    function applyLyne(data, name) {
+    function applyTsu(data, name) {
         if (!data || !data.palette)
             return;
         const p = data.palette;
-        Theme.applyMapped(lyneMapped(p));
+        Theme.applyMapped(tsuMapped(p));
         if (p.success)
             Theme.success = p.success;
         current = name || current;
@@ -162,7 +162,7 @@ Singleton {
             if (exitCode !== 0)
                 return;
             try {
-                root.applyLyne(JSON.parse(_buffer.trim()), _name);
+                root.applyTsu(JSON.parse(_buffer.trim()), _name);
             } catch (e) {
                 console.log("[Palettes] parse error", e);
             }

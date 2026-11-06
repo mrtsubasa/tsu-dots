@@ -10,7 +10,7 @@
 # `tsubasa-catalyst` (git log) et peut être réappliqué avec `git checkout`.
 set -euo pipefail
 
-REPO="$HOME/.lyne-dots"
+REPO="$HOME/.tsu-dots"
 BASE="95e295e"                        # snapshot « avant v3 »
 SHELL_DIR="quickshell/.config/quickshell/catalyst"
 BK="$REPO/quickshell/.config/quickshell/backups"

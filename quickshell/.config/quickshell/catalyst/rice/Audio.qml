@@ -24,8 +24,24 @@ Singleton {
         return d;
     }
 
+    // Quickshell plante si le tracker reçoit un nœud pendant sa suppression (micro
+    // USB recréé en boucle par WirePlumber) : on met à jour après coup, nœuds vivants seulement.
+    readonly property var trackWanted: [sink, source, mic]
+    property var tracked: []
+    onTrackWantedChanged: trackTimer.restart()
+
+    Timer {
+        id: trackTimer
+        interval: 150
+        running: true
+        onTriggered: {
+            const live = Pipewire.nodes.values || [];
+            root.tracked = root.trackWanted.filter(n => n && live.indexOf(n) >= 0);
+        }
+    }
+
     PwObjectTracker {
-        objects: [root.sink, root.source, root.mic]
+        objects: root.tracked
     }
 
     readonly property bool sinkReady: sink !== null && sink.audio !== null

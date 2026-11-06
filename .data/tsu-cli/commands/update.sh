@@ -1,0 +1,36 @@
+# tsu update - Pull latest changes, sync state and run migrations
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+    echo "Usage: tsu update"
+    echo ""
+    echo "Pull latest dotfiles changes, sync state.json with defaults,"
+    echo "and run any pending migrations."
+    return 0
+fi
+
+echo -e "\e[1;34m:: Aligning core files with repository...\e[0m"
+git -C "$DOTS_DIR" reset --hard
+
+echo -e "\e[1;34m:: Pulling latest changes...\e[0m"
+git -C "$DOTS_DIR" pull
+
+if [[ $? -ne 0 ]]; then
+    echo "tsu update: git pull failed"
+    return 1
+fi
+
+echo -e "\e[1;34m:: Syncing state.json...\e[0m"
+source "$DOTS_DIR/.data/tsu-cli/lib/sync-state.sh"
+
+echo -e "\e[1;34m:: Checking migrations...\e[0m"
+source "$DOTS_DIR/.data/tsu-cli/lib/run-migrations.sh"
+
+echo -e "\e[1;34m:: Reloading Quickshell...\e[0m"
+source "$DOTS_DIR/.data/tsu-cli/commands/reload.sh"
+
+# Ensure stow symlinks are up to date (tsu CLI, etc)
+cd "$DOTS_DIR" && stow -R local 2>/dev/null
+
+# Final Success Message
+echo ""
+echo -e "\e[1;32m✔ Tsu is up to date!\e[0m"
