@@ -12,6 +12,9 @@ Singleton {
     property string output: "all"
     property int height: 0
     property real opacity: 0
+    // arrondi des coins et marge au bord de l'écran (-1 = valeur du thème)
+    property int radius: -1
+    property int edge: -1
     // style de barre imposé ("" = celui du thème) : floating | islands | attached
     property string style: ""
     // métriques système dans la barre : auto (seulement en alerte) | always | off
@@ -121,6 +124,16 @@ Singleton {
         save();
     }
 
+    function setRadius(v) {
+        radius = v;
+        save();
+    }
+
+    function setEdge(v) {
+        edge = v;
+        save();
+    }
+
     function onScreen(scr) {
         if (!scr)
             return false;
@@ -136,6 +149,8 @@ Singleton {
             output: output,
             height: height,
             opacity: opacity,
+            radius: radius,
+            edge: edge,
             style: style,
             metrics: metrics,
             wsStyle: wsStyle,
@@ -163,6 +178,8 @@ Singleton {
                     root.height = o.height;
                 if (o.opacity !== undefined)
                     root.opacity = o.opacity;
+                root.radius = o.radius !== undefined ? o.radius : -1;
+                root.edge = o.edge !== undefined ? o.edge : -1;
                 if (o.metrics)
                     root.metrics = o.metrics;
                 root.style = o.style || "";

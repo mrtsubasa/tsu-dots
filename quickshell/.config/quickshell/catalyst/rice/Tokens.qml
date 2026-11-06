@@ -151,15 +151,15 @@ Singleton {
     readonly property bool barAttached: barMode === "attached"
     readonly property int barBase: BarCfg.height > 0 ? BarCfg.height : _bar.height
     readonly property int barHeight: Math.max(26, barBase + densityDelta)
-    readonly property int marginTop: barAttached ? 0 : (_bar.marginTop > 0 ? _bar.marginTop : 6)
-    readonly property int marginX: barAttached ? 0 : (_bar.marginX > 0 ? _bar.marginX : 8)
+    readonly property int marginTop: barAttached ? 0 : (BarCfg.edge >= 0 ? BarCfg.edge : (_bar.marginTop > 0 ? _bar.marginTop : 6))
+    readonly property int marginX: barAttached ? 0 : (BarCfg.edge >= 0 ? BarCfg.edge : (_bar.marginX > 0 ? _bar.marginX : 8))
     readonly property int barGap: _bar.gap
     readonly property real barOpacity: _bar.opacity !== undefined ? _bar.opacity : shellBarOpacity
     readonly property int exclusive: marginTop + barHeight
     readonly property string barTopHairline: _bar.topHairline || ""
     readonly property string barBottomHairline: _bar.bottomHairline || ""
     readonly property bool barClockSeconds: _bar.clockSeconds === true
-    readonly property int barRadius: barAttached ? 0 : (barIslands ? rLg : Math.min(rLg, Math.round(barHeight / 2)))
+    readonly property int barRadius: barAttached ? 0 : (BarCfg.radius >= 0 ? BarCfg.radius : (barIslands ? rLg : Math.min(rLg, Math.round(barHeight / 2))))
     // taille des cibles cliquables dans la barre (jamais < 24)
     readonly property int barItem: Math.max(24, barHeight - 8)
 

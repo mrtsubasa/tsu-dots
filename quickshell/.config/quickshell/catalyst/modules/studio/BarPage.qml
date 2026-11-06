@@ -93,6 +93,52 @@ ColumnLayout {
         }
         SettingRow {
             Layout.fillWidth: true
+            icon: "rounded_corner"
+            title: "Arrondi"
+            subtitle: Tokens.barAttached ? "Sans objet en bord à bord" : (BarCfg.radius >= 0 ? BarCfg.radius + " px" : "Arrondi du thème (" + Tokens.barRadius + " px)")
+            Slider {
+                width: 200
+                implicitHeight: 30
+                icon: "rounded_corner"
+                enabled: !Tokens.barAttached
+                value: (BarCfg.radius >= 0 ? BarCfg.radius : Tokens.barRadius) / 24
+                step: 1 / 24
+                valueText: Tokens.barRadius + " px"
+                onMoved: v => BarCfg.setRadius(Math.round(v * 24))
+            }
+            IconButton {
+                icon: "restart_alt"
+                size: 30
+                tooltip: "Arrondi du thème"
+                disabled: BarCfg.radius < 0
+                onClicked: BarCfg.setRadius(-1)
+            }
+        }
+        SettingRow {
+            Layout.fillWidth: true
+            icon: "padding"
+            title: "Marge au bord"
+            subtitle: Tokens.barAttached ? "Sans objet en bord à bord" : (BarCfg.edge >= 0 ? BarCfg.edge + " px" : "Marge du thème (" + Tokens.marginX + " px)")
+            Slider {
+                width: 200
+                implicitHeight: 30
+                icon: "padding"
+                enabled: !Tokens.barAttached
+                value: (BarCfg.edge >= 0 ? BarCfg.edge : Tokens.marginX) / 24
+                step: 1 / 24
+                valueText: Tokens.marginX + " px"
+                onMoved: v => BarCfg.setEdge(Math.round(v * 24))
+            }
+            IconButton {
+                icon: "restart_alt"
+                size: 30
+                tooltip: "Marge du thème"
+                disabled: BarCfg.edge < 0
+                onClicked: BarCfg.setEdge(-1)
+            }
+        }
+        SettingRow {
+            Layout.fillWidth: true
             icon: "monitor"
             title: "Écrans"
             subtitle: "Où afficher la barre"
