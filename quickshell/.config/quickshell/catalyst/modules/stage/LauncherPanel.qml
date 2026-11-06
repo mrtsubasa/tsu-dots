@@ -8,26 +8,40 @@ import "../../components"
 
 // Launcher : champ unique, résultats au clavier (↑↓ / Tab, Entrée, Ctrl+1…9).
 // Préfixes : = calcul · > terminal · : commandes Catalyst.
-// Quatre styles (Studio → Profil & interface) : liste, compact, grille, plein écran.
+// Cinq styles (Studio → Profil & interface) : liste, compact, grille, plein écran, console.
 FocusScope {
     id: root
 
     property real maxHeight: 640
     property real maxWidth: 1400
-    readonly property string style: ["list", "compact", "grid", "full"].indexOf(ShellCfg.launcherStyle) >= 0 ? ShellCfg.launcherStyle : "list"
+    readonly property string style: ["list", "compact", "grid", "full", "console"].indexOf(ShellCfg.launcherStyle) >= 0 ? ShellCfg.launcherStyle : "list"
     readonly property bool gridMode: style === "grid" || style === "full"
     readonly property bool compact: style === "compact"
-    readonly property int rowH: compact ? 40 : 52
+    readonly property bool consoleMode: style === "console"
+    readonly property int rowH: consoleMode ? 30 : (compact ? 40 : 52)
+    readonly property string queryText: consoleMode ? consoleInput.text : field.text
     readonly property int visibleRows: Math.min(8, Search.results.length)
     readonly property int cols: style === "full" ? Math.max(4, Math.floor((width - 16) / 150)) : 6
     readonly property real resultsH: Search.results.length ? (gridMode ? grid.contentHeight : list.contentHeight) + 16 : empty.implicitHeight
 
-    implicitWidth: style === "full" ? Math.min(maxWidth, 1180) : (style === "grid" ? 780 : (compact ? 560 : 660))
+    implicitWidth: style === "full" ? Math.min(maxWidth, 1180) : (style === "grid" ? 780 : (compact ? 560 : (consoleMode ? 640 : 660)))
     implicitHeight: style === "full" ? maxHeight : Math.min(maxHeight, header.height + resultsH + (compact ? 0 : footer.height + 1))
 
     Component.onCompleted: {
         Search.reset();
-        field.focusInput();
+        focusQuery();
+    }
+
+    function focusQuery() {
+        if (consoleMode)
+            consoleInput.forceActiveFocus();
+        else
+            field.focusInput();
+    }
+
+    function clearQuery() {
+        field.text = "";
+        consoleInput.text = "";
     }
 
     // grille : haut / bas sautent d'une ligne, sans boucler
@@ -57,7 +71,7 @@ FocusScope {
             event.accepted = true;
         } else if (event.key === Qt.Key_Escape) {
             if (Search.query.length) {
-                field.text = "";
+                root.clearQuery();
                 event.accepted = true;
             } else {
                 PanelService.hide();
@@ -74,17 +88,107 @@ FocusScope {
         Item {
             id: header
             Layout.fillWidth: true
-            implicitHeight: root.compact ? 56 : 68
+            implicitHeight: root.consoleMode ? 64 : (root.compact ? 56 : 68)
+
+            // ---- style console : barre de titre + invite ----
+            Item {
+                anchors.fill: parent
+                visible: root.consoleMode
+
+                Row {
+                    x: 14
+                    y: 9
+                    spacing: 6
+                    Repeater {
+                        model: [Theme.error, Theme.warning, Theme.success]
+                        Rectangle {
+                            required property color modelData
+                            width: 8
+                            height: 8
+                            radius: 4
+                            color: Qt.alpha(modelData, 0.8)
+                        }
+                    }
+                }
+                Txt {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    y: 6
+                    role: "mono"
+                    font.pixelSize: 10
+                    text: ShellCfg.brand + " — launch"
+                    color: Theme.textFaint
+                }
+
+                Row {
+                    x: 16
+                    y: 30
+                    height: 24
+                    spacing: 0
+                    Txt { anchors.verticalCenter: parent.verticalCenter; role: "mono"; font.pixelSize: 15; font.weight: Font.DemiBold; text: Identity.userName.split(" ")[0].toLowerCase() + "@" + ShellCfg.brand; color: Theme.accent }
+                    Txt { anchors.verticalCenter: parent.verticalCenter; role: "mono"; font.pixelSize: 15; text: " ~ "; color: Theme.textSub }
+                    Txt {
+                        anchors.verticalCenter: parent.verticalCenter
+                        role: "mono"
+                        font.pixelSize: 15
+                        font.weight: Font.Bold
+                        text: Search.mode === "calc" ? "= " : (Search.mode === "shell" ? "$ " : (Search.mode === "cmd" ? ": " : "❯ "))
+                        color: Theme.accent2
+                    }
+                    TextInput {
+                        id: consoleInput
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: root.width - x - 40
+                        color: Theme.text
+                        selectionColor: Theme.selection
+                        selectedTextColor: Theme.text
+                        font.family: Theme.monoFont
+                        font.pixelSize: 15
+                        cursorVisible: false
+                        cursorDelegate: Item {}
+                        clip: true
+                        onTextChanged: if (root.consoleMode) Search.setQuery(text)
+                        Keys.onPressed: event => root.keyNav(event)
+
+                        // curseur bloc clignotant
+                        Rectangle {
+                            x: consoleInput.cursorRectangle.x + 1
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: 9
+                            height: 17
+                            color: Theme.accent
+                            visible: consoleInput.activeFocus
+                            SequentialAnimation on opacity {
+                                running: consoleInput.activeFocus && !Motion.reduced
+                                loops: Animation.Infinite
+                                NumberAnimation { to: 0; duration: 0 }
+                                PauseAnimation { duration: 530 }
+                                NumberAnimation { to: 1; duration: 0 }
+                                PauseAnimation { duration: 530 }
+                            }
+                        }
+                        Txt {
+                            anchors.verticalCenter: parent.verticalCenter
+                            x: 14
+                            visible: consoleInput.text.length === 0
+                            role: "mono"
+                            font.pixelSize: 15
+                            text: "lancer…  = calc  > sh  : cmd"
+                            color: Theme.textFaint
+                        }
+                    }
+                }
+            }
 
             SearchField {
                 id: field
+                visible: !root.consoleMode
                 anchors.fill: parent
                 anchors.leftMargin: 16
                 anchors.rightMargin: 16
                 large: !root.compact
                 icon: Search.mode === "calc" ? "calculate" : (Search.mode === "shell" ? "terminal" : (Search.mode === "cmd" ? "bolt" : "search"))
                 placeholder: "Rechercher une application, une commande…  ( =  >  : )"
-                input.onTextChanged: Search.setQuery(field.text)
+                input.onTextChanged: if (!root.consoleMode) Search.setQuery(field.text)
                 input.Keys.onPressed: event => root.keyNav(event)
 
                 Rectangle {
@@ -135,8 +239,8 @@ FocusScope {
             onCurrentIndexChanged: positionViewAtIndex(currentIndex, ListView.Contain)
 
             highlight: Rectangle {
-                radius: Tokens.rLg
-                color: Qt.alpha(Theme.accent, 0.10)
+                radius: root.consoleMode ? 3 : Tokens.rLg
+                color: Qt.alpha(Theme.accent, root.consoleMode ? 0.16 : 0.10)
                 border.width: 1
                 border.color: Qt.alpha(Theme.accent, 0.32)
                 Rectangle {
@@ -165,11 +269,38 @@ FocusScope {
                     onClicked: Search.activate(row.index)
                 }
 
+                // ---- ligne façon terminal (style console) ----
+                RowLayout {
+                    anchors.fill: parent
+                    anchors.leftMargin: 14
+                    anchors.rightMargin: 14
+                    spacing: 10
+                    visible: root.consoleMode
+                    Txt { role: "mono"; font.pixelSize: 12; text: "[" + String(row.index + 1).padStart(2, "0") + "]"; color: row.current ? Theme.accent : Theme.textFaint }
+                    Txt { role: "mono"; font.pixelSize: 13; text: row.current ? "▸" : " "; color: Theme.accent }
+                    Txt {
+                        Layout.fillWidth: true
+                        role: "mono"
+                        font.pixelSize: 13
+                        font.weight: row.current ? Font.DemiBold : Font.Normal
+                        text: row.modelData.title + (row.current && row.modelData.subtitle ? "  — " + row.modelData.subtitle : "")
+                        color: row.current ? Theme.text : Theme.textSub
+                        elide: Text.ElideRight
+                    }
+                    Txt {
+                        role: "mono"
+                        font.pixelSize: 11
+                        text: row.modelData.kind === "app" ? (row.modelData.terminal ? "tty" : "app") : (row.modelData.kind === "cmd" ? "cmd" : (row.modelData.kind || ""))
+                        color: row.current ? Theme.accent : Theme.textFaint
+                    }
+                }
+
                 RowLayout {
                     anchors.fill: parent
                     anchors.leftMargin: 14
                     anchors.rightMargin: 14
                     spacing: root.compact ? 12 : 14
+                    visible: !root.consoleMode
 
                     Item {
                         Layout.preferredWidth: root.compact ? 24 : 32
@@ -381,10 +512,12 @@ FocusScope {
                 anchors.leftMargin: 16
                 anchors.rightMargin: 16
                 spacing: 16
-                Mark { size: 13 }
-                Txt { role: "mono"; font.pixelSize: 10; text: Search.results.length + " résultat" + (Search.results.length > 1 ? "s" : ""); color: Theme.textFaint }
+                Mark { size: 13; visible: !root.consoleMode }
+                Txt { role: "mono"; font.pixelSize: 10; text: (root.consoleMode ? "-- " : "") + Search.results.length + " résultat" + (Search.results.length > 1 ? "s" : "") + (root.consoleMode ? " --" : ""); color: Theme.textFaint }
                 Item { Layout.fillWidth: true }
+                Txt { visible: root.consoleMode; role: "mono"; font.pixelSize: 10; text: "[↑↓] nav  [↵] run  [^1-9] go  [esc] quit"; color: Theme.textFaint }
                 KeyHints {
+                    visible: !root.consoleMode
                     hints: [{ keys: ["="], text: "calcul" }, { keys: [">"], text: "terminal" }, { keys: [":"], text: "commandes" }, { keys: ["↑", "↓"], text: "naviguer" }, { keys: ["Échap"], text: "fermer" }]
                 }
             }

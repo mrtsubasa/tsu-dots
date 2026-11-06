@@ -137,14 +137,16 @@ Scope {
                 // ---- launcher (centré, tiers supérieur) ----
                 Popout {
                     id: launcher
+                    // position réglable dans le Studio ; le plein écran est toujours centré
+                    readonly property string pos: ShellCfg.launcherStyle === "full" ? "center" : ShellCfg.launcherPos
+                    readonly property int edge: 24
                     open: stage.want === "launcher"
-                    from: "top"
+                    from: pos === "center" ? "center" : (pos === "bottom" ? "bottom" : (pos === "left" ? "left" : (pos === "right" ? "right" : "top")))
                     distance: 16
                     width: launcherLoader.item ? launcherLoader.item.implicitWidth : 0
                     height: launcherLoader.item ? launcherLoader.item.implicitHeight : 0
-                    x: Math.round((stage.width - width) / 2)
-                    // plein écran : centré verticalement ; sinon tiers supérieur
-                    y: ShellCfg.launcherStyle === "full" ? Math.round((stage.height - height) / 2) : Math.round(stage.height * 0.16)
+                    x: pos === "left" ? edge : (pos === "right" ? stage.width - width - edge : Math.round((stage.width - width) / 2))
+                    y: pos === "top" ? Math.round(stage.height * 0.16) : (pos === "bottom" ? Math.round(stage.height * 0.92 - height) : Math.round((stage.height - height) / 2))
                     Loader {
                         id: launcherLoader
                         anchors.fill: parent

@@ -108,12 +108,24 @@ ColumnLayout {
             Layout.fillWidth: true
             icon: "apps"
             title: "Style du launcher"
-            subtitle: "Liste détaillée, barre compacte type Spotlight, grille d'icônes ou grille plein écran"
+            subtitle: "Liste détaillée, barre compacte type Spotlight, grille d'icônes, grille plein écran ou console façon terminal"
             Segmented {
                 compact: true
-                model: [{ id: "list", label: "Liste" }, { id: "compact", label: "Compact" }, { id: "grid", label: "Grille" }, { id: "full", label: "Plein écran" }]
+                model: [{ id: "list", label: "Liste" }, { id: "compact", label: "Compact" }, { id: "grid", label: "Grille" }, { id: "full", label: "Plein écran" }, { id: "console", label: "Console" }]
                 current: ShellCfg.launcherStyle
                 onSelected: id => ShellCfg.set("launcherStyle", id)
+            }
+        }
+        SettingRow {
+            Layout.fillWidth: true
+            icon: "open_with"
+            title: "Position du launcher"
+            subtitle: ShellCfg.launcherStyle === "full" ? "Le style plein écran est toujours centré" : "Où il s'ouvre sur l'écran"
+            Segmented {
+                compact: true
+                model: [{ id: "top", label: "Haut" }, { id: "center", label: "Centre" }, { id: "bottom", label: "Bas" }, { id: "left", label: "Gauche" }, { id: "right", label: "Droite" }]
+                current: ShellCfg.launcherPos
+                onSelected: id => ShellCfg.set("launcherPos", id)
             }
         }
         SettingRow {
