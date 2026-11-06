@@ -1,0 +1,5 @@
+-- =============================================================================
+-- Extra Environment Variables - Local (not tracked by git)
+-- =============================================================================
+-- Machine-specific environment variables. Example:
+-- hl.env("MY_VAR", "value")

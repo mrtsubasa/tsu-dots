@@ -6,29 +6,32 @@
 # =============================================================================
 
 CORE_PACKAGES=(
-    # Window Manager
-    "hyprland" # Tiling Wayland compositor
+    # Window Manager (config is Lua: Hyprland >= 0.57)
+    "hyprland"
 
     # Session Management
-    "uwsm" # Universal Wayland Session Manager
+    "uwsm"
 
     # Hyprland Utilities
-    "hyprshot"        # Screenshot tool for Hyprland
-    "hyprsunset"      # Blue light filter for Hyprland
-    "hyprpolkitagent" # Polkit agent for Hyprland
+    "hypridle"        # idle / screen off
+    "hyprlock"        # lock screen
+    "hyprpicker"      # color picker
+    "hyprsunset"      # night light
+    "hyprpolkitagent" # Polkit agent
+    "polkit-kde-agent" # Polkit agent started by autostart.lua
 
-    # Display & Wallpaper
-    "swww"         # Wallpaper daemon for Wayland
-    "nwg-displays" # Monitor configuration tool
+    # Display
+    "nwg-displays"    # Monitor configuration tool
 
     # XDG & Portal
-    "xdg-desktop-portal-hyprland" # Portal for Hyprland
-    "xdg-desktop-portal-gtk"      # Portal for Gtk
-    "xdg-user-dirs-gtk"           # For default files
-    "xdg-utils"                   # XDG utilities
+    "xdg-desktop-portal-hyprland"
+    "xdg-desktop-portal-gtk"
+    "xdg-user-dirs-gtk"
+    "xdg-utils"
+    "qt5-wayland"
+    "qt6-wayland"
 )
 
-# AUR packages (require yay/paru)
 CORE_AUR_PACKAGES=(
     # No mandatory AUR packages for core
 )

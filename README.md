@@ -50,21 +50,20 @@ La doc détaillée du shell (surfaces, architecture, IPC, thèmes, rollback) est
 
 > ⚠️ **C'est ma config perso.** Elle tourne sur CachyOS avec deux écrans 1080p et suppose pas mal d'outils installés (rofi, alacritty, awww, mpvpaper…). Lis la config avant de l'installer.
 
+**Arch et dérivées** (Arch, CachyOS, EndeavourOS, Garuda, BlackArch, Manjaro) :
+
 ```bash
 git clone https://github.com/mrtsubasa/tsu-dots.git ~/.tsu-dots
 cd ~/.tsu-dots
+./install.sh --dry-run   # optionnel : voir ce qui sera installé
 ./install.sh
 ```
 
-L'installeur est interactif : il propose les catégories de paquets, crée les liens avec [GNU Stow](https://www.gnu.org/software/stow/) puis génère les fichiers propres à la machine.
+L'installeur détecte la distribution, utilise les dépôts déjà actifs (CachyOS, Chaotic-AUR, BlackArch) et passe par l'AUR pour le reste. Les catégories VM, VPN, caméra et sécurité (dépôt BlackArch) sont optionnelles. `./install.sh --check` vérifie après coup qu'il ne manque rien.
 
-```bash
-./install.sh --stow-only       # seulement les liens symboliques
-./install.sh --setup-only      # seulement la config Hyprland
-./install.sh --packages core   # une seule catégorie
-```
+**NixOS** : flake avec modules NixOS + home-manager, **expérimental** → [`nix/README.md`](nix/README.md).
 
-Détails dans [.install/README.md](.install/README.md).
+**Autres distributions** : pas de script, la liste des dépendances est dans [.install/README.md](.install/README.md#autres-distributions).
 
 Les fonds d'écran ne sont pas dans le dépôt (`catalyst/wallpapers/` est ignoré par git) : mets les tiens dans `catalyst/wallpapers/sfw/`.
 
@@ -131,7 +130,8 @@ Chaque dossier à la racine est un paquet Stow lié dans `$HOME`.
 | `theming/`, `kde/` | GTK 3/4, Qt5/6, kdeglobals |
 | `local/` | scripts perso, binaire `tsu` |
 | `niri/` | scripts appelés par les raccourcis (`~/.config/niri/scripts/` : menus rofi, fonds d'écran, captures, audio…) |
-| `.install/` | scripts d'installation |
+| `.install/` | scripts d'installation et listes de paquets |
+| `nix/`, `flake.nix` | support NixOS / home-manager (expérimental) |
 | `.data/` | thèmes, templates matugen, tsu-cli, fonds par défaut |
 
 Les clés d'API (ex. Gelbooru) vont dans `~/.config/catalyst/secrets.env`, jamais dans le dépôt.

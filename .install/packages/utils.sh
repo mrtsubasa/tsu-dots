@@ -36,6 +36,10 @@ UTILS_PACKAGES=(
     "pipewire-alsa"  # ALSA compatibility
     "wireplumber"    # Session manager
     "pavucontrol"    # PulseAudio volume control
+    "easyeffects"    # Processed mic / visio mode
+    "blueman"        # Bluetooth applet (autostart)
+    "btop"           # System monitor (desktop shortcut)
+    "smartmontools"  # Disk health (system menu)
 
     # Brightness
     "brightnessctl" # Brightness control

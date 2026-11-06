@@ -1,0 +1,5 @@
+-- =============================================================================
+-- Keybinds locaux (not tracked by git)
+-- =============================================================================
+-- Machine-specific keybinds. Example:
+-- hl.bind(mainMod .. " + CTRL + P", hl.dsp.exec_cmd("pavucontrol"))

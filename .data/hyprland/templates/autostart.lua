@@ -1,0 +1,5 @@
+-- =============================================================================
+-- Autostart local (not tracked by git)
+-- =============================================================================
+-- Programs started only on this machine. Example:
+-- hl.exec_cmd("nm-applet")

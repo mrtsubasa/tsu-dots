@@ -17,13 +17,13 @@ THEMING_PACKAGES=(
 
     # Material You color generation
     "matugen" # Generate Material You colors from wallpapers
+    "qt5ct"   # Qt5 theme configuration (Catalyst writes its colors)
+    "qt6ct"   # Qt6 theme configuration
 )
 
 # AUR packages
 THEMING_AUR_PACKAGES=(
-    # Qt Theming
-    "qt5ct-kde" # Qt5 theme configuration
-    "qt6ct-kde" # Qt6 theme configuration
+    # No mandatory AUR packages
 )
 
 # =============================================================================
@@ -32,8 +32,8 @@ THEMING_AUR_PACKAGES=(
 setup_theming() {
     echo "[>>] Applying GTK theme settings..."
     gsettings set org.gnome.desktop.interface gtk-theme "adw-gtk3-dark"
-    gsettings set org.gnome.desktop.interface icon-theme "Tela-blue-dark"
-    gsettings set org.gnome.desktop.interface font-name "CaskaydiaCove Nerd Font 10"
+    gsettings set org.gnome.desktop.interface icon-theme "Papirus-Dark"
+    gsettings set org.gnome.desktop.interface font-name "Inter 10"
     gsettings set org.gnome.desktop.interface cursor-theme "Bibata-Modern-Classic"
     gsettings set org.gnome.desktop.interface cursor-size 24
     gsettings set org.gnome.desktop.interface color-scheme "prefer-dark"

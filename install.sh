@@ -1,10 +1,10 @@
 #!/bin/bash
 # =============================================================================
 #
-#   █   █▄█ █▄ █ █▀▀ ▄▄ █▀▄ █▀█ ▀█▀ █▀
-#   █▄▄  █  █ ▀█ ██▄    █▄▀ █▄█  █  ▄█
+#   ▀█▀ █▀ █ █ ▄▄ █▀▄ █▀█ ▀█▀ █▀
+#    █  ▄█ █▄█    █▄▀ █▄█  █  ▄█
 #
-#   Installation Script
+#   Installation Script (Arch family: Arch, CachyOS, EndeavourOS, BlackArch...)
 #   https://github.com/mrtsubasa/tsu-dots
 #
 # =============================================================================
@@ -17,6 +17,12 @@ set -e
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PACKAGES_DIR="$DOTFILES_DIR/.install/packages"
 SETUP_DIR="$DOTFILES_DIR/.install/setup"
+
+# Every category, in menu order
+ALL_CATEGORIES=(core catalyst terminal editor apps utils fonts theming vm vpn cam security nvidia)
+RECOMMENDED_CATEGORIES=(core catalyst terminal editor apps utils fonts theming)
+DRY_RUN=0
+FAILED_PACKAGES=()
 
 # Colors
 RED='\033[0;31m'
@@ -46,16 +52,48 @@ log_step() { echo -e "${CYAN}[>>]${NC} $1"; }
 # =============================================================================
 # Initial checks
 # =============================================================================
-check_arch() {
-    if [[ ! -f /etc/arch-release ]]; then
-        log_error "This script is for Arch Linux only!"
+detect_distro() {
+    DISTRO_ID="unknown"
+    DISTRO_NAME="unknown"
+    DISTRO_LIKE=""
+    if [[ -r /etc/os-release ]]; then
+        # shellcheck disable=SC1091
+        DISTRO_ID="$(. /etc/os-release && echo "${ID:-unknown}")"
+        DISTRO_NAME="$(. /etc/os-release && echo "${PRETTY_NAME:-${ID:-unknown}}")"
+        DISTRO_LIKE="$(. /etc/os-release && echo "${ID_LIKE:-}")"
+    fi
+
+    if [[ "$DISTRO_ID" == "nixos" ]]; then
+        log_error "NixOS detected: this script does not apply."
+        log_info "Use the flake instead (home-manager module, experimental): see nix/README.md"
         exit 1
     fi
+
+    if ! command -v pacman &>/dev/null || [[ ! -f /etc/arch-release && " $DISTRO_ID $DISTRO_LIKE " != *" arch "* ]]; then
+        log_error "Unsupported distribution: $DISTRO_NAME"
+        log_info "tsu-dots needs an Arch-based system (Arch, CachyOS, EndeavourOS, Manjaro, Garuda, BlackArch...)."
+        log_info "Dependency list for other distributions: .install/README.md"
+        exit 1
+    fi
+
+    log_info "Distribution: $DISTRO_NAME"
+    local repos
+    repos=" $(pacman-conf --repo-list 2>/dev/null | tr '\n' ' ') "
+    [[ "$repos" == *" cachyos"* ]] && log_info "CachyOS repos detected: optimized builds will be used"
+    [[ "$repos" == *" blackarch "* ]] && log_info "BlackArch repo detected: the security category needs no extra repo"
+    [[ "$repos" == *" chaotic-aur "* ]] && log_info "Chaotic-AUR detected: AUR packages come prebuilt when available"
+    if [[ "$DISTRO_ID" == "manjaro" ]]; then
+        log_warn "Manjaro lags behind Arch: Hyprland >= 0.57 (Lua config) may not be in its repos yet."
+    fi
+    return 0
 }
+
+# Kept for the --stow-only / --setup-only paths
+check_arch() { detect_distro; }
 
 check_internet() {
     log_step "Checking internet connection..."
-    if ! ping -c 1 google.com &>/dev/null; then
+    if ! curl -fsS --max-time 10 -o /dev/null https://archlinux.org; then
         log_error "No internet connection!"
         exit 1
     fi
@@ -103,26 +141,48 @@ install_packages() {
 
     local ARRAY_NAME="${CATEGORY^^}_PACKAGES"
     local AUR_ARRAY_NAME="${CATEGORY^^}_AUR_PACKAGES"
+    local -n PACKAGES_REF="$ARRAY_NAME"
+    local -n AUR_PACKAGES_REF="$AUR_ARRAY_NAME"
 
-    # Convert to array using nameref
-    local -n PACKAGES_REF="$ARRAY_NAME" 2>/dev/null || true
-    local -n AUR_PACKAGES_REF="$AUR_ARRAY_NAME" 2>/dev/null || true
+    # Sort by where each package really lives on this system: anything a repo
+    # provides (official, CachyOS, Chaotic-AUR, BlackArch) goes through pacman,
+    # the rest through the AUR helper.
+    local repo=() aur=() p
+    for p in "${PACKAGES_REF[@]}" "${AUR_PACKAGES_REF[@]}"; do
+        [[ -z "$p" ]] && continue
+        if pacman -Si "$p" &>/dev/null || pacman -Sg "$p" &>/dev/null; then
+            repo+=("$p")
+        else
+            aur+=("$p")
+        fi
+    done
 
-    # Install official packages
-    if [[ ${#PACKAGES_REF[@]} -gt 0 ]]; then
-        log_step "Installing official packages ($CATEGORY)..."
-        sudo pacman -S --needed --noconfirm "${PACKAGES_REF[@]}" || {
-            log_warn "Some packages may not be available"
-        }
+    if [[ $DRY_RUN -eq 1 ]]; then
+        echo "  repos: ${repo[*]:-(none)}"
+        echo "  AUR:   ${aur[*]:-(none)}"
+        return 0
     fi
 
-    # Install AUR packages
-    if [[ ${#AUR_PACKAGES_REF[@]} -gt 0 ]]; then
+    if [[ ${#repo[@]} -gt 0 ]]; then
+        log_step "Installing repo packages ($CATEGORY)..."
+        if ! sudo pacman -S --needed --noconfirm "${repo[@]}"; then
+            log_warn "Batch failed, retrying one by one..."
+            for p in "${repo[@]}"; do
+                sudo pacman -S --needed --noconfirm "$p" || FAILED_PACKAGES+=("$p")
+            done
+        fi
+    fi
+
+    if [[ ${#aur[@]} -gt 0 ]]; then
         log_step "Installing AUR packages ($CATEGORY)..."
-        $AUR_HELPER -S --needed --noconfirm "${AUR_PACKAGES_REF[@]}" || {
-            log_warn "Some AUR packages may not be available"
-        }
+        if ! $AUR_HELPER -S --needed --noconfirm "${aur[@]}"; then
+            log_warn "Batch failed, retrying one by one..."
+            for p in "${aur[@]}"; do
+                $AUR_HELPER -S --needed --noconfirm "$p" || FAILED_PACKAGES+=("$p")
+            done
+        fi
     fi
+    return 0
 }
 
 # =============================================================================
@@ -132,19 +192,23 @@ show_menu() {
     echo ""
     echo -e "${CYAN}Select categories to install:${NC}"
     echo ""
-    echo "  1) core                - Hyprland, UWSM, portal (ESSENTIAL)"
-    echo "  2) terminal            - Kitty, Zsh, Tmux, Fastfetch"
-    echo "  3) editor              - Neovim + development tools"
-    echo "  4) apps                - Dolphin, Zen Browser, Spotify, mpv"
-    echo "  5) utils               - Clipboard, playerctl, audio, etc"
-    echo "  6) fonts               - Nerd Fonts, cursors, icons"
-    echo "  7) quickshell          - QuickShell bar/shell"
-    echo "  8) theming             - Qt/GTK theming"
-    echo "  9) nvidia(developing)  - NVIDIA drivers (only if you have an NVIDIA GPU)"
+    echo "   1) core       - Hyprland, UWSM, portals, idle/lock (ESSENTIAL)"
+    echo "   2) catalyst   - Quickshell shell + its tools: awww, matugen, rofi... (ESSENTIAL)"
+    echo "   3) terminal   - Alacritty, Ghostty, Kitty, Zsh, Tmux, Fastfetch"
+    echo "   4) editor     - Neovim + development tools"
+    echo "   5) apps       - Dolphin, Zen Browser, Spotify, mpv"
+    echo "   6) utils      - Network, Bluetooth, audio, EasyEffects, btop"
+    echo "   7) fonts      - JetBrainsMono Nerd, Inter, Material Symbols, Papirus"
+    echo "   8) theming    - GTK/Qt theming (qt5ct, qt6ct, adw-gtk3)"
+    echo "   9) vm         - libvirt / QEMU for the VM panel"
+    echo "  10) vpn        - WireGuard, OpenVPN, ProtonVPN for the VPN panel"
+    echo "  11) cam        - virtual camera, filters, scene compositor"
+    echo "  12) security   - BlackArch repo + base tools for Arsenal/Ops (asks first)"
+    echo "  13) nvidia     - NVIDIA environment (only with an NVIDIA GPU)"
     echo ""
-    echo "  a) ALL                 - Install everything (except nvidia)"
-    echo "  n) ALL+NVIDIA          - Install everything (including nvidia)"
-    echo "  q) QUIT                - Exit"
+    echo "   a) RECOMMENDED - 1 to 8"
+    echo "   f) FULL        - 1 to 11"
+    echo "   q) QUIT"
     echo ""
 }
 
@@ -162,27 +226,20 @@ get_selection() {
             exit 0
             ;;
         a | A)
-            SELECTED=("core" "terminal" "editor" "apps" "utils" "fonts" "quickshell" "theming")
+            SELECTED=("${RECOMMENDED_CATEGORIES[@]}")
             break
             ;;
-        n | N)
-            SELECTED=("core" "terminal" "editor" "apps" "utils" "fonts" "quickshell" "theming" "nvidia")
+        f | F)
+            SELECTED=("${RECOMMENDED_CATEGORIES[@]}" vm vpn cam)
             break
             ;;
         *)
             for num in $input; do
-                case "$num" in
-                1) SELECTED+=("core") ;;
-                2) SELECTED+=("terminal") ;;
-                3) SELECTED+=("editor") ;;
-                4) SELECTED+=("apps") ;;
-                5) SELECTED+=("utils") ;;
-                6) SELECTED+=("fonts") ;;
-                7) SELECTED+=("quickshell") ;;
-                8) SELECTED+=("theming") ;;
-                9) SELECTED+=("nvidia") ;;
-                *) log_warn "Invalid option: $num" ;;
-                esac
+                if [[ "$num" =~ ^[0-9]+$ && $num -ge 1 && $num -le ${#ALL_CATEGORIES[@]} ]]; then
+                    SELECTED+=("${ALL_CATEGORIES[$((num - 1))]}")
+                else
+                    log_warn "Invalid option: $num"
+                fi
             done
 
             if [[ ${#SELECTED[@]} -gt 0 ]]; then
@@ -192,8 +249,13 @@ get_selection() {
         esac
     done
 
-    # Remove duplicates
-    CATEGORIES=($(printf "%s\n" "${SELECTED[@]}" | sort -u))
+    # Remove duplicates, keep menu order (core and catalyst first)
+    CATEGORIES=()
+    local c
+    for c in "${ALL_CATEGORIES[@]}"; do
+        [[ " ${SELECTED[*]} " == *" $c "* ]] && CATEGORIES+=("$c")
+    done
+    return 0
 }
 
 # =============================================================================
@@ -319,9 +381,9 @@ setup_wallpaper() {
         WALLPAPER="$HOME/.local/wallpapers/water.png"
     fi
 
-    # Check if swww is installed
-    if ! command -v swww &>/dev/null; then
-        log_warn "swww is not installed. Skipping wallpaper configuration."
+    # Check if awww is installed
+    if ! command -v awww &>/dev/null; then
+        log_warn "awww is not installed. Skipping wallpaper configuration."
         return 0
     fi
 
@@ -338,21 +400,21 @@ setup_wallpaper() {
         return 0
     fi
 
-    log_step "Starting swww daemon..."
+    log_step "Starting awww daemon..."
     # Start daemon if not running
-    if ! pgrep -f "swww-daemon" &>/dev/null; then
-        swww-daemon >/dev/null 2>&1 &
+    if ! pgrep -f "awww-daemon" &>/dev/null; then
+        awww-daemon >/dev/null 2>&1 &
     fi
     sleep 3
 
     # Check if daemon started
-    if ! pgrep -f "swww-daemon" &>/dev/null; then
-        log_warn "Could not start swww daemon."
+    if ! pgrep -f "awww-daemon" &>/dev/null; then
+        log_warn "Could not start awww daemon."
         return 0
     fi
 
     log_step "Applying wallpaper"
-    if swww img "$WALLPAPER" --transition-type grow --transition-duration 2 2>/dev/null; then
+    if awww img "$WALLPAPER" --transition-type grow --transition-duration 2 2>/dev/null; then
         log_info "Wallpaper configured successfully!"
     else
         log_warn "Failed to apply wallpaper."
@@ -411,11 +473,22 @@ full_install() {
 
     # Check internet and AUR helper now (after selection)
     check_internet
+
+    log_step "Syncing and upgrading the system (pacman -Syu)..."
+    sudo pacman -Syu --noconfirm
+
     check_aur_helper
 
     # Install stow first
     log_step "Installing GNU Stow..."
     sudo pacman -S --needed --noconfirm stow git
+
+    # BlackArch repo before its packages
+    if [[ " ${CATEGORIES[*]} " == *" security "* ]]; then
+        source "$PACKAGES_DIR/security.sh"
+        setup_security_repo || true
+        sudo pacman -Sy --noconfirm
+    fi
 
     # Install selected packages
     for category in "${CATEGORIES[@]}"; do
@@ -429,35 +502,64 @@ full_install() {
     setup_state_aur_helper
     setup_mimetypes
 
-    # Install Tela icons from git (if fonts was selected)
-    if [[ " ${CATEGORIES[*]} " =~ " fonts " ]]; then
-        log_header "Installing Tela Icon Theme"
-        install_tela_icons
-    fi
-
     # Additional setup based on installed categories
-    if [[ " ${CATEGORIES[*]} " =~ " terminal " ]]; then
+    if [[ " ${CATEGORIES[*]} " == *" terminal "* ]]; then
         setup_zsh
         setup_tmux
     fi
 
-    # Enable services
-    if [[ " ${CATEGORIES[*]} " =~ " utils " ]]; then
+    if [[ " ${CATEGORIES[*]} " == *" utils "* ]]; then
         setup_services
     fi
 
-    # Configure initial wallpaper
-    if [[ " ${CATEGORIES[*]} " =~ " core " ]]; then
+    if [[ " ${CATEGORIES[*]} " == *" catalyst "* ]]; then
         setup_wallpaper
     fi
 
-    # Apply GTK theme
-    if [[ " ${CATEGORIES[*]} " =~ " theming " ]]; then
+    if [[ " ${CATEGORIES[*]} " == *" theming "* ]]; then
         setup_theming
+    fi
+
+    if [[ " ${CATEGORIES[*]} " == *" vm "* ]]; then
+        setup_vm
+    fi
+
+    if [[ " ${CATEGORIES[*]} " == *" cam "* ]]; then
+        setup_cam
     fi
 
     # Mark all existing migrations as done (fresh install)
     setup_migrations
+
+    verify_install
+}
+
+# =============================================================================
+# Post-install check
+# =============================================================================
+verify_install() {
+    log_header "Checking the installation"
+
+    local missing=() cmd font mod
+    for cmd in Hyprland hyprctl quickshell awww matugen rofi alacritty cliphist grim slurp jq python3 stow; do
+        command -v "$cmd" &>/dev/null || missing+=("command: $cmd")
+    done
+    for mod in gi dbus PIL; do
+        python3 -c "import $mod" &>/dev/null || missing+=("python module: $mod")
+    done
+    if command -v fc-list &>/dev/null; then
+        for font in "JetBrainsMono Nerd Font" "Inter" "Material Symbols Rounded"; do
+            fc-list : family | grep -qi "$font" || missing+=("font: $font")
+        done
+    fi
+
+    if [[ ${#missing[@]} -eq 0 ]]; then
+        log_info "Everything Catalyst needs is installed."
+    else
+        log_warn "Missing (Catalyst will be partly broken until they are installed):"
+        printf '  - %s\n' "${missing[@]}"
+    fi
+    return 0
 }
 
 # =============================================================================
@@ -493,8 +595,8 @@ show_summary() {
     echo "  1. Log out and select 'Hyprland (uwsm)' in your display manager"
     echo "  2. Or start manually with: uwsm start hyprland-uwsm.desktop"
     echo ""
-    echo "  3. Configure your monitors with: nwg-displays"
-    echo "  4. Workspaces will be configured automatically by workspace-manager"
+    echo "  3. Set your monitors in ~/.config/hypr/monitors.lua"
+    echo "  4. Customize everything from the Studio (right-click the ◆ in the bar)"
     echo ""
 
     if [[ " ${CATEGORIES[*]} " =~ " terminal " ]]; then
@@ -504,8 +606,13 @@ show_summary() {
     if [[ " ${CATEGORIES[*]} " =~ " nvidia " ]]; then
         echo ""
         echo -e "${YELLOW}NVIDIA:${NC}"
-        echo "  - Review ~/.config/hypr/local/extra_environment.conf"
+        echo "  - Review ~/.config/hypr/local/extra_environment.lua"
         echo "  - For hybrid GPUs, uncomment the AQ_DRM_DEVICES line"
+    fi
+
+    if [[ ${#FAILED_PACKAGES[@]} -gt 0 ]]; then
+        echo ""
+        echo -e "${YELLOW}Packages that failed to install:${NC} ${FAILED_PACKAGES[*]}"
     fi
 
     echo ""
@@ -522,8 +629,8 @@ show_banner() {
     cat <<'EOF'
     ╔═══════════════════════════════════════════════════════════════╗
     ║                                                               ║
-    ║   █   █▄█ █▄ █ █▀▀ ▄▄ █▀▄ █▀█ ▀█▀ █▀                          ║
-    ║   █▄▄  █  █ ▀█ ██▄    █▄▀ █▄█  █  ▄█                          ║
+    ║   ▀█▀ █▀ █ █ ▄▄ █▀▄ █▀█ ▀█▀ █▀                                ║
+    ║    █  ▄█ █▄█    █▄▀ █▄█  █  ▄█                                ║
     ║                                                               ║
     ║   https://github.com/mrtsubasa/tsu-dots                       ║
     ║   Installation Script                                         ║
@@ -539,8 +646,8 @@ EOF
 main() {
     show_banner
 
-    # Check if running on Arch Linux
-    check_arch
+    # Check the distribution (Arch family only, NixOS -> flake)
+    detect_distro
 
     # FIRST: Category selection (before any installation)
     get_selection
@@ -569,43 +676,104 @@ main() {
 # =============================================================================
 # Command line arguments
 # =============================================================================
-case "${1:-}" in
---help | -h)
-    echo "Usage: ./install.sh [option]"
-    echo ""
-    echo "Options:"
-    echo "  --help, -h      Show this help"
-    echo "  --stow-only     Only run stow (symlinks)"
-    echo "  --setup-only    Only run Hyprland setup"
-    echo "  --packages PKG  Install only the specified category"
-    echo ""
-    echo "Available categories:"
-    echo "  core, terminal, editor, apps, utils, fonts, quickshell, theming, nvidia"
+normalize_category() {
+    case "$1" in
+    quickshell) echo "catalyst" ;; # old name
+    *) echo "$1" ;;
+    esac
+}
+
+dry_run() {
+    detect_distro
+    log_header "Dry run: nothing will be installed"
+    [[ ${#CATEGORIES[@]} -eq 0 ]] && CATEGORIES=("${ALL_CATEGORIES[@]}")
+    local category
+    for category in "${CATEGORIES[@]}"; do
+        echo -e "${CYAN}${category}${NC}"
+        install_packages "$category"
+    done
+}
+
+ACTION="main"
+CATEGORIES=()
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+    --help | -h)
+        echo "Usage: ./install.sh [options]"
+        echo ""
+        echo "Options:"
+        echo "  --help, -h           Show this help"
+        echo "  --dry-run            Show what would be installed (repos vs AUR), install nothing"
+        echo "  --check              Only check that Catalyst's dependencies are present"
+        echo "  --stow-only          Only run stow (symlinks)"
+        echo "  --setup-only         Only run the Hyprland local setup"
+        echo "  --packages CAT[,CAT] Install only these categories"
+        echo ""
+        echo "Categories: ${ALL_CATEGORIES[*]}"
+        echo "Supported: Arch and derivatives (CachyOS, EndeavourOS, Manjaro, Garuda, BlackArch...)."
+        echo "NixOS: see nix/README.md"
+        exit 0
+        ;;
+    --dry-run) DRY_RUN=1 ;;
+    --check) ACTION="check" ;;
+    --stow-only) ACTION="stow" ;;
+    --setup-only) ACTION="setup" ;;
+    --packages)
+        ACTION="packages"
+        if [[ -z "${2:-}" ]]; then
+            log_error "Please specify a category!"
+            exit 1
+        fi
+        IFS=',' read -ra _cats <<<"$2"
+        for _c in "${_cats[@]}"; do
+            _c="$(normalize_category "$_c")"
+            if [[ " ${ALL_CATEGORIES[*]} " != *" $_c "* ]]; then
+                log_error "Unknown category: $_c (available: ${ALL_CATEGORIES[*]})"
+                exit 1
+            fi
+            CATEGORIES+=("$_c")
+        done
+        shift
+        ;;
+    *)
+        log_error "Unknown option: $1 (see --help)"
+        exit 1
+        ;;
+    esac
+    shift
+done
+
+if [[ $DRY_RUN -eq 1 ]]; then
+    dry_run
     exit 0
+fi
+
+case "$ACTION" in
+check)
+    verify_install
     ;;
---stow-only)
+stow)
     check_arch
     sudo pacman -S --needed --noconfirm stow
     source "$SETUP_DIR/stow.sh"
     run_stow_main
-    exit 0
     ;;
---setup-only)
-    check_arch
+setup)
+    # no pacman involved: works on any distribution
     source "$SETUP_DIR/hyprland.sh"
     run_hyprland_main
-    exit 0
     ;;
---packages)
+packages)
     check_arch
     check_internet
     check_aur_helper
-    if [[ -z "${2:-}" ]]; then
-        log_error "Please specify a category!"
-        exit 1
+    for category in "${CATEGORIES[@]}"; do
+        log_header "Installing: ${category^^}"
+        install_packages "$category"
+    done
+    if [[ ${#FAILED_PACKAGES[@]} -gt 0 ]]; then
+        log_warn "Failed: ${FAILED_PACKAGES[*]}"
     fi
-    install_packages "$2"
-    exit 0
     ;;
 *)
     main

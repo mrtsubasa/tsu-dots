@@ -8,6 +8,8 @@
 TERMINAL_PACKAGES=(
     # Terminal Emulator
     "kitty"                 # GPU-accelerated terminal emulator
+    "alacritty"             # Terminal opened by Catalyst panels
+    "ghostty"               # Terminal
 
     # Shell
     "zsh"                   # Z Shell
