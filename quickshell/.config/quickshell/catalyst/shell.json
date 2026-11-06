@@ -17,5 +17,6 @@
   "dndOnShare": true,
   "rawMic": "alsa_input.usb-352f_PD200X_Podcast_Microphone_214b206000000178-00.mono-fallback",
   "autoGameMode": true,
-  "editor": "code"
+  "editor": "code",
+  "launcherStyle": "list"
 }

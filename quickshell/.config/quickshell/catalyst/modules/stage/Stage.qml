@@ -143,14 +143,16 @@ Scope {
                     width: launcherLoader.item ? launcherLoader.item.implicitWidth : 0
                     height: launcherLoader.item ? launcherLoader.item.implicitHeight : 0
                     x: Math.round((stage.width - width) / 2)
-                    y: Math.round(stage.height * 0.16)
+                    // plein écran : centré verticalement ; sinon tiers supérieur
+                    y: ShellCfg.launcherStyle === "full" ? Math.round((stage.height - height) / 2) : Math.round(stage.height * 0.16)
                     Loader {
                         id: launcherLoader
                         anchors.fill: parent
                         active: launcher.open
                         focus: launcher.open
                         sourceComponent: LauncherPanel {
-                            maxHeight: stage.height * 0.68
+                            maxHeight: ShellCfg.launcherStyle === "full" ? stage.height * 0.82 : stage.height * 0.68
+                            maxWidth: stage.width * 0.86
                         }
                     }
                 }

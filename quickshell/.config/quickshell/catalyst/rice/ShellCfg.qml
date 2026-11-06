@@ -24,6 +24,8 @@ Singleton {
     property string brand: "catalyst"
     // texte de la bannière en lettres blocs affichée à l'ouverture d'un terminal (tsu banner)
     property string banner: "tsu"
+    // style du launcher : "list" (liste détaillée), "compact" (type Spotlight), "grid" (tuiles), "full" (grille plein écran)
+    property string launcherStyle: "list"
     // affichage : True Tone (blanc adapté à la lumière estimée), lumière nocturne
     property bool trueTone: false
     property real trueToneStrength: 0.7
@@ -79,6 +81,7 @@ Singleton {
             editor = String(obj.editor);
         if (obj.autoGameMode !== undefined)
             autoGameMode = !!obj.autoGameMode;
+        launcherStyle = ["list", "compact", "grid", "full"].indexOf(obj.launcherStyle) >= 0 ? obj.launcherStyle : "list";
         brand = obj.brand !== undefined && String(obj.brand).trim().length ? String(obj.brand).trim() : "catalyst";
         writeBrand();
         banner = obj.banner !== undefined && String(obj.banner).trim().length ? String(obj.banner).trim() : "tsu";
@@ -124,6 +127,7 @@ Singleton {
             theme: theme,
             brand: brand,
             banner: banner,
+            launcherStyle: launcherStyle,
             trueTone: trueTone,
             trueToneStrength: trueToneStrength,
             nightLight: nightLight,

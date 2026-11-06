@@ -106,6 +106,18 @@ ColumnLayout {
 
         SettingRow {
             Layout.fillWidth: true
+            icon: "apps"
+            title: "Style du launcher"
+            subtitle: "Liste détaillée, barre compacte type Spotlight, grille d'icônes ou grille plein écran"
+            Segmented {
+                compact: true
+                model: [{ id: "list", label: "Liste" }, { id: "compact", label: "Compact" }, { id: "grid", label: "Grille" }, { id: "full", label: "Plein écran" }]
+                current: ShellCfg.launcherStyle
+                onSelected: id => ShellCfg.set("launcherStyle", id)
+            }
+        }
+        SettingRow {
+            Layout.fillWidth: true
             icon: "density_medium"
             title: "Densité"
             subtitle: "Hauteur de la barre et espacements"
