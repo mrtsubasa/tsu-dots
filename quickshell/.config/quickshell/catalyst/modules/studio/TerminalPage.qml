@@ -13,6 +13,8 @@ ColumnLayout {
     spacing: 16
 
     property bool pickingFont: false
+    // case de couleur sélectionnée dans l'éditeur : "bg" | "fg" | "cursor" | "selection" | 0..15
+    property var slot: "bg"
 
     readonly property var current: TermCfg.extraInfo(TermCfg.extra)
     readonly property bool extraMissing: current.cmd.length > 0 && !TermCfg.has(current.cmd)
@@ -91,6 +93,56 @@ ColumnLayout {
             Toggle {
                 checked: TermCfg.fetch
                 onToggled: v => TermCfg.set("fetch", v)
+            }
+        }
+        SettingRow {
+            Layout.fillWidth: true
+            visible: TermCfg.fetch
+            icon: "view_agenda"
+            title: "Style de fastfetch"
+            subtitle: TermCfg.fetchStyle === "classic" ? "Ta config ~/.config/fastfetch/config.jsonc, telle quelle" : "Encadré : boîte à icônes · Sections : groupes titrés · Minimal : icônes et valeurs"
+            Segmented {
+                compact: true
+                model: [{ id: "box", label: "Encadré" }, { id: "sections", label: "Sections" }, { id: "minimal", label: "Minimal" }, { id: "classic", label: "Classique" }]
+                current: TermCfg.fetchStyle
+                onSelected: id => TermCfg.set("fetchStyle", id)
+            }
+        }
+        SettingRow {
+            Layout.fillWidth: true
+            visible: TermCfg.fetch && TermCfg.fetchStyle !== "classic"
+            icon: "format_paint"
+            title: "Couleurs de fastfetch"
+            subtitle: TermCfg.fetchColor === "accent" ? "Accent et texte du thème du rice (suivent les changements de thème)" : "Couleurs ANSI du terminal"
+            Segmented {
+                compact: true
+                model: [{ id: "accent", label: "Thème du rice" }, { id: "terminal", label: "Du terminal" }]
+                current: TermCfg.fetchColor
+                onSelected: id => TermCfg.set("fetchColor", id)
+            }
+        }
+        ColumnLayout {
+            Layout.fillWidth: true
+            Layout.leftMargin: 16
+            Layout.rightMargin: 16
+            Layout.bottomMargin: 12
+            visible: TermCfg.fetch && TermCfg.fetchStyle !== "classic"
+            spacing: 8
+            Txt { role: "overline"; text: "Infos affichées"; color: Theme.textFaint }
+            Flow {
+                Layout.fillWidth: true
+                spacing: 6
+                Repeater {
+                    model: TermCfg.fetchDefs
+                    Button {
+                        required property var modelData
+                        readonly property bool on: TermCfg.moduleOn(modelData.id)
+                        variant: on ? "primary" : "secondary"
+                        icon: on ? "check" : "add"
+                        text: modelData.label
+                        onClicked: TermCfg.setModule(modelData.id, !on)
+                    }
+                }
             }
         }
         SettingRow {
@@ -351,16 +403,233 @@ ColumnLayout {
                 onToggled: v => TermCfg.set("copyOnSelect", v)
             }
         }
+    }
+
+    // ================= couleurs =================
+    SectionHeader { Layout.fillWidth: true; text: "Couleurs du terminal" }
+
+    Group {
+        Layout.fillWidth: true
+
         SettingRow {
             Layout.fillWidth: true
             icon: "palette"
-            title: "Couleurs"
-            subtitle: TermCfg.colors === "rice" ? "Fond, texte et 16 couleurs ANSI tirés du thème actif (suit les changements de thème)" : "Celles de chaque terminal (thème Omarchy / current-theme)"
+            title: "Palette"
+            subtitle: TermCfg.colors === "terminal" ? "Celle de chaque terminal (thème Omarchy / current-theme)" : (TermCfg.colors === "rice" ? "Tirée du thème actif, suit les changements de thème" : (TermCfg.colors === "preset" ? "Préréglage : " + (TermCfg.presets[TermCfg.colorPreset] ? TermCfg.presets[TermCfg.colorPreset].name : TermCfg.colorPreset) : "Ta palette, case par case"))
             Segmented {
                 compact: true
-                model: [{ id: "terminal", label: "Du terminal" }, { id: "rice", label: "Thème du rice" }]
+                model: [{ id: "terminal", label: "Du terminal" }, { id: "rice", label: "Thème du rice" }, { id: "preset", label: "Préréglage" }, { id: "custom", label: "Perso" }]
                 current: TermCfg.colors
-                onSelected: id => TermCfg.set("colors", id)
+                onSelected: id => {
+                    if (id === "custom" && !TermCfg.palette)
+                        TermCfg.startCustomFrom(TermCfg.editablePalette());
+                    else
+                        TermCfg.set("colors", id);
+                }
+            }
+        }
+
+        // ---- préréglages ----
+        Flow {
+            Layout.fillWidth: true
+            Layout.leftMargin: 16
+            Layout.rightMargin: 16
+            Layout.bottomMargin: 12
+            visible: TermCfg.colors === "preset"
+            spacing: 8
+            Repeater {
+                model: Object.keys(TermCfg.presets).sort()
+                Rectangle {
+                    id: card
+                    required property string modelData
+                    readonly property var pal: TermCfg.presets[modelData]
+                    readonly property bool selected: TermCfg.colorPreset === modelData
+                    width: 168
+                    height: 62
+                    radius: Tokens.rMd
+                    color: pal.bg
+                    border.width: selected ? 2 : 1
+                    border.color: selected ? Theme.accent : Qt.alpha(pal.fg, 0.18)
+                    Column {
+                        anchors.fill: parent
+                        anchors.margins: 10
+                        spacing: 8
+                        Text {
+                            text: card.pal.name
+                            color: card.pal.fg
+                            font.family: Theme.monoFont
+                            font.pixelSize: 11
+                            elide: Text.ElideRight
+                            width: parent.width
+                        }
+                        Row {
+                            spacing: 4
+                            Repeater {
+                                model: [1, 2, 3, 4, 5, 6, 9, 13]
+                                Rectangle {
+                                    required property int modelData
+                                    width: 13
+                                    height: 13
+                                    radius: 6.5
+                                    color: card.pal.ansi[modelData]
+                                }
+                            }
+                        }
+                    }
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: {
+                            TermCfg.colorPreset = card.modelData;
+                            TermCfg.set("colors", "preset");
+                        }
+                    }
+                }
+            }
+        }
+
+        // ---- éditeur perso ----
+        ColumnLayout {
+            Layout.fillWidth: true
+            Layout.leftMargin: 16
+            Layout.rightMargin: 16
+            Layout.bottomMargin: 12
+            visible: TermCfg.colors === "custom"
+            spacing: 10
+
+            readonly property var pal: TermCfg.editablePalette()
+
+            Row {
+                spacing: 14
+                Repeater {
+                    model: [{ id: "bg", label: "Fond" }, { id: "fg", label: "Texte" }, { id: "cursor", label: "Curseur" }, { id: "selection", label: "Sélection" }]
+                    Column {
+                        required property var modelData
+                        spacing: 4
+                        Swatch {
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            color: TermCfg.editablePalette()[modelData.id]
+                            selected: root.slot === modelData.id
+                            size: 30
+                            onClicked: root.slot = modelData.id
+                        }
+                        Txt { anchors.horizontalCenter: parent.horizontalCenter; role: "caption"; text: modelData.label }
+                    }
+                }
+            }
+            Repeater {
+                model: [0, 8]
+                Row {
+                    id: ansiRow
+                    required property int modelData
+                    spacing: 8
+                    Txt { width: 56; anchors.verticalCenter: parent.verticalCenter; role: "caption"; color: Theme.textFaint; text: ansiRow.modelData === 0 ? "normal" : "clair" }
+                    Repeater {
+                        model: 8
+                        Column {
+                            id: cell
+                            required property int index
+                            readonly property int n: ansiRow.modelData + index
+                            spacing: 2
+                            Swatch {
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                color: TermCfg.editablePalette().ansi[cell.n]
+                                selected: root.slot === cell.n
+                                size: 26
+                                onClicked: root.slot = cell.n
+                            }
+                            Txt { anchors.horizontalCenter: parent.horizontalCenter; role: "caption"; font.pixelSize: 9; text: TermCfg.ansiNames[cell.index] }
+                        }
+                    }
+                }
+            }
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 8
+                Txt {
+                    role: "label"
+                    text: "Couleur « " + (typeof root.slot === "number" ? TermCfg.ansiNames[root.slot % 8] + (root.slot >= 8 ? " clair" : "") : ({ bg: "Fond", fg: "Texte", cursor: "Curseur", selection: "Sélection" })[root.slot]) + " »"
+                }
+                Field {
+                    width: 120
+                    placeholder: typeof root.slot === "number" ? TermCfg.editablePalette().ansi[root.slot] : TermCfg.editablePalette()[root.slot]
+                    onAccepted: t => { if (TermCfg.setColor(root.slot, t)) text = ""; }
+                }
+                Txt { Layout.fillWidth: true; role: "caption"; color: Theme.textFaint; text: "hexadécimal, ex. #a78bfa"; elide: Text.ElideRight }
+            }
+            Flow {
+                Layout.fillWidth: true
+                spacing: 8
+                Button {
+                    variant: "secondary"
+                    icon: "content_copy"
+                    text: "Repartir du préréglage " + (TermCfg.presets[TermCfg.colorPreset] ? TermCfg.presets[TermCfg.colorPreset].name : "")
+                    onClicked: TermCfg.startCustomFrom(TermCfg.presets[TermCfg.colorPreset] || TermCfg.ricePalette())
+                }
+                Button {
+                    variant: "secondary"
+                    icon: "auto_awesome"
+                    text: "Repartir du thème du rice"
+                    onClicked: TermCfg.startCustomFrom(TermCfg.ricePalette())
+                }
+            }
+        }
+
+        // ---- aperçu ----
+        Rectangle {
+            id: preview
+            readonly property var pal: TermCfg.activePalette()
+            Layout.fillWidth: true
+            Layout.leftMargin: 16
+            Layout.rightMargin: 16
+            Layout.bottomMargin: 14
+            visible: !!pal
+            implicitHeight: previewCol.implicitHeight + 24
+            radius: Tokens.rMd
+            color: pal ? pal.bg : "black"
+            border.width: 1
+            border.color: Theme.border
+
+            Column {
+                id: previewCol
+                x: 14
+                y: 12
+                spacing: 3
+                readonly property var p: preview.pal || { bg: "#000000", fg: "#ffffff", cursor: "#ffffff", selection: "#444444", ansi: new Array(16).fill("#888888") }
+                component Line: Text {
+                    font.family: TermCfg.fontFamily.length ? TermCfg.fontFamily : Theme.monoFont
+                    font.pixelSize: 13
+                    textFormat: Text.StyledText
+                }
+                Line { text: "<font color='" + previewCol.p.ansi[2] + "'><b>tsu@catalyst</b></font> <font color='" + previewCol.p.ansi[4] + "'>~/projets</font> <font color='" + previewCol.p.ansi[5] + "'>❯</font> <font color='" + previewCol.p.fg + "'>ls -la</font>" }
+                Line { text: "<font color='" + previewCol.p.ansi[4] + "'><b>docs/  src/</b></font>  <font color='" + previewCol.p.fg + "'>README.md</font>  <font color='" + previewCol.p.ansi[2] + "'><b>run.sh</b></font>  <font color='" + previewCol.p.ansi[6] + "'>lien -> src</font>" }
+                Line { text: "<font color='" + previewCol.p.ansi[1] + "'>error:</font> <font color='" + previewCol.p.fg + "'>fichier introuvable</font>  <font color='" + previewCol.p.ansi[3] + "'>warning:</font> <font color='" + previewCol.p.ansi[8] + "'>variable inutilisée</font>" }
+                Row {
+                    spacing: 0
+                    Line { text: "<font color='" + previewCol.p.ansi[2] + "'><b>tsu@catalyst</b></font> <font color='" + previewCol.p.ansi[5] + "'>❯</font> "; }
+                    Rectangle { width: 8; height: 16; color: previewCol.p.cursor; anchors.verticalCenter: parent.verticalCenter }
+                    Rectangle {
+                        width: selTxt.implicitWidth + 6
+                        height: 18
+                        color: previewCol.p.selection
+                        anchors.verticalCenter: parent.verticalCenter
+                        Line { id: selTxt; x: 3; anchors.verticalCenter: parent.verticalCenter; text: "<font color='" + previewCol.p.fg + "'> texte sélectionné </font>" }
+                    }
+                }
+                Row {
+                    topPadding: 6
+                    spacing: 3
+                    Repeater {
+                        model: 16
+                        Rectangle {
+                            required property int index
+                            width: 22
+                            height: 14
+                            radius: 3
+                            color: previewCol.p.ansi[index]
+                        }
+                    }
+                }
             }
         }
     }

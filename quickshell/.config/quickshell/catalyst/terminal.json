@@ -1,10 +1,21 @@
 {
   "banner": true,
   "bannerColor": "blue",
+  "bannerStyle": "blocks",
   "fetch": true,
-  "extra": "pokemon",
+  "extra": "cowsay",
   "shiny": false,
+  "pokemon": "",
+  "cow": "tux",
+  "fontFamily": "",
   "fontSize": 0,
   "opacity": 0,
-  "padding": -1
+  "padding": -1,
+  "lineHeight": 0,
+  "cursorShape": "",
+  "cursorBlink": "",
+  "scrollback": 0,
+  "copyOnSelect": false,
+  "colors": "terminal",
+  "fetchStyle": "box"
 }

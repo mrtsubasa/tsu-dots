@@ -34,7 +34,18 @@ Singleton {
     property string cursorBlink: ""       // on | off
     property int scrollback: 0            // lignes, 0 = défaut
     property bool copyOnSelect: false
-    property string colors: "terminal"    // terminal | rice
+    property string colors: "terminal"    // terminal | rice | preset | custom
+    property string colorPreset: "catppuccin-mocha"
+    // palette perso : { bg, fg, cursor, selection, ansi: [16] }
+    property var palette: null
+
+    // ---- fastfetch ----
+    property string fetchStyle: "box"     // box | sections | minimal | classic (config.jsonc de l'utilisateur)
+    property string fetchColor: "accent"  // accent (thème du rice) | terminal (couleurs ANSI)
+    property var fetchModules: ({})       // id → bool, complété par les défauts de fetchDefs
+
+    // préréglages de palettes (.data/themes/*.json + intégrés), rempli au démarrage
+    property var presets: ({})
 
     property bool fileReady: false
 
@@ -77,6 +88,28 @@ Singleton {
         { cmd: "cmatrix", pkg: "cmatrix", desc: "Pluie façon Matrix (à lancer à la main)" },
         { cmd: "pipes.sh", pkg: "pipes.sh", desc: "Tuyaux animés (à lancer à la main)" }
     ]
+
+    // infos fastfetch proposées : groupe (pour le style sections), icône Nerd Font, module
+    readonly property var fetchDefs: [
+        { id: "os", label: "distro", group: "système", icon: "󰣇", on: true, mod: { type: "os", format: "{pretty-name}" } },
+        { id: "kernel", label: "noyau", group: "système", icon: "", on: true, mod: { type: "kernel", format: "{release}" } },
+        { id: "wm", label: "wm", group: "système", icon: "", on: true, mod: { type: "wm", format: "{pretty-name}" } },
+        { id: "terminal", label: "term", group: "système", icon: "", on: true, mod: { type: "terminal", format: "{pretty-name}" } },
+        { id: "shell", label: "shell", group: "système", icon: "", on: true, mod: { type: "shell", format: "{pretty-name}" } },
+        { id: "packages", label: "paquets", group: "système", icon: "󰏖", on: true, mod: { type: "packages", format: "{pacman} pacman · {flatpak-all} flatpak" } },
+        { id: "uptime", label: "uptime", group: "système", icon: "󰅐", on: true, mod: { type: "uptime", format: "{days}j {hours}h {minutes}min" } },
+        { id: "osage", label: "âge", group: "système", icon: "󱦟", on: true, mod: { type: "command", shell: "/bin/sh", text: "echo $(( ($(date +%s) - $(stat -c %W /)) / 86400 )) jours" } },
+        { id: "cpu", label: "cpu", group: "matériel", icon: "󰻠", on: true, mod: { type: "cpu", format: "{name}" } },
+        { id: "gpu", label: "gpu", group: "matériel", icon: "󰍛", on: true, mod: { type: "gpu", format: "{name}" } },
+        { id: "memory", label: "mémoire", group: "matériel", icon: "", on: true, mod: { type: "memory" } },
+        { id: "disk", label: "disque", group: "matériel", icon: "󰋊", on: true, mod: { type: "disk", folders: "/", format: "{size-used} / {size-total} ({size-percentage})" } },
+        { id: "display", label: "écran", group: "matériel", icon: "󰍹", on: false, mod: { type: "display", format: "{width}x{height} @ {refresh-rate} Hz" } },
+        { id: "battery", label: "batterie", group: "matériel", icon: "󰁹", on: false, mod: { type: "battery" } },
+        { id: "media", label: "musique", group: "extras", icon: "󰎆", on: false, mod: { type: "media" } },
+        { id: "localip", label: "ip locale", group: "extras", icon: "󰩟", on: false, mod: { type: "localip" } },
+        { id: "colors", label: "couleurs", group: "", icon: "", on: true, mod: null }
+    ]
+    readonly property var ansiNames: ["noir", "rouge", "vert", "jaune", "bleu", "magenta", "cyan", "blanc"]
 
     readonly property string home: Quickshell.env("HOME")
     readonly property string path: home + "/.config/quickshell/catalyst/terminal.json"
@@ -126,7 +159,12 @@ Singleton {
         const sb = Math.round(Number(o.scrollback) || 0);
         scrollback = sb > 0 ? Math.min(200000, sb) : 0;
         copyOnSelect = !!o.copyOnSelect;
-        colors = oneOf(o.colors, ["terminal", "rice"], "terminal");
+        colors = oneOf(o.colors, ["terminal", "rice", "preset", "custom"], "terminal");
+        colorPreset = String(o.colorPreset || "catppuccin-mocha");
+        palette = validPalette(o.palette) ? o.palette : null;
+        fetchStyle = oneOf(o.fetchStyle, ["box", "sections", "minimal", "classic"], "box");
+        fetchColor = oneOf(o.fetchColor, ["accent", "terminal"], "accent");
+        fetchModules = (o.fetchModules && typeof o.fetchModules === "object") ? o.fetchModules : ({});
         writeAll();
     }
 
@@ -155,7 +193,12 @@ Singleton {
             cursorBlink: cursorBlink,
             scrollback: scrollback,
             copyOnSelect: copyOnSelect,
-            colors: colors
+            colors: colors,
+            colorPreset: colorPreset,
+            palette: palette,
+            fetchStyle: fetchStyle,
+            fetchColor: fetchColor,
+            fetchModules: fetchModules
         }, null, 2) + "\n";
     }
 
@@ -183,6 +226,121 @@ Singleton {
             selection: Theme.hex(Theme.mix(bg, Theme.accent, 0.35)),
             ansi: normal.concat(bright).map(c => Theme.hex(c))
         };
+    }
+
+    function validPalette(p) {
+        const hx = v => typeof v === "string" && /^#[0-9a-fA-F]{6}$/.test(v);
+        return !!p && hx(p.bg) && hx(p.fg) && hx(p.cursor) && hx(p.selection) && Array.isArray(p.ansi) && p.ansi.length === 16 && p.ansi.every(hx);
+    }
+
+    // palette effectivement appliquée aux terminaux (null = celle de chaque terminal)
+    function activePalette() {
+        if (colors === "rice")
+            return ricePalette();
+        if (colors === "preset")
+            return presets[colorPreset] || null;
+        if (colors === "custom")
+            return palette || ricePalette();
+        return null;
+    }
+
+    // palette éditable : la perso, sinon celle affichée actuellement
+    function editablePalette() {
+        return palette || activePalette() || presets[colorPreset] || ricePalette();
+    }
+
+    function copyPalette(p) {
+        return { bg: p.bg, fg: p.fg, cursor: p.cursor, selection: p.selection, ansi: p.ansi.slice() };
+    }
+
+    // slot : "bg" | "fg" | "cursor" | "selection" | 0..15
+    function setColor(slot, hexValue) {
+        const v = String(hexValue).trim().replace(/^#?/, "#").toLowerCase();
+        if (!/^#[0-9a-f]{6}$/.test(v))
+            return false;
+        const p = copyPalette(editablePalette());
+        if (typeof slot === "number")
+            p.ansi[slot] = v;
+        else
+            p[slot] = v;
+        palette = p;
+        colors = "custom";
+        save();
+        writeAll();
+        return true;
+    }
+
+    function startCustomFrom(p) {
+        palette = copyPalette(p);
+        colors = "custom";
+        save();
+        writeAll();
+    }
+
+    function moduleOn(id) {
+        const d = fetchDefs.find(f => f.id === id);
+        return fetchModules[id] !== undefined ? !!fetchModules[id] : (d ? d.on : false);
+    }
+
+    function setModule(id, on) {
+        const m = Object.assign({}, fetchModules);
+        m[id] = on;
+        set("fetchModules", m);
+    }
+
+    // config fastfetch générée (styles box / sections / minimal)
+    function fetchConfig() {
+        const rgb = c => Math.round(c.r * 255) + ";" + Math.round(c.g * 255) + ";" + Math.round(c.b * 255);
+        const useTheme = fetchColor === "accent";
+        const A = useTheme ? "{#1;38;2;" + rgb(Theme.accent) + "}" : "{#1;34}";
+        const A2 = useTheme ? "{#38;2;" + rgb(Theme.electric) + "}" : "{#36}";
+        const F = useTheme ? "{#38;2;" + rgb(Theme.mix(Theme.background, Theme.accent, 0.6)) + "}" : "{#34}";
+        const K = useTheme ? "{#38;2;" + rgb(Theme.textSub) + "}" : "{#37}";
+        const R = "{#}";
+        const out = useTheme ? "38;2;" + rgb(Theme.ink) : "default";
+        const pad = (t, n) => t + " ".repeat(Math.max(0, n - t.length));
+        const on = fetchDefs.filter(d => d.mod && moduleOn(d.id));
+        const showColors = moduleOn("colors");
+        const mods = [];
+        const mod = (d, key) => Object.assign({}, d.mod, { key: key });
+        const header = { type: "title", format: A + "{user-name}" + R + K + "@" + R + A2 + "{host-name}" + R };
+
+        if (fetchStyle === "box") {
+            const w = 12;
+            mods.push(Object.assign({}, header, { key: F + "╭" + "─".repeat(w) + "╮" + R }));
+            on.forEach(d => mods.push(mod(d, F + "│ " + R + A + d.icon + R + " " + K + pad(d.label, 8) + R + F + " │" + R)));
+            if (showColors) {
+                mods.push({ type: "custom", key: F + "├" + "─".repeat(w) + "┤" + R, format: "" });
+                mods.push({ type: "colors", key: F + "│ " + R + A + "" + R + " " + K + pad("couleurs", 8) + R + F + " │" + R, symbol: "circle" });
+            }
+            mods.push({ type: "custom", key: F + "╰" + "─".repeat(w) + "╯" + R, format: "" });
+        } else if (fetchStyle === "sections") {
+            mods.push(Object.assign({}, header, { key: " " }));
+            let group = "";
+            on.forEach(d => {
+                if (d.group !== group) {
+                    group = d.group;
+                    mods.push({ type: "custom", format: F + "── " + R + A + group + R + " " + F + "─".repeat(Math.max(2, 26 - group.length)) + R });
+                }
+                mods.push(mod(d, "  " + A + d.icon + R + "  " + K + pad(d.label, 9) + R));
+            });
+            if (showColors) {
+                mods.push({ type: "custom", format: F + "─".repeat(31) + R });
+                mods.push({ type: "colors", key: " ", symbol: "circle" });
+            }
+        } else {
+            mods.push(Object.assign({}, header, { key: " " }));
+            on.forEach(d => mods.push(mod(d, " " + A + d.icon + R)));
+            if (showColors)
+                mods.push({ type: "colors", key: " ", symbol: "circle" });
+        }
+        mods.push("break");
+        return JSON.stringify({
+            "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+            logo: { type: "none", padding: { right: 2 } },
+            display: { separator: "  ", color: { keys: "default", output: out } },
+            modules: mods
+        }, null, 2) + "\n";
     }
 
     function q(s) {
@@ -286,9 +444,10 @@ Singleton {
             + "GREET_EXTRA=" + extra + "\n"
             + "GREET_SHINY=" + (shiny ? 1 : 0) + "\n"
             + "GREET_POKEMON=" + pokemon + "\n"
-            + "GREET_COW=" + cow + "\n";
+            + "GREET_COW=" + cow + "\n"
+            + "GREET_FETCH_STYLE=" + fetchStyle + "\n";
         const head = "# Généré par Studio → Terminal — ne pas éditer\n";
-        const p = colors === "rice" ? ricePalette() : null;
+        const p = activePalette();
         const cfg = home + "/.config/";
         writeProc.command = ["sh", "-c",
             "w() { mkdir -p \"$(dirname \"$1\")\" && printf '%s' \"$2\" > \"$1.tmp\" && mv \"$1.tmp\" \"$1\"; }; "
@@ -296,12 +455,14 @@ Singleton {
             + "[ -d \"$3\" ] && w \"$3/catalyst.toml\" \"$4\"; "
             + "[ -d \"$5\" ] && w \"$5/catalyst.conf\" \"$6\"; "
             + "[ -d \"$7\" ] && w \"$7/catalyst.conf\" \"$8\"; "
+            + "w \"$9\" \"${10}\"; "
             // Kitty relit sa config sur SIGUSR1 ; Alacritty surveille ses fichiers ; Ghostty : nouvelles fenêtres
             + "pkill -USR1 -x kitty 2>/dev/null; true",
             "_", home + "/.cache/catalyst/greet.env", greet,
             cfg + "alacritty", head + alacrittyConf(p),
             cfg + "kitty", head + kittyConf(p),
-            cfg + "ghostty", head + ghosttyConf(p)];
+            cfg + "ghostty", head + ghosttyConf(p),
+            home + "/.cache/catalyst/fastfetch.jsonc", fetchConfig()];
         writeProc.running = true;
     }
 
@@ -320,7 +481,7 @@ Singleton {
     Connections {
         target: Theme
         function onAccentChanged() {
-            if (root.fileReady && (root.bannerColor === "accent" || root.colors === "rice"))
+            if (root.fileReady && (root.bannerColor === "accent" || root.colors === "rice" || root.fetchColor === "accent"))
                 root.writeAll();
         }
         function onBackgroundChanged() {
@@ -348,6 +509,31 @@ Singleton {
         }
     }
 
+    // palettes des thèmes livrés (.data/themes) + Silver Wolf
+    function loadPresets() {
+        presetProc.buf = "";
+        presetProc.running = true;
+    }
+
+    Process {
+        id: presetProc
+        property string buf: ""
+        command: ["python3", "-c", "import json,glob,os,sys\nout={}\nfor f in sorted(glob.glob(os.path.expanduser('~/.tsu-dots/.data/themes/*.json'))):\n    try:\n        d=json.load(open(f)); t=d['terminal']\n        out[os.path.basename(f)[:-5]]={'name':d.get('name',os.path.basename(f)[:-5]),'bg':t['background'],'fg':t['foreground'],'cursor':t.get('cursor',t['foreground']),'selection':t.get('selectionBackground',t['background']),'ansi':[t['color%d'%i] for i in range(16)]}\n    except Exception: pass\nprint(json.dumps(out))"]
+        stdout: SplitParser {
+            onRead: line => presetProc.buf += line
+        }
+        onExited: {
+            let p = {};
+            try {
+                p = JSON.parse(presetProc.buf);
+            } catch (e) {}
+            p["silver-wolf"] = { name: "Silver Wolf", bg: "#0a0c16", fg: "#cdd6f9", cursor: "#00e5d8", selection: "#7b5cff", ansi: ["#11131f", "#ff5f8f", "#5cf2c4", "#f7c873", "#00b4d8", "#7b5cff", "#00e5d8", "#cdd6f9", "#3a3f5c", "#ff8fb3", "#8efadb", "#ffe0a3", "#5cc8ff", "#a98bff", "#6ff3ec", "#eaf0ff"] };
+            root.presets = p;
+            if (root.fileReady && root.colors === "preset")
+                root.writeAll();
+        }
+    }
+
     Process { id: saveProc }
     Process { id: writeProc }
     Process {
@@ -366,5 +552,8 @@ Singleton {
         }
     }
 
-    Component.onCompleted: refreshTools()
+    Component.onCompleted: {
+        refreshTools();
+        loadPresets();
+    }
 }

@@ -19,6 +19,7 @@ GREET_EXTRA=none
 GREET_SHINY=0
 GREET_POKEMON=""
 GREET_COW=default
+GREET_FETCH_STYLE=classic
 [[ -r "$HOME/.cache/catalyst/greet.env" ]] && source "$HOME/.cache/catalyst/greet.env"
 
 _greet_has() { command -v "$1" >/dev/null 2>&1; }
@@ -76,11 +77,14 @@ if [[ "$GREET_EXTRA" == pokemon ]] && _greet_has pokemon-colorscripts; then
 fi
 
 # ---- fastfetch (le Pokémon devient son logo) ----
+# style choisi dans le Studio → config générée ; « classic » = ~/.config/fastfetch/config.jsonc
+_greet_ff=()
+[[ "$GREET_FETCH_STYLE" != classic && -r "$HOME/.cache/catalyst/fastfetch.jsonc" ]] && _greet_ff=(-c "$HOME/.cache/catalyst/fastfetch.jsonc")
 if [[ "$GREET_FETCH" == 1 ]] && _greet_has fastfetch; then
     if ((${#_greet_poke[@]})); then
-        "${_greet_poke[@]}" 2>/dev/null | fastfetch --logo-type file-raw --logo -
+        "${_greet_poke[@]}" 2>/dev/null | fastfetch "${_greet_ff[@]}" --logo-type file-raw --logo -
     else
-        fastfetch
+        fastfetch "${_greet_ff[@]}"
     fi
 elif ((${#_greet_poke[@]})); then
     "${_greet_poke[@]}" 2>/dev/null
@@ -100,5 +104,5 @@ bonsai) _greet_has cbonsai && cbonsai -p ;;
 esac
 
 unset -f _greet_has
-unset _greet_text _greet_art _greet_c _greet_pool _greet_poke _greet_cow
-unset GREET_BANNER GREET_BANNER_COLOR GREET_BANNER_STYLE GREET_ACCENT GREET_FETCH GREET_EXTRA GREET_SHINY GREET_POKEMON GREET_COW
+unset _greet_text _greet_art _greet_c _greet_pool _greet_poke _greet_cow _greet_ff
+unset GREET_BANNER GREET_BANNER_COLOR GREET_BANNER_STYLE GREET_ACCENT GREET_FETCH GREET_EXTRA GREET_SHINY GREET_POKEMON GREET_COW GREET_FETCH_STYLE
