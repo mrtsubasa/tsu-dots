@@ -33,6 +33,30 @@ Hyprland 0.57 (config Lua) · Quickshell · thèmes appliqués en direct · Cach
 
 ---
 
+## 🖼️ Fonds d'écran d'exemple
+
+Installés dans `catalyst/wallpapers/sfw/` au premier lancement, à côté de ta propre bibliothèque. Sources dans [CREDITS.md](.data/wallpapers/catalyst/CREDITS.md).
+
+<table>
+  <tr>
+    <td width="33%"><img src="./.data/wallpapers/catalyst/glitch-hoodie.webp" alt="glitch-hoodie"></td>
+    <td width="33%"><img src="./.data/wallpapers/catalyst/neon-city.webp" alt="neon-city"></td>
+    <td width="33%"><img src="./.data/wallpapers/catalyst/night-crew.webp" alt="night-crew"></td>
+  </tr>
+  <tr>
+    <td width="33%"><img src="./.data/wallpapers/catalyst/silver-wolf.webp" alt="silver-wolf"></td>
+    <td width="33%"><img src="./.data/wallpapers/catalyst/arch-linux.webp" alt="arch-linux"></td>
+    <td width="33%"><img src="./.data/wallpapers/catalyst/old-terminal.webp" alt="old-terminal"></td>
+  </tr>
+  <tr>
+    <td width="33%"><img src="./.data/wallpapers/catalyst/night-bridge.webp" alt="night-bridge"></td>
+    <td></td>
+    <td></td>
+  </tr>
+</table>
+
+---
+
 ## ✨ Ce qu'il y a dedans
 
 - **Shell Catalyst** (Quickshell/QML) — barre, launcher, centre de contrôle, Studio, glance, calendrier, moniteur système, session, vue d'ensemble, dock, widgets de bureau, OSD et notifications. Tout passe par un design system commun (`kit/`, `rice/Theme`, `Tokens`, `Motion`) avec animations à ressort.
@@ -65,7 +89,7 @@ L'installeur détecte la distribution, utilise les dépôts déjà actifs (Cachy
 
 **Autres distributions** : pas de script, la liste des dépendances est dans [.install/README.md](.install/README.md#autres-distributions).
 
-Les fonds d'écran ne sont pas dans le dépôt (`catalyst/wallpapers/` est ignoré par git) : mets les tiens dans `catalyst/wallpapers/sfw/`.
+Ta bibliothèque de fonds n'est pas suivie par git (`catalyst/wallpapers/` est ignoré) : l'installeur y copie les fonds d'exemple, ajoute les tiens dans `catalyst/wallpapers/sfw/`.
 
 ---
 

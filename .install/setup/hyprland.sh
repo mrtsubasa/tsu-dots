@@ -248,8 +248,8 @@ setup_wallpapers() {
     local CATALYST_WALLS="$HOME/.config/quickshell/catalyst/wallpapers/sfw"
     mkdir -p "$CATALYST_WALLS" "$HOME/.config/quickshell/catalyst/wallpapers/nsfw"
     if [[ -z "$(find "$CATALYST_WALLS" -maxdepth 1 -type f 2>/dev/null | head -1)" && -d "$WALLPAPERS_DATA" ]]; then
-        find "$WALLPAPERS_DATA" -maxdepth 1 -type f \( -name '*.png' -o -name '*.jpg' -o -name '*.jpeg' -o -name '*.webp' \) -exec cp -n {} "$CATALYST_WALLS/" \;
-        log_info "  Default wallpapers copied to catalyst/wallpapers/sfw/"
+        find "$WALLPAPERS_DATA/catalyst" -maxdepth 1 -type f -name '*.webp' -exec cp -n {} "$CATALYST_WALLS/" \;
+        log_info "  Example wallpapers copied to catalyst/wallpapers/sfw/ (sources: .data/wallpapers/catalyst/CREDITS.md)"
     fi
 
 }
