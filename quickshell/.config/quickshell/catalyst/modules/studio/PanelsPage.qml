@@ -151,6 +151,58 @@ ColumnLayout {
         }
     }
 
+    SectionHeader { Layout.fillWidth: true; text: "Curseur" }
+
+    Group {
+        Layout.fillWidth: true
+
+        SettingRow {
+            Layout.fillWidth: true
+            icon: "mouse"
+            title: "Thème"
+            subtitle: Cursor.ready ? (Cursor.theme.length ? Cursor.theme : "défaut") + " · " + Cursor.themes.length + " installés" : "chargement…"
+            Button {
+                id: curBtn
+                variant: "secondary"
+                icon: "expand_more"
+                text: Cursor.theme.length ? Cursor.theme : "Choisir…"
+                onClicked: curMenu.openAt(curBtn)
+            }
+            Menu {
+                id: curMenu
+                side: "bottom"
+                items: Cursor.themes.map(t => ({
+                    label: t.name + (t.hypr ? "  (hypr)" : ""),
+                    icon: Cursor.theme === t.name ? "check" : "mouse",
+                    action: () => Cursor.setTheme(t.name)
+                }))
+            }
+        }
+        SettingRow {
+            Layout.fillWidth: true
+            icon: "photo_size_select_small"
+            title: "Taille"
+            subtitle: Cursor.size + " px"
+            Slider {
+                width: 200
+                implicitHeight: 30
+                icon: "aspect_ratio"
+                maximum: 64
+                value: Cursor.size
+                step: 2
+                valueText: Cursor.size + " px"
+                onMoved: v => Cursor.setSize(Math.round(v))
+            }
+            IconButton {
+                icon: "restart_alt"
+                size: 30
+                tooltip: "24 px"
+                disabled: Cursor.size === 24
+                onClicked: Cursor.setSize(24)
+            }
+        }
+    }
+
     SectionHeader { Layout.fillWidth: true; text: "Notifications" }
 
     Group {

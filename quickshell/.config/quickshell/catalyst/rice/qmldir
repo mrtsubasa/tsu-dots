@@ -9,6 +9,7 @@ singleton SysInfo SysInfo.qml
 singleton Identity Identity.qml
 singleton Niri Niri.qml
 singleton Audio Audio.qml
+singleton Cursor Cursor.qml
 singleton Palettes Palettes.qml
 singleton Themes Themes.qml
 singleton OmarchyRice OmarchyRice.qml

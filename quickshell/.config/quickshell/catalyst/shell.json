@@ -10,7 +10,7 @@
   "theme": "",
   "brand": "catalyst",
   "banner": "Silver Wolf",
-  "launcherStyle": "grid",
+  "launcherStyle": "list",
   "launcherPos": "top",
   "fontUi": "",
   "fontDisplay": "",
@@ -23,5 +23,8 @@
   "dndOnShare": true,
   "rawMic": "alsa_input.usb-352f_PD200X_Podcast_Microphone_214b206000000178-00.mono-fallback",
   "autoGameMode": true,
-  "editor": "zed"
+  "editor": "zed",
+  "notifPos": "top-center",
+  "notifDuration": 6,
+  "notifMax": 3
 }
