@@ -65,6 +65,8 @@ BarItem {
         text: root.title
         color: Theme.textSub
         width: Math.min(implicitWidth, root.maxWidth)
+        elide: Text.ElideRight
+        maximumLineCount: 1
         anchors.verticalCenter: parent.verticalCenter
     }
 }

@@ -79,6 +79,17 @@ Scope {
                 Island { visible: win.islands; x: right.x - 4; width: right.width + 8; height: parent.height }
 
                 // ---- gauche ----
+                // largeur des éléments de gauche hors titre de fenêtre : le titre prend
+                // le reste de la place jusqu'à l'horloge, jamais plus
+                readonly property real leftFixed: {
+                    let w = 0;
+                    for (let i = 0; i < left.children.length; i++) {
+                        const c = left.children[i];
+                        if (c !== winTitle && c.visible && c.width > 0)
+                            w += c.width + left.spacing;
+                    }
+                    return w;
+                }
                 Row {
                     id: left
                     x: win.islands ? 4 : 6
@@ -102,7 +113,8 @@ Scope {
                         id: winTitle
                         outputName: win.outputName
                         visible: BarCfg.on("window") && title.length > 0
-                        maxWidth: Math.max(80, (win.width / 2) - left.x - 320 - (center.width / 2))
+                        // icône + marges du BarItem ≈ 40 px, 24 px d'air avant l'horloge
+                        maxWidth: Math.max(60, center.x - left.x - frame.leftFixed - 40 - 24)
                     }
                     Rectangle {
                         visible: arsenalItem.visible && !win.islands
