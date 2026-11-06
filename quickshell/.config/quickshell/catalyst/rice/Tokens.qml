@@ -62,14 +62,14 @@ Singleton {
     // =====================================================================
     // TYPE SCALE (kit v3) — plancher 11 px
     // =====================================================================
-    readonly property int fDisplay: 44     // horloge écran de verrouillage / widget
-    readonly property int fHero: 28        // titres de panneaux larges
-    readonly property int fTitle: 17       // titre de panneau
-    readonly property int fHeading: 14     // titre de carte / section
-    readonly property int fBody: 13        // texte courant
-    readonly property int fLabel: 12       // libellés de contrôles
-    readonly property int fCaption: 11     // méta, sous-titres
-    readonly property int fOverline: 11    // MICRO-LABELS en capitales, tracking large
+    readonly property int fDisplay: Math.round(44 * ShellCfg.textScale)     // horloge écran de verrouillage / widget
+    readonly property int fHero: Math.round(28 * ShellCfg.textScale)        // titres de panneaux larges
+    readonly property int fTitle: Math.round(17 * ShellCfg.textScale)       // titre de panneau
+    readonly property int fHeading: Math.round(14 * ShellCfg.textScale)     // titre de carte / section
+    readonly property int fBody: Math.round(13 * ShellCfg.textScale)        // texte courant
+    readonly property int fLabel: Math.round(12 * ShellCfg.textScale)       // libellés de contrôles
+    readonly property int fCaption: Math.round(11 * ShellCfg.textScale)     // méta, sous-titres
+    readonly property int fOverline: Math.round(11 * ShellCfg.textScale)    // MICRO-LABELS en capitales, tracking large
     readonly property real trackOverline: 1.4
 
     // compat v2

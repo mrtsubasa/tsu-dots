@@ -26,6 +26,11 @@ Singleton {
     property string banner: "tsu"
     // style du launcher : "list" (liste détaillée), "compact" (type Spotlight), "grid" (tuiles), "full" (grille plein écran), "console" (terminal)
     property string launcherStyle: "list"
+    // polices du rice ("" = celle du design system) et échelle du texte
+    property string fontUi: ""
+    property string fontDisplay: ""
+    property string fontMono: ""
+    property real textScale: 1.0
     // position du launcher : "top" | "center" | "bottom" | "left" | "right" (le plein écran est toujours centré)
     property string launcherPos: "top"
     // affichage : True Tone (blanc adapté à la lumière estimée), lumière nocturne
@@ -85,6 +90,10 @@ Singleton {
             autoGameMode = !!obj.autoGameMode;
         launcherStyle = ["list", "compact", "grid", "full", "console"].indexOf(obj.launcherStyle) >= 0 ? obj.launcherStyle : "list";
         launcherPos = ["top", "center", "bottom", "left", "right"].indexOf(obj.launcherPos) >= 0 ? obj.launcherPos : "top";
+        fontUi = String(obj.fontUi || "");
+        fontDisplay = String(obj.fontDisplay || "");
+        fontMono = String(obj.fontMono || "");
+        textScale = Math.max(0.8, Math.min(1.4, Number(obj.textScale) || 1));
         brand = obj.brand !== undefined && String(obj.brand).trim().length ? String(obj.brand).trim() : "catalyst";
         writeBrand();
         banner = obj.banner !== undefined && String(obj.banner).trim().length ? String(obj.banner).trim() : "tsu";
@@ -132,6 +141,10 @@ Singleton {
             banner: banner,
             launcherStyle: launcherStyle,
             launcherPos: launcherPos,
+            fontUi: fontUi,
+            fontDisplay: fontDisplay,
+            fontMono: fontMono,
+            textScale: textScale,
             trueTone: trueTone,
             trueToneStrength: trueToneStrength,
             nightLight: nightLight,

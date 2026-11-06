@@ -19,6 +19,7 @@ FocusScope {
     readonly property var pages: [
         { id: "themes", label: "Thèmes", icon: "palette", desc: "Couleurs, effets, thèmes personnalisés" },
         { id: "wall", label: "Fond d'écran", icon: "wallpaper", desc: "Image par écran, sources" },
+        { id: "fonts", label: "Polices", icon: "font_download", desc: "Polices du rice, taille du texte, applis GTK" },
         { id: "bar", label: "Barre", icon: "toolbar", desc: "Style, éléments, ordre" },
         { id: "dock", label: "Dock", icon: "dock_to_bottom", desc: "Position, taille, applications" },
         { id: "desk", label: "Bureau", icon: "dashboard_customize", desc: "Widgets et disposition" },
@@ -59,7 +60,7 @@ FocusScope {
     readonly property var current: pages.find(p => p.id === page) || pages[0]
     readonly property int currentIndex: pages.indexOf(current)
     readonly property var groups: [
-        { label: "Apparence", ids: ["themes", "wall"] },
+        { label: "Apparence", ids: ["themes", "wall", "fonts"] },
         { label: "Espace de travail", ids: ["bar", "dock", "desk"] },
         { label: "Système", ids: ["panels", "terminal", "profiles", "sekaipop"] }
     ]
@@ -332,6 +333,7 @@ FocusScope {
                         switch (root.page) {
                         case "themes": return "ThemesPage.qml";
                         case "wall": return "WallPage.qml";
+                        case "fonts": return "FontsPage.qml";
                         case "bar": return "BarPage.qml";
                         case "dock": return "DockPage.qml";
                         case "desk": return "DeskPage.qml";

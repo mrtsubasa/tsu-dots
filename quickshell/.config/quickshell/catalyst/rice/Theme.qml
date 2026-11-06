@@ -133,9 +133,13 @@ Singleton {
     // =====================================================================
     // Typographie
     // =====================================================================
-    readonly property string uiFont: "Inter"
-    readonly property string displayFont: "Space Grotesk"
-    readonly property string monoFont: "JetBrainsMono Nerd Font"
+    // valeurs par défaut du design system ; Studio → Polices peut les remplacer
+    readonly property string defaultUiFont: "Inter"
+    readonly property string defaultDisplayFont: "Space Grotesk"
+    readonly property string defaultMonoFont: "JetBrainsMono Nerd Font"
+    readonly property string uiFont: ShellCfg.fontUi.length ? ShellCfg.fontUi : defaultUiFont
+    readonly property string displayFont: ShellCfg.fontDisplay.length ? ShellCfg.fontDisplay : defaultDisplayFont
+    readonly property string monoFont: ShellCfg.fontMono.length ? ShellCfg.fontMono : defaultMonoFont
     readonly property string iconFont: "Material Symbols Rounded"
     // glyphes Nerd Font des anciens modules
     readonly property string font: "JetBrainsMono Nerd Font"
