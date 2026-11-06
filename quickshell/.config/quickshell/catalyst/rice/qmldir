@@ -15,6 +15,7 @@ singleton OmarchyRice OmarchyRice.qml
 singleton ShellCfg ShellCfg.qml
 singleton TermCfg TermCfg.qml
 singleton Fonts Fonts.qml
+singleton Profile Profile.qml
 singleton Players Players.qml
 singleton Notifs Notifs.qml
 singleton Bright Bright.qml

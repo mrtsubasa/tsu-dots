@@ -106,6 +106,12 @@ Item {
                         radius: Identity.avatarShape === "square" ? Tokens.rSm : (Identity.avatarShape === "soft" ? Tokens.rMd : 23)
                         fallbackIcon: "person"
                     }
+                    // clic : carte de profil complète
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: PanelService.show("profile")
+                    }
                     // pastille « en ligne »
                     Rectangle {
                         anchors.right: parent.right

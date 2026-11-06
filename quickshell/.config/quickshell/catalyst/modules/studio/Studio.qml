@@ -23,7 +23,8 @@ FocusScope {
         { id: "bar", label: "Barre", icon: "toolbar", desc: "Style, éléments, ordre" },
         { id: "dock", label: "Dock", icon: "dock_to_bottom", desc: "Position, taille, applications" },
         { id: "desk", label: "Bureau", icon: "dashboard_customize", desc: "Widgets et disposition" },
-        { id: "panels", label: "Profil & interface", icon: "manage_accounts", desc: "Avatar, nom, densité, animations, OSD" },
+        { id: "profile", label: "Profil", icon: "account_circle", desc: "Avatar, bannière, bio, liens, centres d'intérêt" },
+        { id: "panels", label: "Interface", icon: "tune", desc: "Marque, launcher, densité, animations, OSD" },
         { id: "terminal", label: "Terminal", icon: "terminal", desc: "Accueil, bannière, Pokémon, police, opacité" },
         { id: "profiles", label: "Profils", icon: "bookmarks", desc: "Sauvegarder et restaurer" },
         { id: "sekaipop", label: "SekaiPop", icon: "tune", desc: "Petite barre, OSD, service" }
@@ -62,7 +63,7 @@ FocusScope {
     readonly property var groups: [
         { label: "Apparence", ids: ["themes", "wall", "fonts"] },
         { label: "Espace de travail", ids: ["bar", "dock", "desk"] },
-        { label: "Système", ids: ["panels", "terminal", "profiles", "sekaipop"] }
+        { label: "Système", ids: ["profile", "panels", "terminal", "profiles", "sekaipop"] }
     ]
     readonly property string themeLabel: Themes.active.length ? (Themes.byId(Themes.active) ? Themes.byId(Themes.active).label : Themes.active) : (Theme.mode === "auto" ? "Material You" : "Palette " + Palettes.current)
 
@@ -337,6 +338,7 @@ FocusScope {
                         case "bar": return "BarPage.qml";
                         case "dock": return "DockPage.qml";
                         case "desk": return "DeskPage.qml";
+                        case "profile": return "ProfilePage.qml";
                         case "panels": return "PanelsPage.qml";
                         case "terminal": return "TerminalPage.qml";
                         case "profiles": return "ProfilesPage.qml";

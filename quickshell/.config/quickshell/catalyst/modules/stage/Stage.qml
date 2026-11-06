@@ -24,13 +24,13 @@ Scope {
             readonly property bool here: PanelService.onScreen(modelData)
             readonly property string want: here ? PanelService.active : ""
 
-            readonly property bool anyShown: cc.shown || cal.shown || media.shown || power.shown || sysmon.shown || launcher.shown || studio.shown || clip.shown || binds.shown || containers.shown || arsenal.shown || sono.shown || vmSurface.shown || proton.shown || cam.shown || dash.shown
+            readonly property bool anyShown: cc.shown || cal.shown || media.shown || power.shown || sysmon.shown || launcher.shown || studio.shown || clip.shown || binds.shown || containers.shown || arsenal.shown || sono.shown || vmSurface.shown || proton.shown || cam.shown || dash.shown || profileSurface.shown
             visible: anyShown
             color: "transparent"
             exclusionMode: ExclusionMode.Ignore
             WlrLayershell.namespace: "catalyst-stage"
             WlrLayershell.layer: WlrLayer.Overlay
-            WlrLayershell.keyboardFocus: want.length && (cc.open || cal.open || media.open || power.open || sysmon.open || launcher.open || studio.open || clip.open || binds.open || containers.open || arsenal.open || sono.open || vmSurface.open || proton.open || cam.open || dash.open) ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+            WlrLayershell.keyboardFocus: want.length && (cc.open || cal.open || media.open || power.open || sysmon.open || launcher.open || studio.open || clip.open || binds.open || containers.open || arsenal.open || sono.open || vmSurface.open || proton.open || cam.open || dash.open || profileSurface.open) ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
             anchors { top: true; bottom: true; left: true; right: true }
 
             // abscisse d'ancrage (centre de l'élément de barre cliqué)
@@ -342,6 +342,34 @@ Scope {
                         sourceComponent: DashPanel {
                             maxHeight: stage.height - Tokens.belowBar - 24
                             focus: true
+                        }
+                    }
+                }
+
+                // ---- carte de profil (clic sur l'avatar du centre de contrôle) ----
+                Popout {
+                    id: profileSurface
+                    open: stage.want === "profile"
+                    from: "top"
+                    distance: 16
+                    width: profileLoader.item ? profileLoader.item.implicitWidth : 0
+                    height: profileLoader.item ? profileLoader.item.implicitHeight : 0
+                    x: stage.placeX(width)
+                    y: Tokens.belowBar
+                    Loader {
+                        id: profileLoader
+                        anchors.fill: parent
+                        active: profileSurface.open || profileSurface.shown
+                        focus: profileSurface.open
+                        sourceComponent: FocusScope {
+                            implicitWidth: 420
+                            implicitHeight: profileCard.implicitHeight
+                            focus: true
+                            Keys.onEscapePressed: PanelService.hide()
+                            ProfileCard {
+                                id: profileCard
+                                width: parent.width
+                            }
                         }
                     }
                 }

@@ -9,35 +9,11 @@ ColumnLayout {
     id: root
     spacing: 16
 
-    SectionHeader { Layout.fillWidth: true; text: "Profil" }
+    SectionHeader { Layout.fillWidth: true; text: "Interface" }
 
     Group {
         Layout.fillWidth: true
 
-        SettingRow {
-            Layout.fillWidth: true
-            title: Identity.userName
-            subtitle: Identity.userStatus.length ? Identity.userStatus : "Avatar, nom et statut (centre de contrôle, verrouillage)"
-            Art {
-                width: 44
-                height: 44
-                source: Identity.hasAvatar ? Identity.avatar : ""
-                radius: Identity.avatarShape === "square" ? Tokens.rSm : (Identity.avatarShape === "soft" ? Tokens.rMd : 22)
-                fallbackIcon: "person"
-            }
-            Button { variant: "secondary"; icon: "add_photo_alternate"; text: "Choisir…"; onClicked: Identity.pickAvatar() }
-            IconButton { icon: "hide_image"; size: 32; iconSize: 17; tooltip: "Retirer l'avatar"; onClicked: Identity.studio("avatar:none") }
-        }
-        SettingRow {
-            Layout.fillWidth: true
-            icon: "badge"
-            title: "Nom affiché"
-            Field {
-                width: 220
-                placeholder: Identity.userName
-                onAccepted: t => { if (t.trim().length) Identity.studio("name:" + t.trim()); text = ""; }
-            }
-        }
         SettingRow {
             Layout.fillWidth: true
             icon: "diamond"
@@ -57,34 +33,6 @@ ColumnLayout {
                 onClicked: ShellCfg.setBrand("catalyst")
             }
         }
-        SettingRow {
-            Layout.fillWidth: true
-            icon: "chat_bubble"
-            title: "Statut"
-            Field {
-                width: 220
-                placeholder: Identity.userStatus || "ex. Développeur"
-                onAccepted: t => { Identity.studio("status:" + t.trim()); text = ""; }
-            }
-        }
-        SettingRow {
-            Layout.fillWidth: true
-            icon: "crop_square"
-            title: "Forme de l'avatar"
-            Segmented {
-                compact: true
-                model: [{ id: "circle", label: "Cercle" }, { id: "soft", label: "Doux" }, { id: "square", label: "Carré" }]
-                current: Identity.avatarShape
-                onSelected: id => Identity.studio("shape:" + id)
-            }
-        }
-    }
-
-    SectionHeader { Layout.fillWidth: true; text: "Interface" }
-
-    Group {
-        Layout.fillWidth: true
-
         SettingRow {
             Layout.fillWidth: true
             icon: "apps"
