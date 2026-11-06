@@ -22,6 +22,8 @@ Singleton {
     property string theme: ""
     // mot de marque affiché dans l'interface (en-têtes, launcher, verrouillage…)
     property string brand: "catalyst"
+    // texte de la bannière en lettres blocs affichée à l'ouverture d'un terminal (tsu banner)
+    property string banner: "tsu"
     // affichage : True Tone (blanc adapté à la lumière estimée), lumière nocturne
     property bool trueTone: false
     property real trueToneStrength: 0.7
@@ -35,6 +37,7 @@ Singleton {
     // éditeur pour ouvrir un projet depuis le launcher (commande)
     property string editor: "code"
     readonly property string brandPath: Quickshell.env("HOME") + "/.cache/catalyst/brand"
+    readonly property string bannerPath: Quickshell.env("HOME") + "/.cache/catalyst/banner"
     // true une fois le premier chargement terminé (sécurise Themes/Atelier)
     property bool fileReady: false
 
@@ -78,12 +81,27 @@ Singleton {
             autoGameMode = !!obj.autoGameMode;
         brand = obj.brand !== undefined && String(obj.brand).trim().length ? String(obj.brand).trim() : "catalyst";
         writeBrand();
+        banner = obj.banner !== undefined && String(obj.banner).trim().length ? String(obj.banner).trim() : "tsu";
+        writeBanner();
     }
 
     // copie lisible par les scripts et hyprlock
     function writeBrand() {
         brandProc.command = ["sh", "-c", "mkdir -p \"$(dirname \"$1\")\" && printf '%s' \"$2\" > \"$1\"", "_", brandPath, brand];
         brandProc.running = true;
+    }
+
+    // copie lue par `tsu banner` au lancement de zsh
+    function writeBanner() {
+        bannerProc.command = ["sh", "-c", "mkdir -p \"$(dirname \"$1\")\" && printf '%s' \"$2\" > \"$1\"", "_", bannerPath, banner];
+        bannerProc.running = true;
+    }
+
+    function setBanner(v) {
+        const t = String(v || "").trim().slice(0, 16);
+        banner = t.length ? t : "tsu";
+        save();
+        writeBanner();
     }
 
     function setBrand(v) {
@@ -105,6 +123,7 @@ Singleton {
             palette: palette,
             theme: theme,
             brand: brand,
+            banner: banner,
             trueTone: trueTone,
             trueToneStrength: trueToneStrength,
             nightLight: nightLight,
@@ -150,5 +169,9 @@ Singleton {
 
     Process {
         id: brandProc
+    }
+
+    Process {
+        id: bannerProc
     }
 }

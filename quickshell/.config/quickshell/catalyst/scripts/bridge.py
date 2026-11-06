@@ -1380,7 +1380,7 @@ def ops_set_target(v: str):
     return {"ok": True, "target": ops_target(), "status": "cible enregistrée"}
 
 
-BA_CACHE = Path("/tmp/ba-tools.cache")
+BA_CACHE = Path(os.environ.get("XDG_RUNTIME_DIR", "/tmp")) / "ba-tools.cache"
 BA_RECENTS = HOME / ".cache/blackarch-recent"
 
 OSINT_KINDS = [

@@ -33,6 +33,7 @@ STOW_DIRS=(
     "fastfetch"     # System info
     "kde"           # KDE globals (terminal, fonts, icons)
     "theming"       # Qt5/Qt6/GTK theme configuration
+    "niri"          # Catalyst helper scripts (~/.config/niri/scripts)
 )
 
 # =============================================================================

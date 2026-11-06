@@ -1,10 +1,8 @@
 # === VISUAL FETCH ===
 # Running before P10k instant prompt to prevent warnings
 # if [[ $(pgrep -cx kitty) -le 1 ]] && command -v fastfetch >/dev/null 2>&1; then
-  echo -e "\e[1;34m"
-  echo "  █   █▄█ █▄ █ █▀▀"
-  echo "  █▄▄  █  █ ▀█ ██▄"
-  echo -e "\e[0m"
+  # texte réglable dans Studio → Profil & interface → Bannière du terminal
+  command -v tsu >/dev/null 2>&1 && tsu banner
   fastfetch
 # fi
 

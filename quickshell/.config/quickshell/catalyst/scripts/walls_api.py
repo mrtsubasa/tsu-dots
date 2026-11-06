@@ -15,7 +15,7 @@ Commandes
   dl     <source> <id> <url> [sfw|nsfw]  -> {ok, path} | {error}
 
 Filtrage : SFW verrouillé sur chaque source (purity/rating).
-La clé Gelbooru est lue au vol depuis le script rofi existant (jamais dupliquée).
+La clé Gelbooru est lue dans ~/.config/catalyst/secrets.env (hors dépôt).
 """
 import json
 import os
@@ -28,7 +28,7 @@ HOME = os.path.expanduser("~")
 WALLDIR = os.path.join(HOME, ".config", "quickshell", "catalyst", "wallpapers")
 SAFE_RATINGS = ("sfw", "s", "safe", "general", "g")
 UA = "Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0"
-GELBOORU_SH = os.path.join(HOME, ".config", "niri", "scripts", "gelbooru_wallpaper.sh")
+SECRETS_ENV = os.path.join(HOME, ".config", "catalyst", "secrets.env")
 
 LIMIT = 24
 
@@ -51,16 +51,21 @@ def die(msg):
 
 
 def gelbooru_auth():
-    """Récupère la chaîne d'auth Gelbooru depuis le script existant (ta clé)."""
-    try:
-        with open(GELBOORU_SH, "r", encoding="utf-8") as f:
-            txt = f.read()
-        key = re.search(r'API_KEY="([^"]+)"', txt)
-        uid = re.search(r'USER_ID="([^"]+)"', txt)
-        if key and uid and key.group(1) and uid.group(1):
-            return "&api_key=%s&user_id=%s" % (key.group(1), uid.group(1))
-    except OSError:
-        pass
+    """Chaîne d'auth Gelbooru : variables d'environnement, sinon ~/.config/catalyst/secrets.env."""
+    key = os.environ.get("GELBOORU_API_KEY", "")
+    uid = os.environ.get("GELBOORU_USER_ID", "")
+    if not (key and uid):
+        try:
+            with open(SECRETS_ENV, "r", encoding="utf-8") as f:
+                txt = f.read()
+            mk = re.search(r'^GELBOORU_API_KEY="?([^"\n]*)"?', txt, re.M)
+            mu = re.search(r'^GELBOORU_USER_ID="?([^"\n]*)"?', txt, re.M)
+            key = key or (mk.group(1) if mk else "")
+            uid = uid or (mu.group(1) if mu else "")
+        except OSError:
+            pass
+    if key and uid:
+        return "&api_key=%s&user_id=%s" % (key, uid)
     return ""  # Gelbooru fonctionne sans clé (throttle plus agressif)
 
 

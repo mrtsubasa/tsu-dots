@@ -1,28 +1,27 @@
 /* COLORS:BEGIN — généré par matugen, ne pas éditer */
 /* GÉNÉRÉ PAR MATUGEN — couleurs GTK (système + Thunar glassmorphism) */
 
-@define-color accent_bg_color #c0f3ff;
-@define-color accent_color #c0f3ff;
-@define-color accent_fg_color #00363e;
-@define-color window_bg_color #0e1416;
-@define-color window_fg_color #dde4e5;
-@define-color view_bg_color #0e1416;
-@define-color view_fg_color #dde4e5;
-@define-color headerbar_bg_color #1a2122;
-@define-color headerbar_fg_color #dde4e5;
-@define-color card_bg_color #1a2122;
-@define-color card_fg_color #dde4e5;
-@define-color popover_bg_color #1a2122;
-@define-color popover_fg_color #dde4e5;
+@define-color accent_bg_color #ffafd3;
+@define-color accent_color #ffafd3;
+@define-color accent_fg_color #620040;
+@define-color window_bg_color #1a1115;
+@define-color window_fg_color #f0dee3;
+@define-color view_bg_color #1a1115;
+@define-color view_fg_color #f0dee3;
+@define-color headerbar_bg_color #271d21;
+@define-color headerbar_fg_color #f0dee3;
+@define-color card_bg_color #271d21;
+@define-color card_fg_color #f0dee3;
+@define-color popover_bg_color #271d21;
+@define-color popover_fg_color #f0dee3;
 
 /* Thunar RAKUZAN glassmorphism */
-@define-color thunar_bg #0e1416;
-@define-color thunar_sidebar #161d1e;
-@define-color thunar_accent #c0f3ff;
-@define-color thunar_gold #f4e6ff;
-@define-color thunar_text #dde4e5;
-@define-color thunar_text_muted #bbc9cd;
-@define-color text #dde4e5;
-@define-color text-main #dde4e5;
+@define-color thunar_bg #1a1115;
+@define-color thunar_sidebar #23191d;
+@define-color thunar_accent #ffafd3;
+@define-color thunar_gold #ffb4a1;
+@define-color thunar_text #f0dee3;
+@define-color thunar_text_muted #dac0c9;
+@define-color text #f0dee3;
+@define-color text-main #f0dee3;
 /* COLORS:END */
-@import 'colors.css';

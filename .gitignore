@@ -36,3 +36,6 @@ __pycache__/
 
 # Fonds d'écran du rice (2 Go, rangés sfw/ nsfw/) : jamais suivis par git
 quickshell/.config/quickshell/catalyst/wallpapers/
+
+# Scripts Catalyst : restes non utilisés
+niri/.config/niri/scripts/screenshot_lock.png
