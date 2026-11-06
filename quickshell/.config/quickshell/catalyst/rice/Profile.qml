@@ -174,6 +174,19 @@ Singleton {
                 console.log("[Profile] parse error", e);
             }
         }
+        // fichier absent (jamais rempli, ou supprimé) : profil vide, pas de reste en mémoire
+        onLoadFailed: root.reset()
+    }
+
+    function reset() {
+        banner = "";
+        bannerY = 0.5;
+        pronouns = "";
+        bio = "";
+        location = "";
+        website = "";
+        links = ({});
+        tags = [];
     }
 
     Process { id: saveProc }
