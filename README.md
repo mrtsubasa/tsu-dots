@@ -48,7 +48,7 @@ La doc détaillée du shell (surfaces, architecture, IPC, thèmes, rollback) est
 
 ## 📦 Installation
 
-> ⚠️ **C'est ma config perso.** Elle tourne sur CachyOS avec deux écrans 1080p. Certains raccourcis appellent encore des scripts de `~/.config/niri/scripts/`, qui ne sont pas dans ce dépôt : ils ne feront rien chez toi tant que tu ne les remplaces pas. Lis la config avant de l'installer.
+> ⚠️ **C'est ma config perso.** Elle tourne sur CachyOS avec deux écrans 1080p et suppose pas mal d'outils installés (rofi, alacritty, awww, mpvpaper…). Lis la config avant de l'installer.
 
 ```bash
 git clone https://github.com/mrtsubasa/tsu-dots.git ~/.tsu-dots
@@ -110,6 +110,9 @@ La liste complète est dans [`keybinds.lua`](hyprland/.config/hypr/conf.d/keybin
 | `tsu update` | récupérer les mises à jour et lancer les migrations |
 | `tsu git …` | git dans le dossier des dotfiles |
 | `tsu reload` | recharger Quickshell |
+| `tsu banner [texte]` | afficher la bannière du terminal (ou prévisualiser un autre texte) |
+
+La bannière en lettres blocs affichée à l'ouverture d'un terminal se règle dans **Studio → Profil & interface → Bannière du terminal**.
 
 > `tsu update` fait un `git reset --hard` avant de mettre à jour : commite tes modifications avant.
 
@@ -127,8 +130,11 @@ Chaque dossier à la racine est un paquet Stow lié dans `$HOME`.
 | `zsh/`, `tmux/`, `kitty/`, `fastfetch/` | terminal |
 | `theming/`, `kde/` | GTK 3/4, Qt5/6, kdeglobals |
 | `local/` | scripts perso, binaire `tsu` |
+| `niri/` | scripts appelés par les raccourcis (`~/.config/niri/scripts/` : menus rofi, fonds d'écran, captures, audio…) |
 | `.install/` | scripts d'installation |
 | `.data/` | thèmes, templates matugen, tsu-cli, fonds par défaut |
+
+Les clés d'API (ex. Gelbooru) vont dans `~/.config/catalyst/secrets.env`, jamais dans le dépôt.
 
 Les réglages propres à la machine (écrans, autostart, variables, raccourcis locaux) vont dans `~/.config/hypr/local/` et ne sont pas suivis par git.
 
