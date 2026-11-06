@@ -220,40 +220,28 @@ Rectangle {
         y: root.bannerH - root.avatarSize / 2 - 10
         width: root.avatarSize + 10
         height: width
-        readonly property real r: Identity.avatarShape === "square" ? Tokens.rMd : (Identity.avatarShape === "soft" ? Tokens.rLg + 4 : width / 2)
-
         // lueur
-        Rectangle {
+        Item {
             anchors.fill: parent
             anchors.margins: -6
-            radius: avatarBox.r + 6
-            color: Qt.alpha(Theme.accent, 0.35)
             layer.enabled: true
             layer.effect: MultiEffect { blurEnabled: true; blur: 1.0; blurMax: 32 }
+            ShapeFill { anchors.fill: parent; anchors.margins: 6; color: Qt.alpha(Theme.accent, 0.35) }
         }
         // anneau en dégradé
-        Rectangle {
+        ShapeFill {
             anchors.fill: parent
-            radius: avatarBox.r
-            gradient: Gradient {
-                orientation: Gradient.Horizontal
-                GradientStop { position: 0; color: Theme.accent }
-                GradientStop { position: 1; color: Theme.electric }
-            }
+            gradient: [Theme.accent, Theme.electric]
         }
-        Rectangle {
+        ShapeFill {
             anchors.fill: parent
             anchors.margins: 3
-            radius: Math.max(0, avatarBox.r - 3)
             color: Theme.s1
         }
-        Art {
+        Avatar {
             anchors.centerIn: parent
             width: root.avatarSize
             height: width
-            source: Identity.hasAvatar ? Identity.avatar : ""
-            radius: Identity.avatarShape === "square" ? Tokens.rSm : (Identity.avatarShape === "soft" ? Tokens.rMd + 2 : width / 2)
-            fallbackIcon: "person"
         }
     }
 

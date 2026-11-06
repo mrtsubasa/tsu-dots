@@ -120,21 +120,15 @@ FocusScope {
             Item {
                 implicitWidth: 70
                 implicitHeight: 70
-                readonly property real r: Identity.avatarShape === "square" ? Tokens.rMd : (Identity.avatarShape === "soft" ? Tokens.rLg : 35)
-                Rectangle {
+                ShapeFill {
                     anchors.fill: parent
-                    radius: parent.r + 4
-                    color: "transparent"
-                    border.width: 2
-                    border.color: root.destructiveArmed ? Theme.error : Theme.accent
-                    Behavior on border.color { ColorAnimation { duration: Motion.dur(Motion.fast) } }
+                    stroke: 2
+                    strokeColor: root.destructiveArmed ? Theme.error : Theme.accent
+                    Behavior on strokeColor { ColorAnimation { duration: Motion.dur(Motion.fast) } }
                 }
-                Art {
+                Avatar {
                     anchors.fill: parent
                     anchors.margins: 5
-                    source: Identity.hasAvatar ? Identity.avatar : ""
-                    radius: Math.max(0, parent.r - 1)
-                    fallbackIcon: "person"
                 }
                 // pastille d'état
                 Rectangle {

@@ -108,13 +108,10 @@ FocusScope {
                         tone: Theme.accent
                         alert: false
                     }
-                    Art {
+                    Avatar {
                         anchors.centerIn: parent
                         width: 60
                         height: 60
-                        source: Identity.hasAvatar ? Identity.avatar : ""
-                        radius: Identity.avatarShape === "square" ? Tokens.rMd : width / 2
-                        fallbackIcon: "person"
                     }
                 }
 

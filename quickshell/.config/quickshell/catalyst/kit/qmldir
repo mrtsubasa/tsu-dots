@@ -33,3 +33,5 @@ Kbd 1.0 Kbd.qml
 KeyHints 1.0 KeyHints.qml
 PanelHead 1.0 PanelHead.qml
 Banner 1.0 Banner.qml
+ShapeFill 1.0 ShapeFill.qml
+Avatar 1.0 Avatar.qml

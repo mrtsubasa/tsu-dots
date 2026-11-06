@@ -4,6 +4,7 @@ import QtQuick.Layouts
 import qs.rice
 import qs.kit
 import "../stage"
+import "../../kit/shapes.js" as Shapes
 
 // Profil : identité (avatar, nom, pronoms, statut), bannière, bio, liens et
 // centres d'intérêt, avec la carte en aperçu. Les infos étendues sont gardées
@@ -46,13 +47,67 @@ ColumnLayout {
         }
         SettingRow {
             Layout.fillWidth: true
-            icon: "crop_square"
+            icon: "interests"
             title: "Forme de l'avatar"
-            Segmented {
-                compact: true
-                model: [{ id: "circle", label: "Cercle" }, { id: "soft", label: "Doux" }, { id: "square", label: "Carré" }]
-                current: Identity.avatarShape
-                onSelected: id => Identity.studio("shape:" + id)
+            subtitle: (Shapes.list.find(s => s.id === Identity.avatarShape) || Shapes.list[0]).label + " — partout : centre de contrôle, tableau de bord, menu d'alimentation, carte"
+        }
+        Flow {
+            Layout.fillWidth: true
+            Layout.leftMargin: 16
+            Layout.rightMargin: 16
+            Layout.bottomMargin: 12
+            spacing: 8
+            Repeater {
+                model: Shapes.list
+                Item {
+                    id: shp
+                    required property var modelData
+                    readonly property bool on: Identity.avatarShape === modelData.id
+                    width: 74
+                    height: 82
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: Tokens.rMd
+                        color: shp.on ? Qt.alpha(Theme.accent, 0.12) : "transparent"
+                        border.width: 1
+                        border.color: shp.on ? Qt.alpha(Theme.accent, 0.4) : "transparent"
+                        Behavior on color { ColorAnimation { duration: Motion.dur(Motion.fast) } }
+                    }
+                    StateLayer {
+                        id: shpTap
+                        anchors.fill: parent
+                        radius: Tokens.rMd
+                        hoverAlpha: shp.on ? 0 : 0.05
+                        onClicked: Identity.studio("shape:" + shp.modelData.id)
+                    }
+                    ShapeFill {
+                        x: (parent.width - 50) / 2
+                        y: 8
+                        width: 50
+                        height: 50
+                        shape: shp.modelData.id
+                        stroke: 2
+                        strokeColor: Theme.accent
+                        visible: shp.on
+                    }
+                    Avatar {
+                        x: (parent.width - 42) / 2
+                        y: 12
+                        width: 42
+                        height: 42
+                        shape: shp.modelData.id
+                        scale: shpTap.containsMouse && !shp.on ? 1.06 : 1
+                        Behavior on scale { NumberAnimation { duration: Motion.dur(Motion.fast); easing.type: Easing.OutCubic } }
+                    }
+                    Txt {
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.bottom: parent.bottom
+                        anchors.bottomMargin: 6
+                        role: "caption"
+                        text: shp.modelData.label
+                        color: shp.on ? Theme.accent : Theme.textSub
+                    }
+                }
             }
         }
         SettingRow {

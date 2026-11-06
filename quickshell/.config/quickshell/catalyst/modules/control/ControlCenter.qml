@@ -100,12 +100,7 @@ Item {
                 Item {
                     Layout.preferredWidth: 46
                     Layout.preferredHeight: 46
-                    Art {
-                        anchors.fill: parent
-                        source: Identity.hasAvatar ? Identity.avatar : ""
-                        radius: Identity.avatarShape === "square" ? Tokens.rSm : (Identity.avatarShape === "soft" ? Tokens.rMd : 23)
-                        fallbackIcon: "person"
-                    }
+                    Avatar { anchors.fill: parent }
                     // clic : carte de profil complète
                     MouseArea {
                         anchors.fill: parent
