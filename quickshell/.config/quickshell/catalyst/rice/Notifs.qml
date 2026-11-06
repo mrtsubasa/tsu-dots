@@ -94,7 +94,9 @@ Singleton {
     }
 
     function lifeFor(n) {
-        return hasInvoke(n) ? 12000 : 6500;
+        const base = hasInvoke(n) ? 12000 : 6500;
+        // durée réglable (Studio → Interface), base calée sur 6 s
+        return Math.round(base * ShellCfg.notifDuration / 6);
     }
 
     function remain(n) {

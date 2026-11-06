@@ -15,8 +15,12 @@ Scope {
             id: win
             required property var modelData
             screen: modelData
-            readonly property int maxShown: 3
+            readonly property int maxShown: ShellCfg.notifMax
             readonly property int total: Notifs.popupCount
+            // coin d'affichage réglable (Studio → Interface)
+            readonly property var posParts: ShellCfg.notifPos.split("-")
+            readonly property bool atBottom: posParts[0] === "bottom"
+            readonly property string side: posParts[1] || "right"
             readonly property bool here: modelData.name === (Niri.focusedOutput || (Quickshell.screens.length ? Quickshell.screens[0].name : ""))
 
             visible: total > 0 && here && !SessionLock.locked && !Notifs.dnd && PanelService.active !== "control"
@@ -27,8 +31,18 @@ Scope {
             color: "transparent"
             WlrLayershell.namespace: "catalyst-notif"
             WlrLayershell.layer: WlrLayer.Overlay
-            anchors { top: true; right: true }
-            margins { top: Tokens.belowBar - 8; right: Tokens.marginX + 4 }
+            anchors {
+                top: !win.atBottom
+                bottom: win.atBottom
+                right: win.side === "right"
+                left: win.side === "left"
+            }
+            margins {
+                top: win.atBottom ? 0 : Tokens.belowBar - 8
+                bottom: win.atBottom ? Tokens.marginX + 8 : 0
+                right: win.side === "right" ? Tokens.marginX + 4 : 0
+                left: win.side === "left" ? Tokens.marginX + 4 : 0
+            }
 
             Column {
                 id: stack

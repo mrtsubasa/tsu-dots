@@ -45,6 +45,11 @@ Singleton {
     property bool autoGameMode: true
     // éditeur pour ouvrir un projet depuis le launcher (commande)
     property string editor: "code"
+    // notifications (toasts) : coin d'affichage, durée (s), nombre empilé
+    property string notifPos: "top-right"
+    readonly property var notifPositions: ["top-right", "top-left", "top-center", "bottom-right", "bottom-left"]
+    property int notifDuration: 6
+    property int notifMax: 3
     readonly property string brandPath: Quickshell.env("HOME") + "/.cache/catalyst/brand"
     readonly property string bannerPath: Quickshell.env("HOME") + "/.cache/catalyst/banner"
     // true une fois le premier chargement terminé (sécurise Themes/Atelier)
@@ -88,6 +93,9 @@ Singleton {
             editor = String(obj.editor);
         if (obj.autoGameMode !== undefined)
             autoGameMode = !!obj.autoGameMode;
+        notifPos = notifPositions.indexOf(obj.notifPos) >= 0 ? obj.notifPos : "top-right";
+        notifDuration = Math.max(2, Math.min(15, Number(obj.notifDuration) || 6));
+        notifMax = Math.max(1, Math.min(5, Number(obj.notifMax) || 3));
         launcherStyle = ["list", "compact", "grid", "full", "console"].indexOf(obj.launcherStyle) >= 0 ? obj.launcherStyle : "list";
         launcherPos = ["top", "center", "bottom", "left", "right"].indexOf(obj.launcherPos) >= 0 ? obj.launcherPos : "top";
         fontUi = String(obj.fontUi || "");
@@ -152,7 +160,10 @@ Singleton {
             dndOnShare: dndOnShare,
             rawMic: rawMic,
             autoGameMode: autoGameMode,
-            editor: editor
+            editor: editor,
+            notifPos: notifPos,
+            notifDuration: notifDuration,
+            notifMax: notifMax
         }, null, 2) + "\n";
     }
 

@@ -151,6 +151,63 @@ ColumnLayout {
         }
     }
 
+    SectionHeader { Layout.fillWidth: true; text: "Notifications" }
+
+    Group {
+        Layout.fillWidth: true
+
+        SettingRow {
+            Layout.fillWidth: true
+            icon: "picture_in_picture_alt"
+            title: "Coin d'affichage"
+            subtitle: "Où les notifications apparaissent à l'écran"
+            Segmented {
+                compact: true
+                model: [
+                    { id: "top-left", label: "Haut G." },
+                    { id: "top-center", label: "Haut C." },
+                    { id: "top-right", label: "Haut D." },
+                    { id: "bottom-left", label: "Bas G." },
+                    { id: "bottom-right", label: "Bas D." }
+                ]
+                current: ShellCfg.notifPos
+                onSelected: id => ShellCfg.set("notifPos", id)
+            }
+        }
+        SettingRow {
+            Layout.fillWidth: true
+            icon: "timer"
+            title: "Durée"
+            subtitle: "Temps d'affichage d'une notification (celles avec actions restent plus longtemps)"
+            Slider {
+                width: 200
+                implicitHeight: 30
+                icon: "timer"
+                maximum: 15
+                value: ShellCfg.notifDuration
+                step: 1
+                valueText: ShellCfg.notifDuration + " s"
+                onMoved: v => ShellCfg.set("notifDuration", Math.round(v))
+            }
+        }
+        SettingRow {
+            Layout.fillWidth: true
+            icon: "stacked_bar_chart"
+            title: "Nombre empilé"
+            subtitle: "Combien de notifications visibles à la fois (les suivantes attendent)"
+            Slider {
+                width: 200
+                implicitHeight: 30
+                icon: "stacked_bar_chart"
+                maximum: 5
+                value: ShellCfg.notifMax
+                step: 1
+                valueText: String(ShellCfg.notifMax)
+                onMoved: v => ShellCfg.set("notifMax", Math.round(v))
+            }
+        }
+    }
+
     SectionHeader { Layout.fillWidth: true; text: "Raccourcis utiles" }
 
     Group {
