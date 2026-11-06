@@ -34,6 +34,24 @@ Singleton {
     readonly property string statePath: Quickshell.env("HOME") + "/.cache/catalyst/arsenal-state.json"
     readonly property string script: Quickshell.env("HOME") + "/.config/quickshell/catalyst/scripts/arsenal.py"
 
+    // recettes : nom d'outil → presets (formulaire → commande lancée en terminal)
+    property var recipes: ({})
+    readonly property string recipesPath: Quickshell.env("HOME") + "/.config/quickshell/catalyst/scripts/arsenal-recipes.json"
+    // un outil peut porter plusieurs binaires ; on cherche une recette par nom
+    // de paquet ou par binaire exécutable
+    function recipesFor(name, bins) {
+        if (recipes[name])
+            return recipes[name];
+        const list = bins || [];
+        for (let i = 0; i < list.length; i++)
+            if (recipes[list[i]])
+                return recipes[list[i]];
+        return [];
+    }
+    function hasRecipe(name) {
+        return !!recipes[name];
+    }
+
     function esc(s) {
         return String(s).toLowerCase();
     }
@@ -182,6 +200,53 @@ Singleton {
         Quickshell.execDetached(["bash", "-c", "printf '%s' \"$1\" | wl-copy", "_", name]);
     }
 
+    // construit l'argv d'une recette : chaque {cle} est remplacé par la valeur
+    // du champ ; un arg valant exactement {cle}, optionnel et vide, est retiré.
+    // Renvoie { argv, missing } — missing = champs requis non remplis.
+    function buildRecipe(recipe, values) {
+        const req = {};
+        for (let i = 0; i < (recipe.fields || []).length; i++) {
+            const f = recipe.fields[i];
+            req[f.key] = !!f.req;
+        }
+        const missing = [];
+        const argv = [];
+        for (let j = 0; j < recipe.argv.length; j++) {
+            const tok = recipe.argv[j];
+            const m = /^\{([a-zA-Z0-9_]+)\}$/.exec(tok);
+            if (m) {
+                const v = (values[m[1]] !== undefined ? String(values[m[1]]) : "").trim();
+                if (!v.length) {
+                    if (req[m[1]])
+                        missing.push(m[1]);
+                    continue; // token seul et vide : on saute l'argument
+                }
+                argv.push(v);
+            } else {
+                // substitution inline (ex. URL contenant {domaine})
+                argv.push(tok.replace(/\{([a-zA-Z0-9_]+)\}/g, (full, k) => {
+                    const v = (values[k] !== undefined ? String(values[k]) : "").trim();
+                    if (!v.length && req[k])
+                        missing.push(k);
+                    return v;
+                }));
+            }
+        }
+        return { argv: argv, missing: missing };
+    }
+
+    // lance la commande d'une recette dans un terminal ; les valeurs sont des
+    // arguments discrets (pas d'interprétation shell) → pas d'injection
+    function runRecipe(title, argv) {
+        if (!argv.length)
+            return;
+        pushRecent(argv[0]);
+        PanelService.hide();
+        const sh = "printf '\\033[1;35m%s\\033[0m\\n\\n' \"$*\"; \"$@\"; ec=$?; "
+            + "printf '\\n\\033[2m[terminé — code %s]\\033[0m\\n' \"$ec\"; read -n1 -rs -p 'Touche pour fermer…'";
+        Quickshell.execDetached(["alacritty", "--title", title, "-e", "bash", "-c", sh, "arsenal"].concat(argv));
+    }
+
     // détails d'un outil (binaires, version, url) — à la demande
     property var detail: null
     property string detailFor: ""
@@ -250,6 +315,17 @@ Singleton {
                 root.favorites = d.favorites || [];
                 root.recents = d.recents || [];
             } catch (e) {
+            }
+        }
+    }
+
+    FileView {
+        path: root.recipesPath
+        onLoaded: {
+            try {
+                root.recipes = JSON.parse(text()).recipes || ({});
+            } catch (e) {
+                console.log("[Arsenal] recettes", e);
             }
         }
     }

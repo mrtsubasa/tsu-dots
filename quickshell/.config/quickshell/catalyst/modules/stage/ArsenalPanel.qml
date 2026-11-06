@@ -520,6 +520,37 @@ FocusScope {
                                     text: "Pas d'exécutable direct (bibliothèque, données ou greffon)."
                                 }
 
+                                // recettes : formulaires prêts à lancer
+                                readonly property var recs: Arsenal.recipesFor(toolRow.modelData.n, detCol.det && detCol.det.bins ? detCol.det.bins : [])
+                                Txt {
+                                    visible: detCol.recs.length > 0
+                                    Layout.topMargin: 2
+                                    role: "overline"; color: Theme.textFaint; text: "// recettes — renseigne et lance"
+                                }
+                                Repeater {
+                                    model: detCol.recs
+                                    Rectangle {
+                                        required property var modelData
+                                        Layout.fillWidth: true
+                                        implicitHeight: recipeForm.implicitHeight + 24
+                                        radius: Tokens.rMd
+                                        color: Theme.s1
+                                        border.width: 1
+                                        border.color: Theme.border
+                                        ArsenalRecipe {
+                                            id: recipeForm
+                                            anchors.left: parent.left
+                                            anchors.right: parent.right
+                                            anchors.verticalCenter: parent.verticalCenter
+                                            anchors.leftMargin: 12
+                                            anchors.rightMargin: 12
+                                            recipe: parent.modelData
+                                            tone: toolRow.tone
+                                            toolName: toolRow.modelData.n
+                                        }
+                                    }
+                                }
+
                                 RowLayout {
                                     Layout.fillWidth: true
                                     spacing: 6

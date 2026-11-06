@@ -1,0 +1,73 @@
+{
+  "_doc": "Recettes Arsenal : par binaire, des presets qui ouvrent un formulaire puis lancent la commande dans un terminal. Chaque arg est un token discret (pas de shell), {cle} est remplacé par la valeur du champ. Un arg valant exactement {cle} et optionnel+vide est retiré. fields.type: text|file|dir|int|choice.",
+  "recipes": {
+    "nmap": [
+      { "label": "Scan rapide", "desc": "Ports courants, détection de version", "argv": ["nmap", "-T4", "-sV", "-F", "{cible}"],
+        "fields": [{ "key": "cible", "label": "Cible", "ph": "IP, domaine ou plage (192.168.1.0/24)", "req": true }] },
+      { "label": "Scan complet", "desc": "Tous les ports TCP + scripts par défaut", "argv": ["nmap", "-T4", "-p-", "-sC", "-sV", "{cible}"],
+        "fields": [{ "key": "cible", "label": "Cible", "ph": "IP ou domaine", "req": true }] },
+      { "label": "Ports précis", "desc": "Liste de ports séparés par des virgules", "argv": ["nmap", "-sV", "-p", "{ports}", "{cible}"],
+        "fields": [{ "key": "cible", "label": "Cible", "ph": "IP ou domaine", "req": true }, { "key": "ports", "label": "Ports", "ph": "22,80,443", "req": true }] }
+    ],
+    "ping": [
+      { "label": "Ping", "desc": "Teste si un hôte répond", "argv": ["ping", "-c", "{nombre}", "{hote}"],
+        "fields": [{ "key": "hote", "label": "Hôte", "ph": "exemple.com", "req": true }, { "key": "nombre", "label": "Paquets", "type": "int", "default": "4" }] }
+    ],
+    "dig": [
+      { "label": "Résolution DNS", "desc": "Enregistrements d'un domaine", "argv": ["dig", "{domaine}", "{type}"],
+        "fields": [{ "key": "domaine", "label": "Domaine", "ph": "exemple.com", "req": true }, { "key": "type", "label": "Type", "type": "choice", "options": ["A", "AAAA", "MX", "TXT", "NS", "CNAME", "ANY"], "default": "A" }] }
+    ],
+    "whois": [
+      { "label": "Whois", "desc": "Infos d'enregistrement d'un domaine", "argv": ["whois", "{domaine}"],
+        "fields": [{ "key": "domaine", "label": "Domaine", "ph": "exemple.com", "req": true }] }
+    ],
+    "curl": [
+      { "label": "En-têtes HTTP", "desc": "Récupère seulement les en-têtes", "argv": ["curl", "-sSILk", "{url}"],
+        "fields": [{ "key": "url", "label": "URL", "ph": "https://exemple.com", "req": true }] }
+    ],
+    "whatweb": [
+      { "label": "Empreinte web", "desc": "Technologies d'un site", "argv": ["whatweb", "-a", "3", "{url}"],
+        "fields": [{ "key": "url", "label": "URL", "ph": "https://exemple.com", "req": true }] }
+    ],
+    "subfinder": [
+      { "label": "Sous-domaines", "desc": "Énumération passive", "argv": ["subfinder", "-silent", "-d", "{domaine}"],
+        "fields": [{ "key": "domaine", "label": "Domaine", "ph": "exemple.com", "req": true }] }
+    ],
+    "httpx": [
+      { "label": "Sondes HTTP", "desc": "Statut, titre et techno d'une liste d'hôtes", "argv": ["httpx", "-silent", "-title", "-status-code", "-tech-detect", "-l", "{fichier}"],
+        "fields": [{ "key": "fichier", "label": "Fichier d'hôtes", "type": "file", "ph": "un hôte par ligne", "req": true }] }
+    ],
+    "gobuster": [
+      { "label": "Répertoires web", "desc": "Brute-force de chemins avec une wordlist", "argv": ["gobuster", "dir", "-u", "{url}", "-w", "{wordlist}"],
+        "fields": [{ "key": "url", "label": "URL", "ph": "https://exemple.com", "req": true }, { "key": "wordlist", "label": "Wordlist", "type": "file", "default": "/usr/share/seclists/Discovery/Web-Content/common.txt", "req": true }] }
+    ],
+    "ffuf": [
+      { "label": "Fuzzing de chemins", "desc": "FUZZ dans l'URL", "argv": ["ffuf", "-u", "{url}", "-w", "{wordlist}"],
+        "fields": [{ "key": "url", "label": "URL avec FUZZ", "ph": "https://exemple.com/FUZZ", "req": true }, { "key": "wordlist", "label": "Wordlist", "type": "file", "default": "/usr/share/seclists/Discovery/Web-Content/common.txt", "req": true }] }
+    ],
+    "nikto": [
+      { "label": "Scan serveur web", "desc": "Vulnérabilités connues", "argv": ["nikto", "-h", "{url}"],
+        "fields": [{ "key": "url", "label": "Hôte", "ph": "https://exemple.com", "req": true }] }
+    ],
+    "sslscan": [
+      { "label": "Audit TLS/SSL", "desc": "Protocoles et chiffrements acceptés", "argv": ["sslscan", "{hote}"],
+        "fields": [{ "key": "hote", "label": "Hôte", "ph": "exemple.com:443", "req": true }] }
+    ],
+    "hashid": [
+      { "label": "Identifier un hash", "desc": "Devine le type de hash", "argv": ["hashid", "{hash}"],
+        "fields": [{ "key": "hash", "label": "Hash", "ph": "colle le hash", "req": true }] }
+    ],
+    "exiftool": [
+      { "label": "Métadonnées", "desc": "Lit les métadonnées d'un fichier", "argv": ["exiftool", "{fichier}"],
+        "fields": [{ "key": "fichier", "label": "Fichier", "type": "file", "req": true }] }
+    ],
+    "binwalk": [
+      { "label": "Analyse de firmware", "desc": "Détecte les fichiers embarqués", "argv": ["binwalk", "{fichier}"],
+        "fields": [{ "key": "fichier", "label": "Fichier", "type": "file", "req": true }] }
+    ],
+    "steghide": [
+      { "label": "Extraire (stégano)", "desc": "Sort les données cachées d'une image", "argv": ["steghide", "extract", "-sf", "{fichier}"],
+        "fields": [{ "key": "fichier", "label": "Image", "type": "file", "ph": "image.jpg", "req": true }] }
+    ]
+  }
+}
