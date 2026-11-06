@@ -95,7 +95,8 @@ ShellRoot {
             return PanelService.active;
         }
 
-        // ouvre le Studio sur une page : themes wall bar dock desk panels profiles
+        // ouvre le Studio sur une page (themes wall fonts bar dock desk profile panels apps terminal profiles)
+        // ou directement sur une appli de la page Applications (discord, sekaipop)
         function studio(page: string): string {
             PanelService.studioPage = page || "";
             if (PanelService.active !== "studio")

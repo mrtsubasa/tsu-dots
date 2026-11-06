@@ -105,14 +105,6 @@ ColumnLayout {
 
     SectionHeader {
         Layout.fillWidth: true
-        text: "Applications"
-    }
-    DiscordBg {
-        Layout.fillWidth: true
-    }
-
-    SectionHeader {
-        Layout.fillWidth: true
         text: "Bibliothèque  " + root.shown.length
         actionText: "Ouvrir le dossier"
         actionIcon: "folder_open"

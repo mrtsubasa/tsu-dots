@@ -25,14 +25,24 @@ FocusScope {
         { id: "desk", label: "Bureau", icon: "dashboard_customize", desc: "Widgets et disposition" },
         { id: "profile", label: "Profil", icon: "account_circle", desc: "Avatar, bannière, bio, liens, centres d'intérêt" },
         { id: "panels", label: "Interface", icon: "tune", desc: "Marque, launcher, densité, animations, OSD" },
+        { id: "apps", label: "Applications", icon: "apps", desc: "Discord, SekaiPop, terminaux : un onglet par appli" },
         { id: "terminal", label: "Terminal", icon: "terminal", desc: "Accueil, bannière, Pokémon, police, opacité" },
-        { id: "profiles", label: "Profils", icon: "bookmarks", desc: "Sauvegarder et restaurer" },
-        { id: "sekaipop", label: "SekaiPop", icon: "tune", desc: "Petite barre, OSD, service" }
+        { id: "profiles", label: "Profils", icon: "bookmarks", desc: "Sauvegarder et restaurer" }
     ]
+
+    // une appli peut être demandée directement (« discord », « sekaipop ») : page Applications
+    readonly property var appIds: ["discord", "sekaipop"]
+    function go(p) {
+        if (appIds.indexOf(p) >= 0) {
+            PanelService.studioApp = p;
+            p = "apps";
+        }
+        page = p;
+    }
 
     Component.onCompleted: {
         if (PanelService.studioPage.length) {
-            page = PanelService.studioPage;
+            go(PanelService.studioPage);
             PanelService.studioPage = "";
         }
         forceActiveFocus();
@@ -42,7 +52,7 @@ FocusScope {
         target: PanelService
         function onStudioPageChanged() {
             if (PanelService.studioPage.length) {
-                root.page = PanelService.studioPage;
+                root.go(PanelService.studioPage);
                 PanelService.studioPage = "";
             }
         }
@@ -63,7 +73,7 @@ FocusScope {
     readonly property var groups: [
         { label: "Apparence", ids: ["themes", "wall", "fonts"] },
         { label: "Espace de travail", ids: ["bar", "dock", "desk"] },
-        { label: "Système", ids: ["profile", "panels", "terminal", "profiles", "sekaipop"] }
+        { label: "Système", ids: ["profile", "panels", "apps", "terminal", "profiles"] }
     ]
     readonly property string themeLabel: Themes.active.length ? (Themes.byId(Themes.active) ? Themes.byId(Themes.active).label : Themes.active) : (Theme.mode === "auto" ? "Material You" : "Palette " + Palettes.current)
 
@@ -342,7 +352,7 @@ FocusScope {
                         case "panels": return "PanelsPage.qml";
                         case "terminal": return "TerminalPage.qml";
                         case "profiles": return "ProfilesPage.qml";
-                        case "sekaipop": return "SekaiPopPage.qml";
+                        case "apps": return "AppsPage.qml";
                         }
                         return "";
                     }

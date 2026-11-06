@@ -156,7 +156,7 @@ def main(argv):
                     cmd = "status"  # annulé : rien à enregistrer
             finally:
                 subprocess.run(["qs", "ipc", "-p", os.path.join(HOME, ".config/quickshell/catalyst"),
-                                "call", "panels", "studio", "wall"],
+                                "call", "panels", "studio", "discord"],
                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         elif cmd == "mark":
             words = [w.strip() for w in argv[2:4]]

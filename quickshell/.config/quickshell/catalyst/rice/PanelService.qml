@@ -104,6 +104,8 @@ Singleton {
     property string controlPage: ""
     // page demandée pour le Studio (themes, wall, bar, dock, desk, panels, profiles)
     property string studioPage: ""
+    // appli affichée dans Studio → Applications (discord, sekaipop)
+    property string studioApp: ""
 
     // ancrage horizontal (coordonnées écran) de la surface ouverte depuis un
     // élément de barre : { x: centre, w: largeur }
